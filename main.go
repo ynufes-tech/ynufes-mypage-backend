@@ -10,7 +10,7 @@ func main() {
 		fmt.Fprintln(w, "Welcome to ynufes-mypage-backend")
 	})
 	http.HandleFunc("/hello/", func(w http.ResponseWriter, r *http.Request) {
-		name := r.URL.Path[len("/hello/")]
+		name := r.URL.Path[len("/hello/"):]
 		fmt.Fprintf(w, "Hello %s\n", name)
 	})
 	err := http.ListenAndServe(":1305", nil)
