@@ -13,5 +13,10 @@ func main() {
 		name := r.URL.Path[len("/hello/")]
 		fmt.Fprintf(w, "Hello %s\n", name)
 	})
-	http.ListenAndServe(":1305", nil)
+	err := http.ListenAndServe(":1305", nil)
+	if err != nil {
+		fmt.Println("ERROR")
+		fmt.Println(err)
+		return
+	}
 }
