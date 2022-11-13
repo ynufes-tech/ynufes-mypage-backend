@@ -1,4 +1,4 @@
-package main
+package line
 
 import (
 	"github.com/gin-gonic/gin"
@@ -9,7 +9,7 @@ import (
 
 var stateCache map[string]int64
 
-func reqState(c *gin.Context) {
+func ReqState(c *gin.Context) {
 	var newState string
 	newState = strconv.FormatUint(rand.Uint64(), 10)
 	for _, duplicate := stateCache[newState]; duplicate; {
@@ -20,7 +20,7 @@ func reqState(c *gin.Context) {
 	go revokeOldStates()
 }
 
-func verifyState(entry string) bool {
+func VerifyState(entry string) bool {
 	r, res := stateCache[entry]
 	if !res {
 		return false
