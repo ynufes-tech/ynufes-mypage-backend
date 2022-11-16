@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	"ynufes-mypage-backend/pkg/line"
 )
 
 func main() {
@@ -11,7 +12,8 @@ func main() {
 	router := gin.Default()
 	router.GET("/hello/", testHello)
 	router.GET("/auth/line/callback", lineCallback)
-	//router.GET("/auth/line/reqState", reqState)
+	router.GET("/auth/line/reqState", line.ReqState)
+	//router.GET("auth/line/dev/auth", devAuth)
 	err := router.Run("localhost:1306")
 	if err != nil {
 		fmt.Println("Failed to start server...")
