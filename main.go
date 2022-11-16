@@ -3,9 +3,11 @@ package main
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 )
 
 func main() {
+	loadEnv()
 	router := gin.Default()
 	router.GET("/hello/", testHello)
 	router.GET("/auth/line/callback", lineCallback)
@@ -14,4 +16,8 @@ func main() {
 	if err != nil {
 		fmt.Println("Failed to start server...")
 	}
+}
+
+func loadEnv() {
+	godotenv.Load()
 }
