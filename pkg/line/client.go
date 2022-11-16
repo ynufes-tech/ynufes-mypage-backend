@@ -3,6 +3,7 @@ package line
 import (
 	"encoding/json"
 	"errors"
+	"github.com/go-resty/resty/v2"
 	"io"
 	"net/http"
 	"os"
@@ -28,26 +29,19 @@ func RequestAccessToken(code string) (*AccessTokenResponse, error) {
 		return nil, errors.New("INVALID CODE")
 	}
 
-	client := &http.Client{}
-	uriIssueAccessToken := accessTokenEndpoint + "?grant_type=authorization_code&code=" + code
-	uriIssueAccessToken += "&redirect_uri=" + redirectUri
-	uriIssueAccessToken += "&client_id=" + clientId
-	uriIssueAccessToken += "&client_secret=" + clientSecret
-	req, err := http.NewRequest("GET", uriIssueAccessToken, nil)
-	if err != nil {
-		return nil, err
-	}
-	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-	resp, err := client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
 	var credential AccessTokenResponse
-	err = json.Unmarshal(body, &credential)
+	client := resty.New()
+	_, err := client.R().
+		SetFormData(map[string]string{
+			"grant_type":    "authorization_code",
+			"code":          code,
+			"redirect_uri":  redirectUri,
+			"client_id":     clientId,
+			"client_secret": clientSecret,
+		}).
+		SetHeader("Content-Type", "application/x-www-form-urlencoded").
+		SetResult(&credential).
+		Get(accessTokenEndpoint)
 	if err != nil {
 		return nil, err
 	}

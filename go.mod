@@ -23,4 +23,5 @@ require (
 	golang.org/x/text v0.4.0 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
+	github.com/go-resty/resty/v2 v2.7.0
 )
