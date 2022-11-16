@@ -10,14 +10,20 @@ import (
 var stateCache = make(map[string]int64)
 
 func ReqState(c *gin.Context) {
+	newState := IssueNewState()
+	c.Writer.WriteString(newState)
+	stateCache[newState] = time.Now().Unix()
+	go revokeOldStates()
+}
+
+// IssueNewState has to be private method in deployment use
+func IssueNewState() string {
 	var newState string
 	newState = strconv.FormatUint(rand.Uint64(), 10)
 	for _, duplicate := stateCache[newState]; duplicate; {
 		newState = strconv.FormatUint(rand.Uint64(), 10)
 	}
-	c.Writer.WriteString(newState)
-	stateCache[newState] = time.Now().Unix()
-	go revokeOldStates()
+	return newState
 }
 
 func VerifyState(entry string) bool {
