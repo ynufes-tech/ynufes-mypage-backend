@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-var stateCache map[string]int64
+var stateCache = make(map[string]int64)
 
 func ReqState(c *gin.Context) {
 	var newState string
