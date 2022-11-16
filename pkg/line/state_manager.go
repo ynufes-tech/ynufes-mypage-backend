@@ -12,7 +12,6 @@ var stateCache = make(map[string]int64)
 func ReqState(c *gin.Context) {
 	newState := IssueNewState()
 	c.Writer.WriteString(newState)
-	stateCache[newState] = time.Now().Unix()
 	go revokeOldStates()
 }
 
@@ -23,6 +22,7 @@ func IssueNewState() string {
 	for _, duplicate := stateCache[newState]; duplicate; {
 		newState = strconv.FormatUint(rand.Uint64(), 10)
 	}
+	stateCache[newState] = time.Now().Unix()
 	return newState
 }
 
