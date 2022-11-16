@@ -23,7 +23,7 @@ func RequestAccessToken(code string) (*AccessTokenResponse, error) {
 	redirectUri := os.Getenv(EnvLineRedirectUri)
 
 	//prevent injection vulnerability
-	reNum := regexp.MustCompile("^\\d+$")
+	reNum := regexp.MustCompile("^[0-9A-Za-z]+$")
 	if !reNum.MatchString(code) {
 		return nil, errors.New("INVALID CODE")
 	}
