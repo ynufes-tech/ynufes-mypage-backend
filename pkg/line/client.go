@@ -12,12 +12,15 @@ import (
 const (
 	accessTokenEndpoint string = "https://api.line.me/oauth2/v2.1/token"
 	verifyEndpoint      string = "https://api.line.me/oauth2/v2.1/verify"
+	EnvLineClientId     string = "LINE_CLIENT_ID"
+	EnvLineClientSecret string = "LINE_CLIENT_SECRET"
+	EnvLineRedirectUri  string = "LINE_REDIRECT_URI"
 )
 
 func RequestAccessToken(code string) (*AccessTokenResponse, error) {
-	clientId := os.Getenv("LINE_CLIENT_ID")
-	clientSecret := os.Getenv("LINE_CLIENT_SECRET")
-	redirectUri := os.Getenv("REDIRECT_URI")
+	clientId := os.Getenv(EnvLineClientId)
+	clientSecret := os.Getenv(EnvLineClientSecret)
+	redirectUri := os.Getenv(EnvLineRedirectUri)
 
 	//prevent injection vulnerability
 	reNum := regexp.MustCompile("^\\d+$")
