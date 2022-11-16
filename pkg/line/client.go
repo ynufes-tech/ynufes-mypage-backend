@@ -3,6 +3,7 @@ package line
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/go-resty/resty/v2"
 	"io"
 	"net/http"
@@ -29,9 +30,9 @@ func RequestAccessToken(code string) (*AccessTokenResponse, error) {
 		return nil, errors.New("INVALID CODE")
 	}
 
-	var credential AccessTokenResponse
+	var credential = new(AccessTokenResponse)
 	client := resty.New()
-	_, err := client.R().
+	resp, err := client.R().
 		SetFormData(map[string]string{
 			"grant_type":    "authorization_code",
 			"code":          code,
@@ -40,12 +41,13 @@ func RequestAccessToken(code string) (*AccessTokenResponse, error) {
 			"client_secret": clientSecret,
 		}).
 		SetHeader("Content-Type", "application/x-www-form-urlencoded").
-		SetResult(&credential).
-		Get(accessTokenEndpoint)
+		SetResult(credential).
+		Post(accessTokenEndpoint)
 	if err != nil {
 		return nil, err
 	}
-	return &credential, nil
+	fmt.Println(resp)
+	return credential, nil
 }
 
 func VerifyAccessToken(accessToken string) (*VerifyResponse, error) {
