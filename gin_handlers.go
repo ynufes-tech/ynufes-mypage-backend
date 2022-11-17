@@ -29,5 +29,5 @@ func lineCallback(c *gin.Context) {
 		c.Writer.WriteString("RefreshToken: " + accessResponse.RefreshToken + "\n")
 		c.Writer.WriteString("Scope: " + accessResponse.Scope + "\n")
 	}
-
+	c.SetCookie("access_token", accessResponse.AccessToken, 3600, "/", "ynufes-mypage.shion.pro", true, true)
 }
