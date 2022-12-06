@@ -7,41 +7,50 @@ import (
 	"time"
 )
 
-var stateCache = make(map[string]int64)
+type AuthStateManager struct {
+	stateCache map[string]int64
+}
+
+func NewAuthStateManager() AuthStateManager {
+	return AuthStateManager{
+		stateCache: make(map[string]int64),
+	}
+}
 
 func ReqState(c *gin.Context) {
-	newState := IssueNewState()
+	m := NewAuthStateManager()
+	newState := m.IssueNewState()
 	c.Writer.WriteString(newState)
-	go revokeOldStates()
+	go m.RevokeOldStates()
 }
 
 // IssueNewState has to be private method in deployment use
-func IssueNewState() string {
+func (m AuthStateManager) IssueNewState() string {
 	var newState string
 	newState = strconv.FormatUint(rand.Uint64(), 10)
-	for _, duplicate := stateCache[newState]; duplicate; {
+	for _, duplicate := m.stateCache[newState]; duplicate; {
 		newState = strconv.FormatUint(rand.Uint64(), 10)
 	}
-	stateCache[newState] = time.Now().Unix()
+	m.stateCache[newState] = time.Now().Unix()
 	return newState
 }
 
-func VerifyState(entry string) bool {
-	r, res := stateCache[entry]
+func (m AuthStateManager) VerifyState(entry string) bool {
+	r, res := m.stateCache[entry]
 	if !res {
 		return false
 	}
-	delete(stateCache, entry)
+	delete(m.stateCache, entry)
 	if time.Now().Unix()-r > 120000 {
 		return false
 	}
 	return true
 }
 
-func revokeOldStates() {
-	for s, t := range stateCache {
+func (m AuthStateManager) RevokeOldStates() {
+	for s, t := range m.stateCache {
 		if time.Now().Unix()-t > 120000 {
-			delete(stateCache, s)
+			delete(m.stateCache, s)
 		}
 	}
 }
