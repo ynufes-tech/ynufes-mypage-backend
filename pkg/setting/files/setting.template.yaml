@@ -1,0 +1,10 @@
+application:
+
+infrastructure:
+
+third_party:
+  line_login:
+    client_id: "LINE_AUTH_CLIENT_ID"
+    client_secret: "LINE_AUTH_CLIENT_SECRET"
+    callback_url: "LINE_AUTH_CALLBACK_URI"
+service:
