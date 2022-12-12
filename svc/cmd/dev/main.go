@@ -7,6 +7,7 @@ import (
 	"net/url"
 	"os"
 	linePkg "ynufes-mypage-backend/pkg/line"
+	"ynufes-mypage-backend/pkg/setting"
 	lineHandler "ynufes-mypage-backend/svc/handler/line"
 	"ynufes-mypage-backend/svc/handler/test"
 )
@@ -29,6 +30,7 @@ func loadEnv() {
 }
 
 func devAuth(c *gin.Context) {
-	c.Redirect(302, "https://access.line.me/oauth2/v2.1/authorize?response_type=code&client_id="+os.Getenv(linePkg.EnvLineClientId)+
-		"&redirect_uri="+url.QueryEscape(os.Getenv(linePkg.EnvLineRedirectUri))+"&state="+linePkg.IssueNewState()+"&scope=openid%20profile%20email")
+	config := setting.Get()
+	c.Redirect(302, "https://access.line.me/oauth2/v2.1/authorize?response_type=code&client_id="+os.Getenv(config.ThirdParty.LineLogin.ClientID)+
+		"&redirect_uri="+url.QueryEscape(os.Getenv(config.ThirdParty.LineLogin.CallbackURI))+"&state="+linePkg.IssueNewState()+"&scope=openid%20profile%20email")
 }
