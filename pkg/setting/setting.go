@@ -1,14 +1,38 @@
 package setting
 
+import (
+	"gopkg.in/yaml.v3"
+	"os"
+)
+
 var (
-	Setting setting
+	setting *Setting = nil
 )
 
 type (
-	setting struct {
+	Setting struct {
 		Application    Application    `yaml:"application"`
 		Infrastructure Infrastructure `yaml:"infrastructure"`
 		ThirdParty     ThirdParty     `yaml:"third_party"`
 		Service        Service        `yaml:"service"`
 	}
 )
+
+func init() {
+	reader, err := os.Open(os.Getenv("ENV_LOCATION"))
+	if err != nil {
+		panic(err)
+	}
+	decoder := yaml.NewDecoder(reader)
+	err = decoder.Decode(&setting)
+	if err != nil {
+		panic(err)
+	}
+}
+
+func Get() Setting {
+	if setting == nil {
+		panic("setting is nil")
+	}
+	return *setting
+}
