@@ -4,9 +4,11 @@ import (
 	"github.com/gin-gonic/gin"
 	"strconv"
 	linePkg "ynufes-mypage-backend/pkg/line"
+	"ynufes-mypage-backend/pkg/setting"
 )
 
 func Callback(c *gin.Context) {
+	config := setting.Get()
 	code := c.Request.URL.Query().Get("code")
 	state := c.Request.URL.Query().Get("state")
 	if !linePkg.VerifyState(state) {
@@ -24,5 +26,5 @@ func Callback(c *gin.Context) {
 		c.Writer.WriteString("RefreshToken: " + accessResponse.RefreshToken + "\n")
 		c.Writer.WriteString("Scope: " + accessResponse.Scope + "\n")
 	}
-	c.SetCookie("access_token", accessResponse.AccessToken, 3600, "/", "ynufes-mypage.shion.pro", true, true)
+	c.SetCookie("access_token", accessResponse.AccessToken, 3600, "/", config.Application.Server.Domain, true, true)
 }

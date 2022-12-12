@@ -7,22 +7,16 @@ import (
 	"github.com/go-resty/resty/v2"
 	"io"
 	"net/http"
-	"os"
 	"regexp"
+	"ynufes-mypage-backend/pkg/setting"
 )
 
 const (
 	accessTokenEndpoint string = "https://api.line.me/oauth2/v2.1/token"
 	verifyEndpoint      string = "https://api.line.me/oauth2/v2.1/verify"
-	EnvLineClientId     string = "LINE_CLIENT_ID"
-	EnvLineClientSecret string = "LINE_CLIENT_SECRET"
-	EnvLineRedirectUri  string = "LINE_REDIRECT_URI"
 )
 
 func RequestAccessToken(code string) (*AccessTokenResponse, error) {
-	clientId := os.Getenv(EnvLineClientId)
-	clientSecret := os.Getenv(EnvLineClientSecret)
-	redirectUri := os.Getenv(EnvLineRedirectUri)
 
 	//prevent injection vulnerability
 	reNum := regexp.MustCompile("^[0-9A-Za-z]+$")
@@ -30,15 +24,16 @@ func RequestAccessToken(code string) (*AccessTokenResponse, error) {
 		return nil, errors.New("INVALID CODE")
 	}
 
+	config := setting.Get()
 	var credential = new(AccessTokenResponse)
 	client := resty.New()
 	resp, err := client.R().
 		SetFormData(map[string]string{
 			"grant_type":    "authorization_code",
 			"code":          code,
-			"redirect_uri":  redirectUri,
-			"client_id":     clientId,
-			"client_secret": clientSecret,
+			"redirect_uri":  config.ThirdParty.LineLogin.CallbackURI,
+			"client_id":     config.ThirdParty.LineLogin.ClientID,
+			"client_secret": config.ThirdParty.LineLogin.ClientSecret,
 		}).
 		SetHeader("Content-Type", "application/x-www-form-urlencoded").
 		SetResult(credential).
