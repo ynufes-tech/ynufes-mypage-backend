@@ -5,6 +5,12 @@ import (
 	lineDomain "ynufes-mypage-backend/svc/pkg/domain/service/line"
 )
 
-func NewAuthStateManager() lineDomain.AuthStateManager {
+type Service struct{}
+
+func NewService() Service {
+	return Service{}
+}
+
+func (Service) NewAuthStateManager() lineDomain.AuthStateManager {
 	return linePkg.NewAuthStateManager()
 }
