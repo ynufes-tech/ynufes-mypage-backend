@@ -24,7 +24,8 @@ func init() {
 		panic(err)
 	}
 	decoder := yaml.NewDecoder(reader)
-	err = decoder.Decode(&setting)
+	setting = &Setting{}
+	err = decoder.Decode(setting)
 	if err != nil {
 		panic(err)
 	}
