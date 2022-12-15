@@ -32,5 +32,10 @@ func (u User) ToModel() (*user.User, error) {
 			StudentID: user.StudentID(u.StudentID),
 			Type:      user.Type(u.Type),
 		},
+		Line: user.Line{
+			LineServiceID:         u.LineServiceID,
+			EncryptedAccessToken:  u.EncryptedAccessToken,
+			EncryptedRefreshToken: u.EncryptedRefreshToken,
+		},
 	}, nil
 }
