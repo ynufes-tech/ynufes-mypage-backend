@@ -10,7 +10,7 @@ const (
 
 func NewType(t int) (Type, error) {
 	switch t {
-	case TypeNormal:
+	case int(TypeNormal):
 		return TypeNormal, nil
 	default:
 		return -1, errors.New("USER TYPE VALUE IS INVALID")

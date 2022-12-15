@@ -30,7 +30,7 @@ func (u User) Create(ctx context.Context, model user.User) error {
 			Gender:        int(model.Detail.Gender),
 			StudentID:     string(model.Detail.StudentID),
 			Email:         string(model.Detail.Email),
-			Type:          model.Detail.Type,
+			Type:          int(model.Detail.Type),
 		},
 		LineAuthorization: entity.LineAuthorization{
 			LineServiceID:         model.Line.LineServiceID,
