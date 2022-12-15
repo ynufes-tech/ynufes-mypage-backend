@@ -6,6 +6,7 @@ type User struct {
 	ID int64
 	UserDetail
 	LineAuthorization
+	UserDashboard
 }
 
 func (u User) ToModel() (*user.User, error) {
