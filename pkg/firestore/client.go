@@ -3,6 +3,9 @@ package firestore
 import (
 	"cloud.google.com/go/firestore"
 	"context"
+	"google.golang.org/api/option"
+	"os"
+	"ynufes-mypage-backend/pkg/setting"
 )
 
 var (
@@ -11,8 +14,10 @@ var (
 
 func init() {
 	ctx := context.Background()
-	var err error
-	Client, err = firestore.NewClient(ctx, "ynufes-mypage")
+	config := setting.Get()
+	data, err := os.ReadFile(config.Infrastructure.Firestore.JsonCredentialFile)
+	options := option.WithCredentialsJSON(data)
+	Client, err = firestore.NewClient(ctx, config.Infrastructure.Firestore.ProjectID, options)
 	if err != nil {
 		panic(err)
 	}
