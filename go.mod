@@ -6,6 +6,7 @@ require (
 	cloud.google.com/go/firestore v1.9.0
 	github.com/gin-gonic/gin v1.8.1
 	github.com/go-resty/resty/v2 v2.7.0
+	github.com/godruoyi/go-snowflake v0.0.1
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/joho/godotenv v1.4.0
 	golang.org/x/crypto v0.1.0

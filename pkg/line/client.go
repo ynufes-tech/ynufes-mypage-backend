@@ -76,16 +76,12 @@ func (v AuthVerifier) RequestAccessToken(code string, state string) (*AccessToke
 		return nil, errors.New("INVALID CODE")
 	}
 
-	//config := setting.Get()
 	var credential = new(AccessTokenResponse)
 	client := resty.New()
 	resp, err := client.R().
 		SetFormData(map[string]string{
-			"grant_type": "authorization_code",
-			"code":       code,
-			//"redirect_uri":  config.ThirdParty.LineLogin.CallbackURI,
-			//"client_id":     config.ThirdParty.LineLogin.ClientID,
-			//"client_secret": config.ThirdParty.LineLogin.ClientSecret,
+			"grant_type":    "authorization_code",
+			"code":          code,
 			"redirect_uri":  v.callbackURI,
 			"client_id":     v.clientID,
 			"client_secret": v.clientSecret,
