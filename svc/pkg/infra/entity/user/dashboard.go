@@ -1,5 +1,5 @@
 package entity
 
 type UserDashboard struct {
-	Grants string `firestore:"dashboard-grants"`
+	Grants []string `firestore:"dashboard-grants"`
 }
