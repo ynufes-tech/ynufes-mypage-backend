@@ -30,8 +30,8 @@ func TestFirestore(t *testing.T) {
 	}
 	assert.IsEqual(err, nil)
 
-	r := reader.NewUser(client.Collection("users"))
-	u, err := r.Get(context.Background(), 1234)
+	r := reader.NewUser(client)
+	u, err := r.GetByID(context.Background(), 1234)
 	if err != nil {
 		t.Fatal(err)
 	}
