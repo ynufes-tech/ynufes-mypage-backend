@@ -18,9 +18,9 @@ type (
 	}
 )
 
-func NewUser(c *firestore.CollectionRef) User {
+func NewUser(c *firestore.Client) User {
 	return User{
-		c,
+		c.Collection("users"),
 	}
 }
 
