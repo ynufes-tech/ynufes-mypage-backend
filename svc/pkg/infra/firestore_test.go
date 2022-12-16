@@ -1,18 +1,42 @@
 package infra
 
 import (
-	"cloud.google.com/go/firestore"
 	"context"
 	"fmt"
+	"github.com/go-playground/assert/v2"
 	"io"
 	"log"
 	"os"
 	"os/exec"
+	"runtime"
+	"strconv"
 	"strings"
 	"sync"
 	"syscall"
 	"testing"
+	"ynufes-mypage-backend/svc/pkg/infra/reader"
+	"ynufes-mypage-backend/svc/pkg/infra/writer"
+
+	"cloud.google.com/go/firestore"
 )
+
+func TestFirestore(t *testing.T) {
+	client := newFirestoreTestClient(context.Background())
+	w := writer.NewUser(client.Collection("users"))
+	test1 := genTestCase()
+	err := w.Create(context.Background(), test1[0])
+	if err != nil {
+		t.Fatal(err)
+	}
+	assert.IsEqual(err, nil)
+
+	r := reader.NewUser(client.Collection("users"))
+	u, err := r.Get(context.Background(), 1234)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(u)
+}
 
 func newFirestoreTestClient(ctx context.Context) *firestore.Client {
 	client, err := firestore.NewClient(ctx, "ynufes-mypage")
@@ -24,6 +48,19 @@ func newFirestoreTestClient(ctx context.Context) *firestore.Client {
 }
 
 func TestMain(m *testing.M) {
+	// noinspection
+	var result int
+	if runtime.GOOS == "windows" {
+		killer := launchEmulatorOnWindows()
+		defer killer(&result)
+	}
+	// now it's running, we can run our unit tests
+	result = m.Run()
+}
+
+// refer this page for following code.
+// https://www.captaincodeman.com/unit-testing-with-firestore-emulator-and-go
+func launchEmulatorOnWindows() (killer func(result *int)) {
 	// command to start firestore emulator
 	cmd := exec.Command("gcloud", "beta", "emulators", "firestore", "start", "--host-port=localhost")
 	// this makes it killable
@@ -39,16 +76,6 @@ func TestMain(m *testing.M) {
 	if err := cmd.Start(); err != nil {
 		log.Fatal(err)
 	}
-
-	var result int
-	defer func() {
-		err := cmd.Process.Signal(syscall.SIGKILL)
-		if err != nil {
-			log.Fatal("KILL FAIL: " + err.Error())
-		}
-		os.Exit(result)
-	}()
-
 	// we're going to wait until it's running to start
 	var wg sync.WaitGroup
 	wg.Add(1)
@@ -93,12 +120,16 @@ func TestMain(m *testing.M) {
 			}
 		}
 	}()
-
 	// wait until the running message has been received
 	wg.Wait()
-
-	// now it's running, we can run our unit tests
-	result = m.Run()
+	return func(result *int) {
+		// run command to kill the emulator (Windows)
+		err = exec.Command("taskkill", "/F", "/T", "/PID", strconv.Itoa(cmd.Process.Pid)).Run()
+		if err != nil {
+			log.Fatal("ERROR ON KILLING " + err.Error())
+		}
+		os.Exit(*result)
+	}
 }
 
 const FirestoreEmulatorHost = "FIRESTORE_EMULATOR_HOST"
