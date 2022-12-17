@@ -17,6 +17,7 @@ jobs:
         uses: 'google-github-actions/setup-gcloud@v1'
       - name: 'Run Firestore Emulator'
         run: |
+          gcloud components install beta --quiet
           gcloud beta emulators firestore start --quiet
           sleep 5
       - run: sleep 5
