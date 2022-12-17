@@ -1,5 +1,7 @@
 name: go test with firestore emulator
 on: [ push ]
+env:
+  ENV_LOCATION: ${{GITHUB_WORKSPACE}}/pkg/setting/files/setting.develop.yaml
 jobs:
   build:
     runs-on: ubuntu-latest
