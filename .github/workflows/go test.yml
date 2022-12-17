@@ -1,7 +1,7 @@
 name: go test with firestore emulator
 on: [ push ]
 jobs:
-  build:
+  go-test-with-firestore-emulator:
     runs-on: ubuntu-latest
     steps:
       - name: Setup Go
