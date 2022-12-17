@@ -19,8 +19,10 @@ jobs:
         run: gcloud components install beta cloud-firestore-emulator --quiet
       - name: 'Run Firestore Emulator'
         run: |
-          gcloud beta emulators firestore start --quiet &
+          gcloud beta emulators firestore start --quiet --host-port localhost:8020 &
       - name: 'Waiting for the emulator to start up'
         run: sleep 5
       - name: Run tests
+        env:
+          FIRESTORE_EMULATOR_HOST: localhost:8020
         run: go test -v ./...
