@@ -1,6 +1,7 @@
 package setting
 
 import (
+	"fmt"
 	"gopkg.in/yaml.v3"
 	"os"
 )
@@ -21,6 +22,8 @@ type (
 func init() {
 	reader, err := os.Open(os.Getenv("ENV_LOCATION"))
 	if err != nil {
+		dir, _ := os.Getwd()
+		fmt.Println(dir)
 		panic(err)
 	}
 	decoder := yaml.NewDecoder(reader)
