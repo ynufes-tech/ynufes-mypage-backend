@@ -9,7 +9,6 @@ import (
 	"os"
 	"os/exec"
 	"runtime"
-	"strconv"
 	"strings"
 	"sync"
 	"syscall"
@@ -123,8 +122,8 @@ func launchEmulatorOnWindows() (killer func(result *int)) {
 	// wait until the running message has been received
 	wg.Wait()
 	return func(result *int) {
-		// run command to kill the emulator (Windows)
-		err = exec.Command("taskkill", "/F", "/T", "/PID", strconv.Itoa(cmd.Process.Pid)).Run()
+		// run command to kill firestore emulator, which is running on port 8080
+		err = exec.Command("powershell", "taskkill /PID $(netstat -ano | findstr.exe 8080 | grep LISTENING | awk '{print $5}' ) /F").Run()
 		if err != nil {
 			log.Fatal("ERROR ON KILLING " + err.Error())
 		}
