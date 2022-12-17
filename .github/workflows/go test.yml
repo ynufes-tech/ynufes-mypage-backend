@@ -15,9 +15,8 @@ jobs:
           echo "ENV_LOCATION=$GITHUB_WORKSPACE/pkg/setting/files/setting.develop.yaml" >> $GITHUB_ENV
       - name: 'Set up Cloud SDK'
         uses: 'google-github-actions/setup-gcloud@v1'
-      - name: 'Install Cloud beta components'
-        run: |
-          gcloud components install beta --quiet
+      - name: 'Install gcloud required components'
+        run: gcloud components install beta cloud-firestore-emulator --quiet
       - name: 'Run Firestore Emulator'
         run: |
           gcloud beta emulators firestore start --quiet &
