@@ -9,5 +9,6 @@ type (
 		ClientID     string `yaml:"client_id"`
 		ClientSecret string `yaml:"client_secret"`
 		CallbackURI  string `yaml:"callback_uri"`
+		CipherKey    string `yaml:"cipher_key"`
 	}
 )
