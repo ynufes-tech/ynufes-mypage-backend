@@ -25,10 +25,6 @@ func init() {
 	aes, _ = cipher.NewAES(config.ThirdParty.LineLogin.CipherKey)
 }
 
-func NewLineServiceID(s string) (LineServiceID, error) {
-	return LineServiceID(s), nil
-}
-
 func NewEncryptedAccessToken(s PlainAccessToken) (EncryptedAccessToken, error) {
 	encrypted := aes.Encrypt(string(s))
 	return EncryptedAccessToken(encrypted), nil

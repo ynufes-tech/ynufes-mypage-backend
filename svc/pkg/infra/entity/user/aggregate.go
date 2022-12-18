@@ -19,7 +19,6 @@ func (u User) ToModel() (*user.User, error) {
 		return nil, err
 	}
 
-	lineServiceID, err := user.NewLineServiceID(u.LineServiceID)
 	return &user.User{
 		ID: user.ID(u.ID),
 		Detail: user.Detail{
@@ -36,7 +35,7 @@ func (u User) ToModel() (*user.User, error) {
 			Type:      user.Type(u.Type),
 		},
 		Line: user.Line{
-			LineServiceID:         lineServiceID,
+			LineServiceID:         user.LineServiceID(u.LineServiceID),
 			EncryptedAccessToken:  user.EncryptedAccessToken(u.EncryptedAccessToken),
 			EncryptedRefreshToken: user.EncryptedRefreshToken(u.EncryptedRefreshToken),
 		},
