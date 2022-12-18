@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	linePkg "ynufes-mypage-backend/pkg/line"
 	"ynufes-mypage-backend/pkg/setting"
+	"ynufes-mypage-backend/svc/pkg/domain/command"
 	"ynufes-mypage-backend/svc/pkg/domain/model/user"
 	"ynufes-mypage-backend/svc/pkg/domain/query"
 	lineDomain "ynufes-mypage-backend/svc/pkg/domain/service/line"
@@ -12,6 +13,7 @@ import (
 type LineAuth struct {
 	verifier lineDomain.AuthVerifier
 	userQ    query.User
+	userC    command.User
 }
 
 func NewLineAuth() LineAuth {
@@ -36,7 +38,20 @@ func (a LineAuth) VerificationHandler() gin.HandlerFunc {
 		if err != nil {
 			return
 		}
-		a.userQ.GetByLineServiceID(c, user.LineServiceID(accessToken.ClientId))
+		user, err := a.userQ.GetByLineServiceID(c, user.LineServiceID(accessToken.ClientId))
+		if err != nil {
+			// if error is "user not found", Create User and redirect to basic info form
+			// Otherwise, respond with error
+			return
+		}
+		// if user exists, update line token, set NewJWT, and redirect to home
+		err = a.userC.UpdateLineAuth(user)
+		if err != nil {
+			// respond with error
+			return
+		}
+		// give JWT and redirect to home
+		// if user basic info is not filled, redirect to basic info form
 	}
 }
 
