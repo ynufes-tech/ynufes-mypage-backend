@@ -1,8 +1,10 @@
 package command
 
+import "ynufes-mypage-backend/svc/pkg/domain/model/user"
+
 type User interface {
-	Create(*User) error
-	UpdateLineAuth(*User) error
-	UpdateAll(*User) error
-	Delete(*User) error
+	Create(*user.User) error
+	UpdateLineAuth(*user.User) error
+	UpdateAll(*user.User) error
+	Delete(*user.User) error
 }
