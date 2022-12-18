@@ -2,12 +2,11 @@ package line
 
 import (
 	"github.com/gin-gonic/gin"
-	linePkg "ynufes-mypage-backend/pkg/line"
-	"ynufes-mypage-backend/pkg/setting"
 	"ynufes-mypage-backend/svc/pkg/domain/command"
 	"ynufes-mypage-backend/svc/pkg/domain/model/user"
 	"ynufes-mypage-backend/svc/pkg/domain/query"
 	lineDomain "ynufes-mypage-backend/svc/pkg/domain/service/line"
+	"ynufes-mypage-backend/svc/pkg/registry"
 )
 
 type LineAuth struct {
@@ -16,13 +15,11 @@ type LineAuth struct {
 	userC    command.User
 }
 
-func NewLineAuth() LineAuth {
-	config := setting.Get()
+func NewLineAuth(registry registry.Registry) LineAuth {
 	return LineAuth{
-		verifier: linePkg.NewAuthVerifier(
-			config.ThirdParty.LineLogin.CallbackURI,
-			config.ThirdParty.LineLogin.ClientID,
-			config.ThirdParty.LineLogin.ClientSecret),
+		verifier: registry.Service().NewLineAuthVerifier(),
+		userQ:    registry.Repository().NewUserQuery(),
+		userC:    registry.Repository().NewUserCommand(),
 	}
 }
 
