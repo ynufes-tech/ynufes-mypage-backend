@@ -45,7 +45,7 @@ func (a LineAuth) VerificationHandler() gin.HandlerFunc {
 			return
 		}
 		// if user exists, update line token, set NewJWT, and redirect to home
-		err = a.userC.UpdateLineAuth(user)
+		err = a.userC.UpdateLineAuth(c, *user)
 		if err != nil {
 			// respond with error
 			return
