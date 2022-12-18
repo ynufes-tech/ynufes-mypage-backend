@@ -22,6 +22,7 @@ func (u User) Create(ctx context.Context, model user.User) error {
 	e := entity.User{
 		//ID is not required as it will not be used by firestore
 		//ID: int64(model.ID),
+		Status: int(model.Status),
 		UserDetail: entity.UserDetail{
 			NameFirst:     model.Detail.Name.FirstName,
 			NameFirstKana: model.Detail.Name.FirstNameKana,

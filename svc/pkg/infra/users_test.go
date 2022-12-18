@@ -7,7 +7,8 @@ import (
 func genTestCase() []user.User {
 	return []user.User{
 		{
-			ID: 1234,
+			ID:     1234,
+			Status: user.StatusNew,
 			Detail: user.Detail{
 				Name: user.Name{
 					FirstName:     "詩恩",
@@ -30,7 +31,8 @@ func genTestCase() []user.User {
 			},
 		},
 		{
-			ID: 1234,
+			ID:     12344,
+			Status: user.StatusRegistered,
 			Detail: user.Detail{
 				Name: user.Name{
 					FirstName:     "友哉",
