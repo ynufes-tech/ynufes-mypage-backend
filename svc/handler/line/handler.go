@@ -4,13 +4,14 @@ import (
 	"github.com/gin-gonic/gin"
 	linePkg "ynufes-mypage-backend/pkg/line"
 	"ynufes-mypage-backend/pkg/setting"
+	"ynufes-mypage-backend/svc/pkg/domain/model/user"
 	"ynufes-mypage-backend/svc/pkg/domain/query"
 	lineDomain "ynufes-mypage-backend/svc/pkg/domain/service/line"
 )
 
 type LineAuth struct {
 	verifier lineDomain.AuthVerifier
-	query    query.User
+	userQ    query.User
 }
 
 func NewLineAuth() LineAuth {
@@ -27,10 +28,15 @@ func (a LineAuth) VerificationHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		code := c.Request.URL.Query().Get("code")
 		state := c.Request.URL.Query().Get("state")
-		_, err := a.verifier.RequestAccessToken(code, state)
+		token, err := a.verifier.RequestAccessToken(code, state)
 		if err != nil {
 			return
 		}
+		accessToken, err := a.verifier.VerifyAccessToken(token.AccessToken)
+		if err != nil {
+			return
+		}
+		a.userQ.GetByLineServiceID(c, user.LineServiceID(accessToken.ClientId))
 	}
 }
 
