@@ -12,9 +12,9 @@ type User struct {
 	Collection *firestore.CollectionRef
 }
 
-func NewUser(c *firestore.CollectionRef) User {
+func NewUser(c *firestore.Client) User {
 	return User{
-		Collection: c,
+		Collection: c.Collection("users"),
 	}
 }
 
@@ -48,4 +48,16 @@ func (u User) Create(ctx context.Context, model user.User) error {
 		return err
 	}
 	return nil
+}
+
+func (u User) UpdateAll(ctx context.Context, model user.User) error {
+	panic("implement me")
+}
+
+func (u User) UpdateLineAuth(ctx context.Context, model user.User) error {
+	panic("implement me")
+}
+
+func (u User) Delete(ctx context.Context, model user.User) error {
+	panic("implement me")
 }
