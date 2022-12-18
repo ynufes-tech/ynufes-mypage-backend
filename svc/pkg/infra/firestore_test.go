@@ -21,7 +21,7 @@ import (
 
 func TestFirestore(t *testing.T) {
 	client := newFirestoreTestClient(context.Background())
-	w := writer.NewUser(client.Collection("users"))
+	w := writer.NewUser(client)
 	test1 := genTestCase()
 	err := w.Create(context.Background(), test1[0])
 	if err != nil {
