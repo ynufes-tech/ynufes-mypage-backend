@@ -6,5 +6,5 @@ import (
 )
 
 type Login interface {
-	Do(ctx context.Context, jwt user.JWT) (user.ID, error)
+	Do(ctx context.Context, jwt user.JWT) (user.User, error)
 }
