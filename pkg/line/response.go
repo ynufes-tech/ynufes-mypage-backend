@@ -14,3 +14,10 @@ type VerifyResponse struct {
 	ClientId  string `json:"client_id"`
 	ExpiresIn int64  `json:"expires_in"`
 }
+
+type ProfileResponse struct {
+	UserID        string `json:"userId"`
+	DisplayName   string `json:"displayName"`
+	PictureURL    string `json:"pictureUrl,omitempty"`
+	StatusMessage string `json:"statusMessage"`
+}
