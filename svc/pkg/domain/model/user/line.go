@@ -2,7 +2,7 @@ package user
 
 import (
 	"ynufes-mypage-backend/pkg/cipher"
-	"ynufes-mypage-backend/pkg/setting"
+	"ynufes-mypage-backend/svc/pkg/config"
 )
 
 type (
@@ -24,8 +24,7 @@ type (
 var aes *cipher.AES
 
 func init() {
-	config := setting.Get()
-	aes, _ = cipher.NewAES(config.ThirdParty.LineLogin.CipherKey)
+	aes, _ = cipher.NewAES(config.Line.CipherKey)
 }
 
 func NewEncryptedAccessToken(s PlainAccessToken) (EncryptedAccessToken, error) {
