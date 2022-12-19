@@ -6,7 +6,7 @@ type User struct {
 	ID     int64
 	Status int `firestore:"status"`
 	UserDetail
-	LineAuthorization
+	Line
 	UserDashboard
 }
 
@@ -38,6 +38,8 @@ func (u User) ToModel() (*user.User, error) {
 		},
 		Line: user.Line{
 			LineServiceID:         user.LineServiceID(u.LineServiceID),
+			LineProfilePictureURL: user.LineProfilePictureURL(u.LineProfileURL),
+			LineDisplayName:       u.LineDisplayName,
 			EncryptedAccessToken:  user.EncryptedAccessToken(u.EncryptedAccessToken),
 			EncryptedRefreshToken: user.EncryptedRefreshToken(u.EncryptedRefreshToken),
 		},

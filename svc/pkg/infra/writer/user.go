@@ -33,7 +33,7 @@ func (u User) Create(ctx context.Context, model user.User) error {
 			Email:         string(model.Detail.Email),
 			Type:          int(model.Detail.Type),
 		},
-		LineAuthorization: entity.LineAuthorization{
+		Line: entity.Line{
 			LineServiceID:         string(model.Line.LineServiceID),
 			EncryptedAccessToken:  string(model.Line.EncryptedAccessToken),
 			EncryptedRefreshToken: string(model.Line.EncryptedRefreshToken),

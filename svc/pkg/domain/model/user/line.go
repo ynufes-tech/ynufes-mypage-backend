@@ -7,12 +7,15 @@ import (
 
 type (
 	LineServiceID         string
+	LineProfilePictureURL string
 	EncryptedAccessToken  string
 	EncryptedRefreshToken string
 	PlainAccessToken      string
 	PlainRefreshToken     string
 	Line                  struct {
 		LineServiceID         LineServiceID
+		LineProfilePictureURL LineProfilePictureURL
+		LineDisplayName       string
 		EncryptedAccessToken  EncryptedAccessToken
 		EncryptedRefreshToken EncryptedRefreshToken
 	}
