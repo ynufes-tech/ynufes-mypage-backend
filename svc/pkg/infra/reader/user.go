@@ -45,6 +45,8 @@ func (u User) GetByLineServiceID(ctx context.Context, id user.LineServiceID) (mo
 	var userEntity entity.User
 	snap, err := u.Collection.Where("line-id", "==", string(id)).Documents(ctx).Next()
 	if err != nil {
+		// user not found
+
 		return nil, err
 	}
 	err = snap.DataTo(&userEntity)

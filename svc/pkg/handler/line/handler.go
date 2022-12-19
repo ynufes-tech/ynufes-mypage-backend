@@ -2,6 +2,14 @@ package line
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/godruoyi/go-snowflake"
+	"google.golang.org/appengine/log"
+	"strconv"
+	"time"
+	"ynufes-mypage-backend/pkg/jwt"
+	"ynufes-mypage-backend/pkg/line"
+	"ynufes-mypage-backend/pkg/setting"
+	"ynufes-mypage-backend/svc/pkg/config"
 	"ynufes-mypage-backend/svc/pkg/domain/command"
 	"ynufes-mypage-backend/svc/pkg/domain/model/user"
 	"ynufes-mypage-backend/svc/pkg/domain/query"
@@ -13,13 +21,16 @@ type LineAuth struct {
 	verifier lineDomain.AuthVerifier
 	userQ    query.User
 	userC    command.User
+	domain   string
 }
 
 func NewLineAuth(registry registry.Registry) LineAuth {
+	conf := setting.Get()
 	return LineAuth{
 		verifier: registry.Service().NewLineAuthVerifier(),
 		userQ:    registry.Repository().NewUserQuery(),
 		userC:    registry.Repository().NewUserCommand(),
+		domain:   conf.Application.Server.Domain,
 	}
 }
 
@@ -35,21 +46,83 @@ func (a LineAuth) VerificationHandler() gin.HandlerFunc {
 		if err != nil {
 			return
 		}
-		user, err := a.userQ.GetByLineServiceID(c, user.LineServiceID(accessToken.ClientId))
+		profile, err := line.GetProfile(token.AccessToken)
+		if err != nil {
+			// failed to get profile
+			log.Errorf(c, "failed to get profile: %v", err)
+			c.AbortWithStatus(500)
+			return
+		}
+		u, err := a.userQ.GetByLineServiceID(c, user.LineServiceID(accessToken.ClientId))
 		if err != nil {
 			// if error is "user not found", Create User and redirect to basic info form
 			// Otherwise, respond with error
+			newID := snowflake.ID()
+			aToken, err := user.NewEncryptedAccessToken(user.PlainAccessToken(token.AccessToken))
+			if err != nil {
+				log.Errorf(c, "failed to encrypt access token: %v", err)
+				c.AbortWithStatus(500)
+				return
+			}
+			rToken, err := user.NewEncryptedRefreshToken(user.PlainRefreshToken(token.RefreshToken))
+			if err != nil {
+				log.Errorf(c, "failed to encrypt refresh token: %v", err)
+				c.AbortWithStatus(500)
+				return
+			}
+			err = a.userC.Create(c, user.User{
+				ID:     user.ID(newID),
+				Status: user.StatusNew,
+				Line: user.Line{
+					LineServiceID:         user.LineServiceID(accessToken.ClientId),
+					LineProfilePictureURL: user.LineProfilePictureURL(profile.PictureURL),
+					LineDisplayName:       profile.DisplayName,
+					EncryptedAccessToken:  aToken,
+					EncryptedRefreshToken: rToken,
+				},
+			})
+			if err != nil {
+				c.AbortWithStatus(401)
+				return
+			}
+			err = a.setCookie(c, strconv.FormatUint(newID, 10), time.Duration(accessToken.ExpiresIn))
+			if err != nil {
+				c.AbortWithStatus(500)
+				return
+			}
+			c.Redirect(302, "/welcome")
 			return
 		}
 		// if user exists, update line token, set NewJWT, and redirect to home
-		err = a.userC.UpdateLineAuth(c, *user)
+		err = a.setCookie(c, strconv.FormatUint(uint64(u.ID), 10), time.Duration(accessToken.ExpiresIn))
 		if err != nil {
-			// respond with error
+			c.AbortWithStatus(500)
+			return
+		}
+		err = a.userC.UpdateLine(c, *u)
+		if err != nil {
+			log.Errorf(c, "failed to update line token: %v", err)
+			c.AbortWithStatus(500)
 			return
 		}
 		// give JWT and redirect to home
 		// if user basic info is not filled, redirect to basic info form
+		if u.Status == user.StatusNew {
+			c.Redirect(302, "/welcome")
+			return
+		}
+		c.Redirect(302, "/")
 	}
+}
+
+func (a LineAuth) setCookie(c *gin.Context, id string, limit time.Duration) error {
+	claim := jwt.CreateClaims(id, limit, a.domain)
+	token, err := jwt.IssueJWT(claim, config.JWT.JWTSecret)
+	if err != nil {
+		return err
+	}
+	c.SetCookie("Authorization", "Bearer "+token, 3600, "/", a.domain, false, true)
+	return nil
 }
 
 func (a LineAuth) StateIssuer() gin.HandlerFunc {
