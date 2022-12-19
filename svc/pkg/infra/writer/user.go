@@ -9,12 +9,12 @@ import (
 )
 
 type User struct {
-	Collection *firestore.CollectionRef
+	collection *firestore.CollectionRef
 }
 
 func NewUser(c *firestore.Client) User {
 	return User{
-		Collection: c.Collection("users"),
+		collection: c.Collection("users"),
 	}
 }
 
@@ -43,7 +43,7 @@ func (u User) Create(ctx context.Context, model user.User) error {
 		},
 	}
 	//NOTE: Create fails if the document already exists
-	_, err := u.Collection.Doc(strconv.FormatInt(int64(model.ID), 10)).
+	_, err := u.collection.Doc(strconv.FormatInt(int64(model.ID), 10)).
 		Create(ctx, e)
 	if err != nil {
 		return err
@@ -52,13 +52,25 @@ func (u User) Create(ctx context.Context, model user.User) error {
 }
 
 func (u User) UpdateAll(ctx context.Context, model user.User) error {
-	panic("implement me")
+	_, err := u.collection.Doc(strconv.FormatInt(int64(model.ID), 10)).
+		Set(ctx, model)
+	return err
 }
 
-func (u User) UpdateLineAuth(ctx context.Context, model user.User) error {
-	panic("implement me")
+func (u User) UpdateLine(ctx context.Context, model user.User) error {
+	_, err := u.collection.Doc(strconv.FormatInt(int64(model.ID), 10)).
+		Update(ctx, []firestore.Update{
+			{Path: "line-id", Value: string(model.Line.LineServiceID)},
+			{Path: "line-profile_url", Value: string(model.Line.LineProfilePictureURL)},
+			{Path: "line-access_token", Value: string(model.Line.EncryptedAccessToken)},
+			{Path: "line-refresh_token", Value: string(model.Line.EncryptedRefreshToken)},
+			{Path: "line-display_name", Value: model.Line.LineDisplayName},
+		})
+	return err
 }
 
 func (u User) Delete(ctx context.Context, model user.User) error {
-	panic("implement me")
+	_, err := u.collection.Doc(strconv.FormatInt(int64(model.ID), 10)).
+		Delete(ctx)
+	return err
 }
