@@ -12,7 +12,7 @@ func Implement(rg *gin.RouterGroup) error {
 		return err
 	}
 	lineAuth := line.NewLineAuth(*rgst)
-	rg.Handle("GET", "/auth/line/verify", lineAuth.VerificationHandler())
+	rg.Handle("GET", "/auth/line/callback", lineAuth.VerificationHandler())
 	rg.Handle("GET", "/auth/line/state", lineAuth.StateIssuer())
 	return nil
 }
