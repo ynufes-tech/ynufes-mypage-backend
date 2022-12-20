@@ -25,6 +25,7 @@ type AuthVerifier struct {
 	clientID     string
 	clientSecret string
 	stateCache   map[string]int64
+	random       *rand.Rand
 }
 
 func NewAuthVerifier(callbackURI, clientID, clientSecret string) AuthVerifier {
@@ -33,12 +34,13 @@ func NewAuthVerifier(callbackURI, clientID, clientSecret string) AuthVerifier {
 		clientID:     clientID,
 		clientSecret: clientSecret,
 		stateCache:   make(map[string]int64),
+		random:       rand.New(rand.NewSource(time.Now().UnixNano())),
 	}
 }
 
 func (v AuthVerifier) IssueNewState() string {
 	var newState string
-	newState = strconv.FormatUint(rand.Uint64(), 10)
+	newState = strconv.FormatUint(v.random.Uint64(), 10)
 	for _, duplicate := v.stateCache[newState]; duplicate; {
 		newState = strconv.FormatUint(rand.Uint64(), 10)
 	}
