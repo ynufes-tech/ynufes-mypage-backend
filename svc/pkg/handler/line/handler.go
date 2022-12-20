@@ -3,7 +3,7 @@ package line
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/godruoyi/go-snowflake"
-	"google.golang.org/appengine/log"
+	"log"
 	"strconv"
 	"time"
 	"ynufes-mypage-backend/pkg/jwt"
@@ -49,7 +49,7 @@ func (a LineAuth) VerificationHandler() gin.HandlerFunc {
 		profile, err := line.GetProfile(token.AccessToken)
 		if err != nil {
 			// failed to get profile
-			log.Errorf(c, "failed to get profile: %v", err)
+			log.Println(c, "failed to get profile: %v", err)
 			c.AbortWithStatus(500)
 			return
 		}
@@ -60,13 +60,13 @@ func (a LineAuth) VerificationHandler() gin.HandlerFunc {
 			newID := snowflake.ID()
 			aToken, err := user.NewEncryptedAccessToken(user.PlainAccessToken(token.AccessToken))
 			if err != nil {
-				log.Errorf(c, "failed to encrypt access token: %v", err)
+				log.Println(c, "failed to encrypt access token: %v", err)
 				c.AbortWithStatus(500)
 				return
 			}
 			rToken, err := user.NewEncryptedRefreshToken(user.PlainRefreshToken(token.RefreshToken))
 			if err != nil {
-				log.Errorf(c, "failed to encrypt refresh token: %v", err)
+				log.Println(c, "failed to encrypt refresh token: %v", err)
 				c.AbortWithStatus(500)
 				return
 			}
@@ -101,7 +101,7 @@ func (a LineAuth) VerificationHandler() gin.HandlerFunc {
 		}
 		err = a.userC.UpdateLine(c, *u)
 		if err != nil {
-			log.Errorf(c, "failed to update line token: %v", err)
+			log.Println(c, "failed to update line token: %v", err)
 			c.AbortWithStatus(500)
 			return
 		}
