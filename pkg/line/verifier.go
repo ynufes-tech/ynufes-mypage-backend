@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/go-resty/resty/v2"
 	"io"
+	"log"
 	"math/rand"
 	"net/http"
 	"regexp"
@@ -90,6 +91,7 @@ func (v AuthVerifier) RequestAccessToken(code string, state string) (*AccessToke
 		SetResult(credential).
 		Post(accessTokenEndpoint)
 	if err != nil {
+		log.Printf("Failed to request access token... %v", err)
 		return nil, err
 	}
 	fmt.Println(resp)
@@ -100,12 +102,14 @@ func (v AuthVerifier) VerifyAccessToken(accessToken string) (*VerifyResponse, er
 	verifyUri := verifyEndpoint + "?access_token=" + accessToken
 	resp, err := http.Get(verifyUri)
 	if err != nil {
+		log.Printf("Failed to access verify endpoint... %v", err)
 		return nil, err
 	}
 	var verifyResponse VerifyResponse
 	body, err := io.ReadAll(resp.Body)
 	err = json.Unmarshal(body, &verifyResponse)
 	if err != nil {
+		log.Printf("Failed to parse verify response... %v", err)
 		return nil, err
 	}
 	return &verifyResponse, nil

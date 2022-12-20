@@ -40,10 +40,16 @@ func (a LineAuth) VerificationHandler() gin.HandlerFunc {
 		state := c.Request.URL.Query().Get("state")
 		token, err := a.verifier.RequestAccessToken(code, state)
 		if err != nil {
+			log.Println("Failed to get access token from LINE server... ", err)
+			_, _ = c.Writer.WriteString(err.Error())
+			c.AbortWithStatus(500)
 			return
 		}
 		accessToken, err := a.verifier.VerifyAccessToken(token.AccessToken)
 		if err != nil {
+			log.Println("Failed to verify access token... ", err)
+			_, _ = c.Writer.WriteString(err.Error())
+			c.AbortWithStatus(500)
 			return
 		}
 		profile, err := line.GetProfile(token.AccessToken)
