@@ -6,14 +6,13 @@ import (
 	"ynufes-mypage-backend/svc/pkg/registry"
 )
 
-func New() (*gin.Engine, error) {
-	registry, err := registry.New()
+func Implement(rg *gin.RouterGroup) error {
+	rgst, err := registry.New()
 	if err != nil {
-		return nil, err
+		return err
 	}
-	engine := gin.New()
-	lineAuth := line.NewLineAuth(*registry)
-	engine.Handle("GET", "/auth/line/verify", lineAuth.VerificationHandler())
-	engine.Handle("GET", "/auth/line/state", lineAuth.StateIssuer())
-	return engine, nil
+	lineAuth := line.NewLineAuth(*rgst)
+	rg.Handle("GET", "/auth/line/verify", lineAuth.VerificationHandler())
+	rg.Handle("GET", "/auth/line/state", lineAuth.StateIssuer())
+	return nil
 }

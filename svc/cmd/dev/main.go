@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"log"
 	"ynufes-mypage-backend/svc/pkg/handler/test"
@@ -9,7 +10,9 @@ import (
 
 func main() {
 	loadEnv()
-	engine, err := runner.New()
+	engine := gin.New()
+	apiV1 := engine.Group("/api/v1")
+	err := runner.Implement(apiV1)
 	if err != nil {
 		log.Fatalf("Failed to start server... %v", err)
 		return
