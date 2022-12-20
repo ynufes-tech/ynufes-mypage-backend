@@ -1,9 +1,8 @@
 package main
 
 import (
-	"context"
 	"github.com/joho/godotenv"
-	"google.golang.org/appengine/log"
+	"log"
 	"ynufes-mypage-backend/svc/pkg/handler/test"
 	"ynufes-mypage-backend/svc/runner"
 )
@@ -12,13 +11,14 @@ func main() {
 	loadEnv()
 	engine, err := runner.New()
 	if err != nil {
-		log.Errorf(context.Background(), "Failed to start server...")
+		log.Fatalf("Failed to start server... %v", err)
 		return
 	}
 	engine.GET("/hello/", test.TestHello)
 	err = engine.Run("localhost:1306")
 	if err != nil {
-		log.Errorf(context.Background(), "Failed to start server...")
+		log.Fatalf("Failed to start server... %v", err)
+		return
 	}
 }
 
