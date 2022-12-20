@@ -3,6 +3,7 @@ package writer
 import (
 	"cloud.google.com/go/firestore"
 	"context"
+	"log"
 	"strconv"
 	"ynufes-mypage-backend/svc/pkg/domain/model/user"
 	entity "ynufes-mypage-backend/svc/pkg/infra/entity/user"
@@ -19,6 +20,7 @@ func NewUser(c *firestore.Client) User {
 }
 
 func (u User) Create(ctx context.Context, model user.User) error {
+	log.Printf("CREATE USER: %v", model)
 	e := entity.User{
 		//ID is not required as it will not be used by firestore
 		//ID: int64(model.ID),
@@ -52,12 +54,14 @@ func (u User) Create(ctx context.Context, model user.User) error {
 }
 
 func (u User) UpdateAll(ctx context.Context, model user.User) error {
+	log.Printf("UPDATE USER: %v", model)
 	_, err := u.collection.Doc(strconv.FormatInt(int64(model.ID), 10)).
 		Set(ctx, model)
 	return err
 }
 
 func (u User) UpdateLine(ctx context.Context, model user.User) error {
+	log.Printf("UPDATE USER LINE: %v", model)
 	_, err := u.collection.Doc(strconv.FormatInt(int64(model.ID), 10)).
 		Update(ctx, []firestore.Update{
 			{Path: "line-id", Value: string(model.Line.LineServiceID)},
@@ -70,6 +74,7 @@ func (u User) UpdateLine(ctx context.Context, model user.User) error {
 }
 
 func (u User) Delete(ctx context.Context, model user.User) error {
+	log.Printf("DELETE USER: %v", model)
 	_, err := u.collection.Doc(strconv.FormatInt(int64(model.ID), 10)).
 		Delete(ctx)
 	return err
