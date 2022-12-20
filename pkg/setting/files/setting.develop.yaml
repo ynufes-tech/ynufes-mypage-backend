@@ -9,6 +9,6 @@ third_party:
   line_login:
     client_id: "LINE_AUTH_CLIENT_ID"
     client_secret: "LINE_AUTH_CLIENT_SECRET"
-    callback_url: "LINE_AUTH_CALLBACK_URI"
+    callback_uri: "LINE_AUTH_CALLBACK_URI"
     cipher_key: "LINE_AUTH_CIPHER_KEY"
 service:
