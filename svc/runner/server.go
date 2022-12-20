@@ -7,12 +7,12 @@ import (
 )
 
 func New() (*gin.Engine, error) {
-	rgst, err := registry.New()
+	registry, err := registry.New()
 	if err != nil {
 		return nil, err
 	}
 	engine := gin.New()
-	lineAuth := line.NewLineAuth(*rgst)
+	lineAuth := line.NewLineAuth(*registry)
 	engine.Handle("GET", "/auth/line/verify", lineAuth.VerificationHandler())
 	engine.Handle("GET", "/auth/line/state", lineAuth.StateIssuer())
 	return engine, nil

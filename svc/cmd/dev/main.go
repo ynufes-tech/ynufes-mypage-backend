@@ -1,20 +1,25 @@
 package main
 
 import (
+	"context"
 	"github.com/joho/godotenv"
+	"google.golang.org/appengine/log"
+	"ynufes-mypage-backend/svc/pkg/handler/test"
+	"ynufes-mypage-backend/svc/runner"
 )
 
 func main() {
 	loadEnv()
-	//router := gin.Default()
-	//router.GET("/hello/", test.TestHello)
-	//router.GET("/auth/lineHandler/callback", lineHandler.Callback)
-	//router.GET("/auth/lineHandler/reqState", linePkg.ReqState)
-	//router.GET("/auth/lineHandler/dev/auth", devAuth)
-	//err := router.Run("localhost:1306")
-	//if err != nil {
-	//	fmt.Println("Failed to start server...")
-	//}
+	engine, err := runner.New()
+	if err != nil {
+		log.Errorf(context.Background(), "Failed to start server...")
+		return
+	}
+	engine.GET("/hello/", test.TestHello)
+	err = engine.Run("localhost:1306")
+	if err != nil {
+		log.Errorf(context.Background(), "Failed to start server...")
+	}
 }
 
 func loadEnv() {
