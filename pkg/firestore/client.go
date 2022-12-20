@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	Client *firestore.Client
+	client *firestore.Client
 )
 
 func init() {
@@ -17,8 +17,12 @@ func init() {
 	config := setting.Get()
 	data, err := os.ReadFile(config.Infrastructure.Firestore.JsonCredentialFile)
 	options := option.WithCredentialsJSON(data)
-	Client, err = firestore.NewClient(ctx, config.Infrastructure.Firestore.ProjectID, options)
+	client, err = firestore.NewClient(ctx, config.Infrastructure.Firestore.ProjectID, options)
 	if err != nil {
 		panic(err)
 	}
+}
+
+func New() *firestore.Client {
+	return client
 }

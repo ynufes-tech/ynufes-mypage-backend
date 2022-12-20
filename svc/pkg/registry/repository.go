@@ -2,8 +2,7 @@ package registry
 
 import (
 	"cloud.google.com/go/firestore"
-	"context"
-	"ynufes-mypage-backend/pkg/setting"
+	firestorePkg "ynufes-mypage-backend/pkg/firestore"
 	"ynufes-mypage-backend/svc/pkg/domain/command"
 	"ynufes-mypage-backend/svc/pkg/domain/query"
 	"ynufes-mypage-backend/svc/pkg/infra/reader"
@@ -15,11 +14,7 @@ type Repository struct {
 }
 
 func NewRepository() (Repository, error) {
-	config := setting.Get()
-	fs, err := firestore.NewClient(context.Background(), config.Infrastructure.Firestore.ProjectID)
-	if err != nil {
-		return Repository{}, err
-	}
+	fs := firestorePkg.New()
 	return Repository{
 		fs: fs,
 	}, nil
