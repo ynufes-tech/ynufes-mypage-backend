@@ -85,7 +85,7 @@ func (a LineAuth) VerificationHandler() gin.HandlerFunc {
 				c.AbortWithStatus(401)
 				return
 			}
-			err = a.setCookie(c, strconv.FormatUint(newID, 10), time.Duration(accessToken.ExpiresIn))
+			err = a.setCookie(c, strconv.FormatUint(newID, 10))
 			if err != nil {
 				c.AbortWithStatus(500)
 				return
@@ -94,7 +94,7 @@ func (a LineAuth) VerificationHandler() gin.HandlerFunc {
 			return
 		}
 		// if user exists, update line token, set NewJWT, and redirect to home
-		err = a.setCookie(c, strconv.FormatUint(uint64(u.ID), 10), time.Duration(accessToken.ExpiresIn))
+		err = a.setCookie(c, strconv.FormatUint(uint64(u.ID), 10))
 		if err != nil {
 			c.AbortWithStatus(500)
 			return
@@ -115,13 +115,14 @@ func (a LineAuth) VerificationHandler() gin.HandlerFunc {
 	}
 }
 
-func (a LineAuth) setCookie(c *gin.Context, id string, limit time.Duration) error {
-	claim := jwt.CreateClaims(id, limit, a.domain)
+func (a LineAuth) setCookie(c *gin.Context, id string) error {
+	claim := jwt.CreateClaims(id, 24*time.Hour, a.domain)
 	token, err := jwt.IssueJWT(claim, config.JWT.JWTSecret)
 	if err != nil {
 		return err
 	}
-	c.SetCookie("Authorization", "Bearer "+token, 3600, "/", a.domain, false, true)
+	// maxAge is set to 1 day
+	c.SetCookie("Authorization", "Bearer "+token, 3600*24, "/", a.domain, true, true)
 	return nil
 }
 
