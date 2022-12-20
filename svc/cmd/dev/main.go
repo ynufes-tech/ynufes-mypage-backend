@@ -23,7 +23,10 @@ func main() {
 }
 
 func loadEnv() {
-	godotenv.Load()
+	err := godotenv.Load()
+	if err != nil {
+		panic(err)
+	}
 }
 
 //func devAuth(c *gin.Context) {
