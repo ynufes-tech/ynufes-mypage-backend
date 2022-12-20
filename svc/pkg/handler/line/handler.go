@@ -88,11 +88,13 @@ func (a LineAuth) VerificationHandler() gin.HandlerFunc {
 				},
 			})
 			if err != nil {
+				log.Println(c, "failed to create user: %v", err)
 				c.AbortWithStatus(401)
 				return
 			}
 			err = a.setCookie(c, strconv.FormatUint(newID, 10))
 			if err != nil {
+				log.Println(c, "failed to set cookie: %v", err)
 				c.AbortWithStatus(500)
 				return
 			}
@@ -102,6 +104,7 @@ func (a LineAuth) VerificationHandler() gin.HandlerFunc {
 		// if user exists, update line token, set NewJWT, and redirect to home
 		err = a.setCookie(c, strconv.FormatUint(uint64(u.ID), 10))
 		if err != nil {
+			log.Println(c, "failed to set cookie: %v", err)
 			c.AbortWithStatus(500)
 			return
 		}
