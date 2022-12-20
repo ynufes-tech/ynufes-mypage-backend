@@ -1,7 +1,7 @@
 package setting
 
 import (
-	"fmt"
+	"google.golang.org/appengine/log"
 	"gopkg.in/yaml.v3"
 	"os"
 )
@@ -23,7 +23,7 @@ func init() {
 	reader, err := os.Open(os.Getenv("ENV_LOCATION"))
 	if err != nil {
 		dir, _ := os.Getwd()
-		fmt.Println(dir)
+		log.Errorf(nil, "failed to open setting file: %v, %v\n ENV_LOCATION: %v", dir, err, os.Getenv("ENV_LOCATION"))
 		panic(err)
 	}
 	decoder := yaml.NewDecoder(reader)
