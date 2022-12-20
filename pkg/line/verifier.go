@@ -82,7 +82,7 @@ func (v AuthVerifier) RequestAccessToken(code string, state string) (*AccessToke
 
 	var credential = new(AccessTokenResponse)
 	client := resty.New()
-	resp, err := client.R().
+	req := client.R().
 		SetFormData(map[string]string{
 			"grant_type":    "authorization_code",
 			"code":          code,
@@ -91,8 +91,9 @@ func (v AuthVerifier) RequestAccessToken(code string, state string) (*AccessToke
 			"client_secret": v.clientSecret,
 		}).
 		SetHeader("Content-Type", "application/x-www-form-urlencoded").
-		SetResult(credential).
-		Post(accessTokenEndpoint)
+		SetResult(&credential)
+	fmt.Println(req)
+	resp, err := req.Post(accessTokenEndpoint)
 	if err != nil {
 		log.Printf("Failed to request access token... %v", err)
 		return nil, err
