@@ -9,6 +9,7 @@ import (
 	"log"
 	"math/rand"
 	"net/http"
+	"net/url"
 	"regexp"
 	"strconv"
 	"time"
@@ -85,7 +86,7 @@ func (v AuthVerifier) RequestAccessToken(code string, state string) (*AccessToke
 		SetFormData(map[string]string{
 			"grant_type":    "authorization_code",
 			"code":          code,
-			"redirect_uri":  v.callbackURI,
+			"redirect_uri":  url.QueryEscape(v.callbackURI),
 			"client_id":     v.clientID,
 			"client_secret": v.clientSecret,
 		}).
