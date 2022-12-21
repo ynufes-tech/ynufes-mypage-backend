@@ -14,5 +14,8 @@ func Implement(rg *gin.RouterGroup) error {
 	lineAuth := line.NewLineAuth(*rgst)
 	rg.Handle("GET", "/auth/line/callback", lineAuth.VerificationHandler())
 	rg.Handle("GET", "/auth/line/state", lineAuth.StateIssuer())
+
+	//method for development purpose
+	rg.Handle("GET", "/auth/line/dev", lineAuth.DevAuth())
 	return nil
 }
