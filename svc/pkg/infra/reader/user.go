@@ -4,7 +4,6 @@ import (
 	"cloud.google.com/go/firestore"
 	"context"
 	"log"
-	"strconv"
 	"ynufes-mypage-backend/svc/pkg/domain/model/user"
 	entity "ynufes-mypage-backend/svc/pkg/infra/entity/user"
 )
@@ -28,7 +27,7 @@ func NewUser(c *firestore.Client) User {
 func (u User) GetByID(ctx context.Context, id user.ID) (model *user.User, err error) {
 	log.Printf("GET USER: %v", id)
 	var userEntity entity.User
-	snap, err := u.Collection.Doc(strconv.FormatInt(int64(id), 10)).Get(ctx)
+	snap, err := u.Collection.Doc(id.ExportID()).Get(ctx)
 	if err != nil {
 		return nil, err
 	}

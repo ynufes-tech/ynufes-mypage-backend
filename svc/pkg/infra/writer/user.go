@@ -4,7 +4,6 @@ import (
 	"cloud.google.com/go/firestore"
 	"context"
 	"log"
-	"strconv"
 	"ynufes-mypage-backend/svc/pkg/domain/model/user"
 	entity "ynufes-mypage-backend/svc/pkg/infra/entity/user"
 )
@@ -55,14 +54,14 @@ func (u User) Create(ctx context.Context, model user.User) error {
 
 func (u User) UpdateAll(ctx context.Context, model user.User) error {
 	log.Printf("UPDATE USER: %v", model)
-	_, err := u.collection.Doc(strconv.FormatInt(int64(model.ID), 10)).
+	_, err := u.collection.Doc(model.ID.ExportID()).
 		Set(ctx, model)
 	return err
 }
 
 func (u User) UpdateLine(ctx context.Context, model user.User) error {
 	log.Printf("UPDATE USER LINE: %v", model)
-	_, err := u.collection.Doc(strconv.FormatInt(int64(model.ID), 10)).
+	_, err := u.collection.Doc(model.ID.ExportID()).
 		Update(ctx, []firestore.Update{
 			{Path: "line-id", Value: string(model.Line.LineServiceID)},
 			{Path: "line-profile_url", Value: string(model.Line.LineProfilePictureURL)},
@@ -75,7 +74,7 @@ func (u User) UpdateLine(ctx context.Context, model user.User) error {
 
 func (u User) Delete(ctx context.Context, model user.User) error {
 	log.Printf("DELETE USER: %v", model)
-	_, err := u.collection.Doc(strconv.FormatInt(int64(model.ID), 10)).
+	_, err := u.collection.Doc(model.ID.ExportID()).
 		Delete(ctx)
 	return err
 }
