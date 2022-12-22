@@ -8,7 +8,6 @@ type (
 		Line      Line
 		Dashboard Dashboard
 	}
-	ID     int64
 	Status int
 )
 
