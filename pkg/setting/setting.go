@@ -1,6 +1,7 @@
 package setting
 
 import (
+	"github.com/joho/godotenv"
 	"gopkg.in/yaml.v3"
 	"log"
 	"os"
@@ -20,6 +21,10 @@ type (
 )
 
 func init() {
+	err := godotenv.Load(".env")
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
 	envLocation := os.Getenv("ENV_LOCATION")
 	log.Println("ENV_LOCATION: " + envLocation)
 	reader, err := os.Open(envLocation)
