@@ -111,7 +111,7 @@ func (a LineAuth) VerificationHandler() gin.HandlerFunc {
 			return
 		}
 		// if user exists, update line token, set NewJWT, and redirect to home
-		err = a.setCookie(c, strconv.FormatUint(uint64(u.ID), 10))
+		err = a.setCookie(c, u.ID.ExportID())
 		if err != nil {
 			log.Println(c, "failed to set cookie: %v", err)
 			c.AbortWithStatus(500)
