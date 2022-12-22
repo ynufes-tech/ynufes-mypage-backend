@@ -4,7 +4,6 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"encoding/base64"
-	"fmt"
 )
 
 type AES struct {
@@ -31,8 +30,6 @@ func (c AES) Encrypt(plainText string) string {
 	encryptStream.XORKeyStream(encryptedByte[aes.BlockSize:], plainByte)
 	// convert to base64 using base64 package
 	encryptedText := base64.StdEncoding.EncodeToString(encryptedByte)
-	fmt.Printf("encryptedText: %s\n", encryptedText)
-	fmt.Printf("encryptedByte: %s\n", encryptedByte)
 	return encryptedText
 }
 
@@ -44,6 +41,5 @@ func (c AES) Decrypt(encryptedText string) (string, error) {
 	decryptedText := make([]byte, len(encryptedByte[aes.BlockSize:]))
 	decryptStream := cipher.NewCTR(c.block, encryptedByte[:aes.BlockSize])
 	decryptStream.XORKeyStream(decryptedText, encryptedByte[aes.BlockSize:])
-	fmt.Printf("Decrypted text: %s\n", string(decryptedText))
 	return string(decryptedText), nil
 }
