@@ -3,6 +3,8 @@ package cipher
 import (
 	"crypto/aes"
 	"crypto/cipher"
+	"encoding/base64"
+	"fmt"
 )
 
 type AES struct {
@@ -21,14 +23,27 @@ func NewAES(key string) (*AES, error) {
 	}, nil
 }
 
-func (aes AES) Encrypt(plainText string) string {
-	encryptedText := make([]byte, len(plainText))
-	aes.block.Encrypt(encryptedText, []byte(plainText))
-	return string(encryptedText)
+func (c AES) Encrypt(plainText string) string {
+	plainByte := []byte(plainText)
+	encryptedByte := make([]byte, aes.BlockSize+len(plainByte))
+	iv := encryptedByte[:aes.BlockSize]
+	encryptStream := cipher.NewCTR(c.block, iv)
+	encryptStream.XORKeyStream(encryptedByte[aes.BlockSize:], plainByte)
+	// convert to base64 using base64 package
+	encryptedText := base64.StdEncoding.EncodeToString(encryptedByte)
+	fmt.Printf("encryptedText: %s\n", encryptedText)
+	fmt.Printf("encryptedByte: %s\n", encryptedByte)
+	return encryptedText
 }
 
-func (aes AES) Decrypt(encryptedText string) (string, error) {
-	decryptedText := make([]byte, len(encryptedText))
-	aes.block.Decrypt(decryptedText, []byte(encryptedText))
+func (c AES) Decrypt(encryptedText string) (string, error) {
+	encryptedByte, err := base64.StdEncoding.DecodeString(encryptedText)
+	if err != nil {
+		return "", err
+	}
+	decryptedText := make([]byte, len(encryptedByte[aes.BlockSize:]))
+	decryptStream := cipher.NewCTR(c.block, encryptedByte[:aes.BlockSize])
+	decryptStream.XORKeyStream(decryptedText, encryptedByte[aes.BlockSize:])
+	fmt.Printf("Decrypted text: %s\n", string(decryptedText))
 	return string(decryptedText), nil
 }
