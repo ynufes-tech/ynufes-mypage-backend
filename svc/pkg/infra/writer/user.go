@@ -45,7 +45,7 @@ func (u User) Create(ctx context.Context, model user.User) error {
 		},
 	}
 	//NOTE: Create fails if the document already exists
-	_, err := u.collection.Doc(model.ID.Export()).
+	_, err := u.collection.Doc(model.ID.ExportID()).
 		Create(ctx, e)
 	if err != nil {
 		return err

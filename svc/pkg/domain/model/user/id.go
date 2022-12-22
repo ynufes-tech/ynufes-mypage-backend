@@ -8,7 +8,7 @@ func NewID(id int64) ID {
 	return ID(id)
 }
 
-func Import(id string) (ID, error) {
+func ImportID(id string) (ID, error) {
 	result, err := strconv.ParseInt(id, 36, 64)
 	if err != nil {
 		return 0, err
@@ -16,6 +16,6 @@ func Import(id string) (ID, error) {
 	return ID(result), nil
 }
 
-func (i ID) Export() string {
+func (i ID) ExportID() string {
 	return strconv.FormatInt(int64(i), 36)
 }
