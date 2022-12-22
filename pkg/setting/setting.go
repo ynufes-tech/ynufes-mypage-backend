@@ -23,7 +23,7 @@ type (
 func init() {
 	err := godotenv.Load(".env")
 	if err != nil {
-		log.Fatal("Error loading .env file")
+		log.Printf("Failed to load .env file... %v", err)
 	}
 	envLocation := os.Getenv("ENV_LOCATION")
 	log.Println("ENV_LOCATION: " + envLocation)
