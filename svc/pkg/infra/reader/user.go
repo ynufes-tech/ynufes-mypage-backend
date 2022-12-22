@@ -56,6 +56,7 @@ func (u User) GetByLineServiceID(ctx context.Context, id user.LineServiceID) (mo
 	if err != nil {
 		return nil, err
 	}
+	userEntity.ID = snap.Ref.ID
 	model, err = userEntity.ToModel()
 	if err != nil {
 		return nil, err

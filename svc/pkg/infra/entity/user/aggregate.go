@@ -3,7 +3,7 @@ package entity
 import "ynufes-mypage-backend/svc/pkg/domain/model/user"
 
 type User struct {
-	ID     int64
+	ID     string
 	Status int `firestore:"status"`
 	UserDetail
 	Line
@@ -19,9 +19,9 @@ func (u User) ToModel() (*user.User, error) {
 	if err != nil {
 		return nil, err
 	}
-
+	id, err := user.Import(u.ID)
 	return &user.User{
-		ID:     user.ID(u.ID),
+		ID:     id,
 		Status: user.Status(u.Status),
 		Detail: user.Detail{
 			Name: user.Name{
