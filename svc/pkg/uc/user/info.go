@@ -30,7 +30,7 @@ func (uc InfoUseCase) Do(input InfoInput) *InfoOutput {
 	}{
 		NameFirst:       input.User.Detail.Name.FirstName,
 		NameLast:        input.User.Detail.Name.LastName,
-		Type:            input.User.Detail.Type,
+		Type:            int(input.User.Detail.Type),
 		ProfileImageURL: string(input.User.Line.LineProfilePictureURL),
 		Status:          int(input.User.Status),
 	}
