@@ -17,3 +17,7 @@ const (
 	// StatusRegistered indicates that user has finished its basic registration.
 	StatusRegistered Status = 1
 )
+
+func (u User) IsValid() bool {
+	return u.ID != 0 && u.Line.LineServiceID != ""
+}
