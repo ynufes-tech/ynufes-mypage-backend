@@ -23,6 +23,7 @@ func Implement(rg *gin.RouterGroup) error {
 	middlewareAuth := middleware.NewAuth(*rgst)
 
 	user := userHandler.NewUser(*rgst)
-	rg.Handle("GET", "/user/info", user.InfoHandler()).Use(middlewareAuth.VerifyUser())
+	authRg := rg.Use(middlewareAuth.VerifyUser())
+	authRg.Handle("GET", "/user/info", user.InfoHandler())
 	return nil
 }
