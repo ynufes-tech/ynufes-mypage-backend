@@ -43,7 +43,7 @@ func (a auth) VerifyUser() gin.HandlerFunc {
 func getJWTFromHeader(c *gin.Context) (string, error) {
 	header := c.GetHeader("Authorization")
 
-	if header[:7] != "Bearer " {
+	if len(header) < 8 || header[:7] != "Bearer " {
 		return "", exception.ErrorInvalidHeader
 	}
 	return header[7:], nil
