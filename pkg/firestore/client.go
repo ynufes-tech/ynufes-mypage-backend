@@ -13,7 +13,7 @@ var (
 )
 
 func New() *firestore.Client {
-	if client != nil {
+	if client == nil {
 		ctx := context.Background()
 		config := setting.Get()
 		data, err := os.ReadFile(config.Infrastructure.Firestore.JsonCredentialFile)
