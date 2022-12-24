@@ -1,10 +1,8 @@
-package infra
+package testutil
 
-import (
-	"ynufes-mypage-backend/svc/pkg/domain/model/user"
-)
+import "ynufes-mypage-backend/svc/pkg/domain/model/user"
 
-func genTestCase() []user.User {
+func Users() []user.User {
 	return []user.User{
 		{
 			ID:     1234,
