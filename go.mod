@@ -10,6 +10,7 @@ require (
 	github.com/godruoyi/go-snowflake v0.0.1
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/joho/godotenv v1.4.0
+	github.com/stretchr/testify v1.8.1
 	golang.org/x/crypto v0.1.0
 	google.golang.org/api v0.104.0
 	gopkg.in/yaml.v3 v3.0.1
