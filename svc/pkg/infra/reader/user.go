@@ -35,6 +35,7 @@ func (u User) GetByID(ctx context.Context, id user.ID) (model *user.User, err er
 	if err != nil {
 		return nil, err
 	}
+	userEntity.ID = snap.Ref.ID
 	model, err = userEntity.ToModel()
 	if err != nil {
 		return nil, err
