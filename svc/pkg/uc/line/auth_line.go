@@ -54,11 +54,6 @@ func (uc AuthUseCase) Do(ipt AuthInput) (*AuthOutput, error) {
 		log.Println("Failed to get access token from LINE server... ", err)
 		return nil, err
 	}
-	accessToken, err := uc.authVerifier.VerifyAccessToken(token.AccessToken)
-	if err != nil {
-		log.Println("Failed to verify access token... ", err)
-		return nil, err
-	}
 	profile, err := line2.GetProfile(token.AccessToken)
 	if err != nil {
 		// failed to get profile
@@ -78,7 +73,7 @@ func (uc AuthUseCase) Do(ipt AuthInput) (*AuthOutput, error) {
 		RefreshToken: token.RefreshToken,
 		Code:         CodeSuccess,
 		LineInfo: user.Line{
-			LineServiceID:         user.LineServiceID(accessToken.ClientId),
+			LineServiceID:         user.LineServiceID(profile.UserID),
 			LineProfilePictureURL: user.LineProfilePictureURL(profile.PictureURL),
 			LineDisplayName:       profile.DisplayName,
 			EncryptedAccessToken:  encryptedAccessToken,
