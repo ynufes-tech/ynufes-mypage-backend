@@ -32,7 +32,7 @@ func (a auth) VerifyUser() gin.HandlerFunc {
 		}
 		result, err := a.loginUC.Do(c, uc.LoginInput{JWT: user.JWT(jwt)})
 		c.Set(UserContextKey, result)
-		if err != nil {
+		if result == nil || err != nil {
 			c.AbortWithError(401, err)
 		}
 		c.Set(AuthorizedUserIDField, result.User.ID)
