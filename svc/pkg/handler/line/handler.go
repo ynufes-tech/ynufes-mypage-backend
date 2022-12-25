@@ -4,7 +4,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/godruoyi/go-snowflake"
 	"log"
-	"strconv"
 	"time"
 	"ynufes-mypage-backend/pkg/jwt"
 	"ynufes-mypage-backend/pkg/line"
@@ -72,7 +71,7 @@ func (a LineAuth) VerificationHandler() gin.HandlerFunc {
 		if err != nil {
 			// if error is "user not found", Create User and redirect to basic info form
 			// Otherwise, respond with error
-			newID := snowflake.ID()
+			newID := user.ID(snowflake.ID())
 			aToken, err := user.NewEncryptedAccessToken(user.PlainAccessToken(token.AccessToken))
 			if err != nil {
 				log.Println(c, "failed to encrypt access token: %v", err)
@@ -86,7 +85,7 @@ func (a LineAuth) VerificationHandler() gin.HandlerFunc {
 				return
 			}
 			err = a.userC.Create(c, user.User{
-				ID:     user.ID(newID),
+				ID:     newID,
 				Status: user.StatusNew,
 				Line: user.Line{
 					LineServiceID:         user.LineServiceID(accessToken.ClientId),
@@ -101,7 +100,7 @@ func (a LineAuth) VerificationHandler() gin.HandlerFunc {
 				c.AbortWithStatus(401)
 				return
 			}
-			err = a.setCookie(c, strconv.FormatUint(newID, 10))
+			err = a.setCookie(c, newID.ExportID())
 			if err != nil {
 				log.Println(c, "failed to set cookie: %v", err)
 				c.AbortWithStatus(500)
