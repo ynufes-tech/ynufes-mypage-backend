@@ -35,7 +35,7 @@ func (a auth) VerifyUser() gin.HandlerFunc {
 			c.AbortWithError(401, err)
 			return
 		}
-		c.Set(UserContextKey, result)
+		c.Set(UserContextKey, result.User)
 		c.Set(AuthorizedUserIDField, result.User.ID)
 		c.Next()
 	}
