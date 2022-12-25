@@ -20,6 +20,9 @@ func (u User) ToModel() (*user.User, error) {
 		return nil, err
 	}
 	id, err := user.ImportID(u.ID)
+	if err != nil {
+		return nil, err
+	}
 	return &user.User{
 		ID:     id,
 		Status: user.Status(u.Status),
