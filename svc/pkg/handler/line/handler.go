@@ -53,13 +53,6 @@ func (a LineAuth) VerificationHandler() gin.HandlerFunc {
 			c.AbortWithStatus(500)
 			return
 		}
-		accessToken, err := a.verifier.VerifyAccessToken(token.AccessToken)
-		if err != nil {
-			log.Println("Failed to verify access token... ", err)
-			_, _ = c.Writer.WriteString(err.Error())
-			c.AbortWithStatus(500)
-			return
-		}
 		profile, err := line.GetProfile(token.AccessToken)
 		if err != nil {
 			// failed to get profile
@@ -67,7 +60,8 @@ func (a LineAuth) VerificationHandler() gin.HandlerFunc {
 			c.AbortWithStatus(500)
 			return
 		}
-		u, err := a.userQ.GetByLineServiceID(c, user.LineServiceID(accessToken.ClientId))
+		lineServiceID := user.LineServiceID(profile.UserID)
+		u, err := a.userQ.GetByLineServiceID(c, lineServiceID)
 		if err != nil {
 			// if error is "user not found", Create User and redirect to basic info form
 			// Otherwise, respond with error
@@ -88,7 +82,7 @@ func (a LineAuth) VerificationHandler() gin.HandlerFunc {
 				ID:     newID,
 				Status: user.StatusNew,
 				Line: user.Line{
-					LineServiceID:         user.LineServiceID(accessToken.ClientId),
+					LineServiceID:         lineServiceID,
 					LineProfilePictureURL: user.LineProfilePictureURL(profile.PictureURL),
 					LineDisplayName:       profile.DisplayName,
 					EncryptedAccessToken:  aToken,
