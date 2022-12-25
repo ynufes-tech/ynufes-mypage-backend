@@ -12,7 +12,7 @@ func CreateClaims(id string, duration time.Duration, issuer string) jwt.Standard
 	return jwt.StandardClaims{
 		Id:        id,
 		Issuer:    issuer,
-		ExpiresAt: time.Now().Add(duration * time.Second).Unix(),
+		ExpiresAt: time.Now().Add(duration).Unix(),
 		IssuedAt:  time.Now().Unix(),
 	}
 }
