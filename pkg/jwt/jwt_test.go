@@ -46,3 +46,31 @@ func TestJWT(t *testing.T) {
 		assert.Equal(t, claims.Subject, newClaims.Subject)
 	})
 }
+
+func TestCreateClaims(t *testing.T) {
+	tests := []struct {
+		name   string
+		id     string
+		secret string
+	}{
+		{
+			name:   "test1",
+			id:     "testing123",
+			secret: "ThisIsSecret",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			claims := CreateClaims(tt.id, 24*time.Hour, "testIssuer")
+			got, err := IssueJWT(claims, tt.secret)
+			if err != nil {
+				t.Errorf("IssueJWT() error = %v", err)
+				return
+			}
+			verify, err := Verify(user.JWT(got), tt.secret)
+			assert.NoError(t, err)
+			assert.Equal(t, claims.Id, verify.Id)
+		})
+	}
+}
