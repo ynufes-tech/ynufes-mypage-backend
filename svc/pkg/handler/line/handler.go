@@ -139,7 +139,7 @@ func (a LineAuth) setCookie(c *gin.Context, id string) error {
 		return err
 	}
 	// maxAge is set to 1 day
-	c.SetCookie("Authorization", "Bearer "+token, 3600*24, "/", a.domain, true, true)
+	c.SetCookie("Authorization", token, 3600*24, "/", a.domain, true, true)
 	return nil
 }
 
