@@ -31,10 +31,11 @@ func (a auth) VerifyUser() gin.HandlerFunc {
 			return
 		}
 		result, err := a.loginUC.Do(c, uc.LoginInput{JWT: user.JWT(jwt)})
-		c.Set(UserContextKey, result)
 		if result == nil || err != nil {
 			c.AbortWithError(401, err)
+			return
 		}
+		c.Set(UserContextKey, result)
 		c.Set(AuthorizedUserIDField, result.User.ID)
 		c.Next()
 	}
