@@ -44,8 +44,10 @@ func NewAuthCodeUseCase(rgst registry.Registry) AuthUseCase {
 func (uc AuthUseCase) Do(ipt AuthInput) (*AuthOutput, error) {
 	token, err := uc.authVerifier.RequestAccessToken(ipt.Code, ipt.State)
 	if err != nil {
+		err = fmt.Errorf("bad request, failed to authorize with LINE: %v", err)
+		log.Printf("error: %v", err)
 		return &AuthOutput{
-			ErrorMsg: fmt.Sprintf("Invalid request, failed to authorize with LINE %v", err),
+			ErrorMsg: err.Error(),
 		}, nil
 	}
 	aToken := user.NewEncryptedAccessToken(user.PlainAccessToken(token.AccessToken))
