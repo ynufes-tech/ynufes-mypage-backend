@@ -61,16 +61,43 @@ func (u User) UpdateAll(ctx context.Context, model user.User) error {
 	return err
 }
 
-func (u User) UpdateLine(ctx context.Context, model user.User) error {
-	log.Printf("UPDATE USER LINE: %v", model)
-	_, err := u.collection.Doc(model.ID.ExportID()).
-		Update(ctx, []firestore.Update{
-			{Path: "line-id", Value: string(model.Line.LineServiceID)},
-			{Path: "line-profile_url", Value: string(model.Line.LineProfilePictureURL)},
-			{Path: "line-access_token", Value: string(model.Line.EncryptedAccessToken)},
-			{Path: "line-refresh_token", Value: string(model.Line.EncryptedRefreshToken)},
-			{Path: "line-display_name", Value: model.Line.LineDisplayName},
-		})
+func (u User) UpdateLine(ctx context.Context, oldUser *user.User, update user.Line) error {
+	log.Printf("UPDATE USER LINE: %v -> %v\n", oldUser, update)
+	targets := map[string]struct {
+		oldValue string
+		newValue string
+	}{
+		"line-id": {
+			oldValue: string(oldUser.Line.LineServiceID),
+			newValue: string(update.LineServiceID),
+		},
+		"line-profile_url": {
+			oldValue: string(oldUser.Line.LineProfilePictureURL),
+			newValue: string(update.LineProfilePictureURL),
+		},
+		"line-display_name": {
+			oldValue: oldUser.Line.LineDisplayName,
+			newValue: update.LineDisplayName,
+		},
+		"line-access_token": {
+			oldValue: string(oldUser.Line.EncryptedAccessToken),
+			newValue: string(update.EncryptedAccessToken),
+		},
+		"line-refresh_token": {
+			oldValue: string(oldUser.Line.EncryptedRefreshToken),
+			newValue: string(update.EncryptedRefreshToken),
+		},
+	}
+	var updates []firestore.Update
+	for key, value := range targets {
+		if value.oldValue != value.newValue {
+			updates = append(updates, firestore.Update{Path: key, Value: value.newValue})
+		}
+	}
+	_, err := u.collection.
+		Doc(oldUser.ID.ExportID()).
+		Update(ctx, updates)
+	oldUser.Line = update
 	return err
 }
 
