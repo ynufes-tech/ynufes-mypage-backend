@@ -27,14 +27,14 @@ func init() {
 	aes, _ = cipher.NewAES(config.Line.CipherKey)
 }
 
-func NewEncryptedAccessToken(s PlainAccessToken) (EncryptedAccessToken, error) {
+func NewEncryptedAccessToken(s PlainAccessToken) EncryptedAccessToken {
 	encrypted := aes.Encrypt(string(s))
-	return EncryptedAccessToken(encrypted), nil
+	return EncryptedAccessToken(encrypted)
 }
 
-func NewEncryptedRefreshToken(s PlainRefreshToken) (EncryptedRefreshToken, error) {
+func NewEncryptedRefreshToken(s PlainRefreshToken) EncryptedRefreshToken {
 	encrypted := aes.Encrypt(string(s))
-	return EncryptedRefreshToken(encrypted), nil
+	return EncryptedRefreshToken(encrypted)
 }
 
 func (l Line) AccessToken() (PlainAccessToken, error) {

@@ -65,19 +65,9 @@ func (a LineAuth) VerificationHandler() gin.HandlerFunc {
 		if err != nil {
 			// if error is "user not found", Create User and redirect to basic info form
 			// Otherwise, respond with error
-			newID := user.ID(snowflake.ID())
-			aToken, err := user.NewEncryptedAccessToken(user.PlainAccessToken(token.AccessToken))
-			if err != nil {
-				log.Println(c, "failed to encrypt access token: %v", err)
-				c.AbortWithStatus(500)
-				return
-			}
-			rToken, err := user.NewEncryptedRefreshToken(user.PlainRefreshToken(token.RefreshToken))
-			if err != nil {
-				log.Println(c, "failed to encrypt refresh token: %v", err)
-				c.AbortWithStatus(500)
-				return
-			}
+			newID := user.ID(snowflake.NewSnowflake())
+			aToken := user.NewEncryptedAccessToken(user.PlainAccessToken(token.AccessToken))
+			rToken := user.NewEncryptedRefreshToken(user.PlainRefreshToken(token.RefreshToken))
 			err = a.userC.Create(c, user.User{
 				ID:     newID,
 				Status: user.StatusNew,
