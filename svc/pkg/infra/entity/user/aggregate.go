@@ -3,8 +3,9 @@ package entity
 import "ynufes-mypage-backend/svc/pkg/domain/model/user"
 
 type User struct {
-	ID     string
-	Status int `firestore:"status"`
+	// ignore id from firestore
+	ID     string `firestore:"-"`
+	Status int    `firestore:"status"`
 	UserDetail
 	Line
 	UserDashboard
