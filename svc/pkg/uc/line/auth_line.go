@@ -11,14 +11,6 @@ import (
 	"ynufes-mypage-backend/svc/pkg/registry"
 )
 
-type ResultCode int
-
-const (
-	CodeSuccess ResultCode = 200
-	CodeFailed  ResultCode = 400
-	CodeError   ResultCode = 500
-)
-
 type AuthUseCase struct {
 	authVerifier line.AuthVerifier
 	userQ        query.User
@@ -34,9 +26,8 @@ type AuthInput struct {
 type AuthOutput struct {
 	AccessToken  string
 	RefreshToken string
-	Code         ResultCode
 	ErrorMsg     string
-	LineInfo     user.Line
+	UserInfo     *user.User
 }
 
 // TODO: handler.goの内容を分割する
