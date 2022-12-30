@@ -7,7 +7,7 @@ import (
 
 type User interface {
 	Create(context.Context, user.User) error
-	UpdateLine(context.Context, user.User) error
+	UpdateLine(ctx context.Context, oldUser *user.User, update user.Line) error
 	UpdateAll(context.Context, user.User) error
 	Delete(context.Context, user.User) error
 }
