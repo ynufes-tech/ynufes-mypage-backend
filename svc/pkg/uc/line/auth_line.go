@@ -48,6 +48,8 @@ func (uc AuthUseCase) Do(ipt AuthInput) (*AuthOutput, error) {
 			ErrorMsg: fmt.Sprintf("Invalid request, failed to authorize with LINE %v", err),
 		}, nil
 	}
+	aToken := user.NewEncryptedAccessToken(user.PlainAccessToken(token.AccessToken))
+	rToken := user.NewEncryptedRefreshToken(user.PlainRefreshToken(token.RefreshToken))
 	profile, err := linePkg.GetProfile(token.AccessToken)
 	if err != nil {
 		// failed to get profile
@@ -60,8 +62,6 @@ func (uc AuthUseCase) Do(ipt AuthInput) (*AuthOutput, error) {
 		// if error is "user not found", Create User and redirect to basic info form
 		// Otherwise, respond with error
 		newID := user.ID(snowflake.NewSnowflake())
-		aToken := user.NewEncryptedAccessToken(user.PlainAccessToken(token.AccessToken))
-		rToken := user.NewEncryptedRefreshToken(user.PlainRefreshToken(token.RefreshToken))
 		newUser := user.User{
 			ID:     newID,
 			Status: user.StatusNew,
