@@ -14,7 +14,7 @@ import (
 )
 
 type AuthUseCase struct {
-	authVerifier line.AuthVerifier
+	authVerifier *line.AuthVerifier
 	userQ        query.User
 	userC        command.User
 }
@@ -33,16 +33,16 @@ type AuthOutput struct {
 }
 
 // TODO: handler.goの内容を分割する
-func NewAuthCodeUseCase(rgst registry.Registry) AuthUseCase {
+func NewAuthCodeUseCase(rgst registry.Registry, authVerifier *line.AuthVerifier) AuthUseCase {
 	return AuthUseCase{
-		authVerifier: rgst.Service().NewLineAuthVerifier(),
+		authVerifier: authVerifier,
 		userQ:        rgst.Repository().NewUserQuery(),
 		userC:        rgst.Repository().NewUserCommand(),
 	}
 }
 
 func (uc AuthUseCase) Do(ipt AuthInput) (*AuthOutput, error) {
-	token, err := uc.authVerifier.RequestAccessToken(ipt.Code, ipt.State)
+	token, err := (*uc.authVerifier).RequestAccessToken(ipt.Code, ipt.State)
 	if err != nil {
 		err = fmt.Errorf("bad request, failed to authorize with LINE: %v", err)
 		log.Printf("error: %v", err)

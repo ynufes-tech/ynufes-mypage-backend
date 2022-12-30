@@ -16,7 +16,7 @@ import (
 )
 
 type LineAuth struct {
-	verifier   lineDomain.AuthVerifier
+	verifier   *lineDomain.AuthVerifier
 	userQ      query.User
 	userC      command.User
 	domain     string
@@ -30,8 +30,9 @@ type devSetting struct {
 
 func NewLineAuth(registry registry.Registry) LineAuth {
 	conf := setting.Get()
+	authVerifier := registry.Service().NewLineAuthVerifier()
 	return LineAuth{
-		verifier: registry.Service().NewLineAuthVerifier(),
+		verifier: &authVerifier,
 		userQ:    registry.Repository().NewUserQuery(),
 		userC:    registry.Repository().NewUserCommand(),
 		domain:   conf.Application.Server.Domain,
@@ -39,7 +40,7 @@ func NewLineAuth(registry registry.Registry) LineAuth {
 			callbackURI: conf.ThirdParty.LineLogin.CallbackURI,
 			clientID:    conf.ThirdParty.LineLogin.ClientID,
 		},
-		authUC: lineUC.NewAuthCodeUseCase(registry),
+		authUC: lineUC.NewAuthCodeUseCase(registry, &authVerifier),
 	}
 }
 
@@ -92,7 +93,7 @@ func (a LineAuth) setCookie(c *gin.Context, id string) error {
 
 func (a LineAuth) StateIssuer() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		state := a.verifier.IssueNewState()
+		state := (*a.verifier).IssueNewState()
 		_, _ = c.Writer.WriteString(state)
 		c.Status(200)
 	}
@@ -100,7 +101,7 @@ func (a LineAuth) StateIssuer() gin.HandlerFunc {
 
 func (a LineAuth) DevAuth() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		state := a.verifier.IssueNewState()
+		state := (*a.verifier).IssueNewState()
 		c.Redirect(302, "https://access.line.me/oauth2/v2.1/authorize?response_type=code&client_id="+a.devSetting.clientID+"&redirect_uri="+a.devSetting.callbackURI+"&state="+state+"&scope=openid%20profile%20email")
 	}
 }
