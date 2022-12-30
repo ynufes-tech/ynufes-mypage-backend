@@ -2,11 +2,9 @@ package line
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/godruoyi/go-snowflake"
 	"log"
 	"time"
 	"ynufes-mypage-backend/pkg/jwt"
-	"ynufes-mypage-backend/pkg/line"
 	"ynufes-mypage-backend/pkg/setting"
 	"ynufes-mypage-backend/svc/pkg/config"
 	"ynufes-mypage-backend/svc/pkg/domain/command"
@@ -14,6 +12,7 @@ import (
 	"ynufes-mypage-backend/svc/pkg/domain/query"
 	lineDomain "ynufes-mypage-backend/svc/pkg/domain/service/line"
 	"ynufes-mypage-backend/svc/pkg/registry"
+	lineUC "ynufes-mypage-backend/svc/pkg/uc/line"
 )
 
 type LineAuth struct {
@@ -22,6 +21,7 @@ type LineAuth struct {
 	userC      command.User
 	domain     string
 	devSetting devSetting
+	authUC     lineUC.AuthUseCase
 }
 type devSetting struct {
 	callbackURI string
@@ -39,6 +39,7 @@ func NewLineAuth(registry registry.Registry) LineAuth {
 			callbackURI: conf.ThirdParty.LineLogin.CallbackURI,
 			clientID:    conf.ThirdParty.LineLogin.ClientID,
 		},
+		authUC: lineUC.NewAuthCodeUseCase(registry),
 	}
 }
 
@@ -46,69 +47,31 @@ func (a LineAuth) VerificationHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		code := c.Request.URL.Query().Get("code")
 		state := c.Request.URL.Query().Get("state")
-		token, err := a.verifier.RequestAccessToken(code, state)
+		authInput := lineUC.AuthInput{
+			State: state,
+			Code:  code,
+			Ctx:   c,
+		}
+		authOut, err := a.authUC.Do(authInput)
+
 		if err != nil {
-			log.Println("Failed to get access token from LINE server... ", err)
 			_, _ = c.Writer.WriteString(err.Error())
+			log.Printf("error: %v", err)
 			c.AbortWithStatus(500)
 			return
 		}
-		profile, err := line.GetProfile(token.AccessToken)
-		if err != nil {
-			// failed to get profile
-			log.Println(c, "failed to get profile: %v", err)
-			c.AbortWithStatus(500)
+		if authOut.UserInfo == nil {
+			_, _ = c.Writer.WriteString(authOut.ErrorMsg)
+			c.AbortWithStatus(400)
 			return
 		}
-		lineServiceID := user.LineServiceID(profile.UserID)
-		u, err := a.userQ.GetByLineServiceID(c, lineServiceID)
-		if err != nil {
-			// if error is "user not found", Create User and redirect to basic info form
-			// Otherwise, respond with error
-			newID := user.ID(snowflake.NewSnowflake())
-			aToken := user.NewEncryptedAccessToken(user.PlainAccessToken(token.AccessToken))
-			rToken := user.NewEncryptedRefreshToken(user.PlainRefreshToken(token.RefreshToken))
-			err = a.userC.Create(c, user.User{
-				ID:     newID,
-				Status: user.StatusNew,
-				Line: user.Line{
-					LineServiceID:         lineServiceID,
-					LineProfilePictureURL: user.LineProfilePictureURL(profile.PictureURL),
-					LineDisplayName:       profile.DisplayName,
-					EncryptedAccessToken:  aToken,
-					EncryptedRefreshToken: rToken,
-				},
-			})
-			if err != nil {
-				log.Println(c, "failed to create user: %v", err)
-				c.AbortWithStatus(401)
-				return
-			}
-			err = a.setCookie(c, newID.ExportID())
-			if err != nil {
-				log.Println(c, "failed to set cookie: %v", err)
-				c.AbortWithStatus(500)
-				return
-			}
-			c.Redirect(302, "/welcome")
-			return
-		}
-		// if user exists, update line token, set NewJWT, and redirect to home
-		err = a.setCookie(c, u.ID.ExportID())
+		err = a.setCookie(c, authOut.UserInfo.ID.ExportID())
 		if err != nil {
 			log.Println(c, "failed to set cookie: %v", err)
 			c.AbortWithStatus(500)
 			return
 		}
-		err = a.userC.UpdateLine(c, *u)
-		if err != nil {
-			log.Println(c, "failed to update line token: %v", err)
-			c.AbortWithStatus(500)
-			return
-		}
-		// give JWT and redirect to home
-		// if user basic info is not filled, redirect to basic info form
-		if u.Status == user.StatusNew {
+		if authOut.UserInfo.Status == user.StatusNew {
 			c.Redirect(302, "/welcome")
 			return
 		}
