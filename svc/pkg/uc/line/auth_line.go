@@ -2,8 +2,10 @@ package line
 
 import (
 	"context"
+	"fmt"
 	"log"
 	linePkg "ynufes-mypage-backend/pkg/line"
+	"ynufes-mypage-backend/pkg/snowflake"
 	"ynufes-mypage-backend/svc/pkg/domain/command"
 	"ynufes-mypage-backend/svc/pkg/domain/model/user"
 	"ynufes-mypage-backend/svc/pkg/domain/query"
@@ -52,24 +54,49 @@ func (uc AuthUseCase) Do(ipt AuthInput) (*AuthOutput, error) {
 		log.Printf("failed to get profile: %v", err)
 		return nil, err
 	}
-	encryptedAccessToken, err := user.NewEncryptedAccessToken(user.PlainAccessToken(token.AccessToken))
+	lineServiceID := user.LineServiceID(profile.UserID)
+	u, err := uc.userQ.GetByLineServiceID(ipt.Ctx, lineServiceID)
 	if err != nil {
-		return nil, err
+		// if error is "user not found", Create User and redirect to basic info form
+		// Otherwise, respond with error
+		newID := user.ID(snowflake.NewSnowflake())
+		aToken := user.NewEncryptedAccessToken(user.PlainAccessToken(token.AccessToken))
+		rToken := user.NewEncryptedRefreshToken(user.PlainRefreshToken(token.RefreshToken))
+		newUser := user.User{
+			ID:     newID,
+			Status: user.StatusNew,
+			Line: user.Line{
+				LineServiceID:         lineServiceID,
+				LineProfilePictureURL: user.LineProfilePictureURL(profile.PictureURL),
+				LineDisplayName:       profile.DisplayName,
+				EncryptedAccessToken:  aToken,
+				EncryptedRefreshToken: rToken,
+			},
+		}
+		if err = uc.userC.Create(ipt.Ctx, newUser); err != nil {
+			log.Println(ipt.Ctx, "failed to create user: %v", err)
+			return nil, err
+		}
+		return &AuthOutput{
+			AccessToken:  token.AccessToken,
+			RefreshToken: token.RefreshToken,
+			UserInfo:     &newUser,
+		}, nil
 	}
-	encryptedRefreshToken, err := user.NewEncryptedRefreshToken(user.PlainRefreshToken(token.RefreshToken))
-	if err != nil {
-		return nil, err
+	// User found. Update Line info
+	update := user.Line{
+		LineServiceID:         lineServiceID,
+		LineProfilePictureURL: user.LineProfilePictureURL(profile.PictureURL),
+		LineDisplayName:       profile.DisplayName,
+		EncryptedAccessToken:  user.NewEncryptedAccessToken(user.PlainAccessToken(token.AccessToken)),
+		EncryptedRefreshToken: user.NewEncryptedRefreshToken(user.PlainRefreshToken(token.RefreshToken)),
+	}
+	if err := uc.userC.UpdateLine(ipt.Ctx, u, update); err != nil {
+		return nil, fmt.Errorf("failed to update line info: %v", err)
 	}
 	return &AuthOutput{
 		AccessToken:  token.AccessToken,
 		RefreshToken: token.RefreshToken,
-		Code:         CodeSuccess,
-		LineInfo: user.Line{
-			LineServiceID:         user.LineServiceID(profile.UserID),
-			LineProfilePictureURL: user.LineProfilePictureURL(profile.PictureURL),
-			LineDisplayName:       profile.DisplayName,
-			EncryptedAccessToken:  encryptedAccessToken,
-			EncryptedRefreshToken: encryptedRefreshToken,
-		},
+		UserInfo:     u,
 	}, nil
 }
