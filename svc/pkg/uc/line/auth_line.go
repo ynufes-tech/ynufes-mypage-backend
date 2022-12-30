@@ -32,7 +32,6 @@ type AuthOutput struct {
 	UserInfo     *user.User
 }
 
-// TODO: handler.goの内容を分割する
 func NewAuthCodeUseCase(rgst registry.Registry, authVerifier *line.AuthVerifier) AuthUseCase {
 	return AuthUseCase{
 		authVerifier: authVerifier,
