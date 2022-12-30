@@ -3,7 +3,7 @@ package line
 import (
 	"context"
 	"log"
-	line2 "ynufes-mypage-backend/pkg/line"
+	linePkg "ynufes-mypage-backend/pkg/line"
 	"ynufes-mypage-backend/svc/pkg/domain/command"
 	"ynufes-mypage-backend/svc/pkg/domain/model/user"
 	"ynufes-mypage-backend/svc/pkg/domain/query"
@@ -45,7 +45,7 @@ func (uc AuthUseCase) Do(ipt AuthInput) (*AuthOutput, error) {
 		log.Println("Failed to get access token from LINE server... ", err)
 		return nil, err
 	}
-	profile, err := line2.GetProfile(token.AccessToken)
+	profile, err := linePkg.GetProfile(token.AccessToken)
 	if err != nil {
 		// failed to get profile
 		log.Printf("failed to get profile: %v", err)
