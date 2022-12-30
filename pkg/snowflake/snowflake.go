@@ -8,7 +8,7 @@ import (
 type Snowflake int64
 
 func init() {
-	snowflake.SetMachineID(1305)
+	snowflake.SetMachineID(305)
 }
 
 func NewSnowflake() Snowflake {
