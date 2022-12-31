@@ -1,8 +1,8 @@
 ---
 name: Feature request
-about: Suggest an idea for this project
+about: Found a bug? Let's be a bug hunter!
 title: "🐛🔧"
-labels: ''
+labels: 'bug'
 assignees: shion1305, tomoyahiroe
 
 ---

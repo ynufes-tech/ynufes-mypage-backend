@@ -1,6 +1,6 @@
 ---
 name: Feature request
-about: Suggest an idea for this project
+about: Wanna request a feature? Let's make suggestions!
 title: "✨⚡️📝🔥🔧"
 labels: 'suggestion'
 assignees: shion1305, tomoyahiroe

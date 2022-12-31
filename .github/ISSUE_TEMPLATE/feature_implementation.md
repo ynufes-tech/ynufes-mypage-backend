@@ -1,6 +1,6 @@
 ---
 name: Feature implementation
-about: Declare your intention to implement a feature
+about: Are you working on a feature? Tell me more about it!
 title: "✨⚡️📝🔥🔧"
 labels: 'todo'
 assignees: shion1305, tomoyahiroe
