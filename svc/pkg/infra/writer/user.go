@@ -97,7 +97,9 @@ func (u User) UpdateLine(ctx context.Context, oldUser *user.User, update user.Li
 	_, err := u.collection.
 		Doc(oldUser.ID.ExportID()).
 		Update(ctx, updates)
-	oldUser.Line = update
+	if err == nil {
+		oldUser.Line = update
+	}
 	return err
 }
 
