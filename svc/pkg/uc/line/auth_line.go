@@ -26,10 +26,8 @@ type AuthInput struct {
 }
 
 type AuthOutput struct {
-	AccessToken  string
-	RefreshToken string
-	ErrorMsg     string
-	UserInfo     *user.User
+	ErrorMsg string
+	UserInfo *user.User
 }
 
 func NewAuthCodeUseCase(rgst registry.Registry, authVerifier *line.AuthVerifier) AuthUseCase {
@@ -96,8 +94,6 @@ func (uc AuthUseCase) Do(ipt AuthInput) (*AuthOutput, error) {
 		return nil, fmt.Errorf("failed to update line info: %v", err)
 	}
 	return &AuthOutput{
-		AccessToken:  token.AccessToken,
-		RefreshToken: token.RefreshToken,
-		UserInfo:     u,
+		UserInfo: u,
 	}, nil
 }
