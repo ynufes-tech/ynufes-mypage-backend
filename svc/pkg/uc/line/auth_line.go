@@ -89,8 +89,8 @@ func (uc AuthUseCase) Do(ipt AuthInput) (*AuthOutput, error) {
 		LineServiceID:         lineServiceID,
 		LineProfilePictureURL: user.LineProfilePictureURL(profile.PictureURL),
 		LineDisplayName:       profile.DisplayName,
-		EncryptedAccessToken:  user.NewEncryptedAccessToken(user.PlainAccessToken(token.AccessToken)),
-		EncryptedRefreshToken: user.NewEncryptedRefreshToken(user.PlainRefreshToken(token.RefreshToken)),
+		EncryptedAccessToken:  aToken,
+		EncryptedRefreshToken: rToken,
 	}
 	if err := uc.userC.UpdateLine(ipt.Ctx, u, update); err != nil {
 		return nil, fmt.Errorf("failed to update line info: %v", err)
