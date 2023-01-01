@@ -40,7 +40,7 @@ func NewLineAuth(registry registry.Registry) LineAuth {
 			callbackURI: conf.ThirdParty.LineLogin.CallbackURI,
 			clientID:    conf.ThirdParty.LineLogin.ClientID,
 		},
-		authUC: lineUC.NewAuthCodeUseCase(registry, &authVerifier),
+		authUC: lineUC.NewAuthCodeUseCase(registry, conf.ThirdParty.LineLogin.EnableLineAuth, &authVerifier),
 	}
 }
 
