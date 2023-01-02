@@ -33,5 +33,5 @@ func (uc UserInfoUpdateUseCase) Do(input UserInfoUpdateInput) (*UserInfoUpdateOu
 		return &UserInfoUpdateOutput{Error: errors.New("your request does not meet the basic requirement")}, nil
 	}
 	err := uc.userC.UpdateUserDetail(input.Ctx, input.OldUser, input.NewDetail)
-	return nil, err
+	return &UserInfoUpdateOutput{}, err
 }
