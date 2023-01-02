@@ -15,7 +15,7 @@ func TestImplement(t *testing.T) {
 	rg := r.Group("/api/v1")
 	err := Implement(rg)
 	assert.NoError(t, err)
-	req, _ := http.NewRequest("GET", "/api/v1/line/state", nil)
+	req, _ := http.NewRequest("GET", "/api/v1/auth/line/state", nil)
 	r.ServeHTTP(w, req)
 	assert.Equal(t, 200, w.Code)
 
