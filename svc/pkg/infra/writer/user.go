@@ -94,6 +94,9 @@ func (u User) UpdateLine(ctx context.Context, oldUser *user.User, update user.Li
 			updates = append(updates, firestore.Update{Path: key, Value: value.newValue})
 		}
 	}
+	if len(updates) == 0 {
+		return nil
+	}
 	_, err := u.collection.
 		Doc(oldUser.ID.ExportID()).
 		Update(ctx, updates)
@@ -107,6 +110,15 @@ func (u User) UpdateUserDetail(ctx context.Context, oldUser *user.User, update u
 	log.Printf("UPDATE USER INFO: %v -> %v\n", oldUser, update)
 
 	var updateTargets []firestore.Update
+	var newStatus int
+	switch update.MeetsBasicRequirement() {
+	case true:
+		newStatus = int(user.StatusRegistered)
+		break
+	case false:
+		newStatus = int(user.StatusNew)
+		break
+	}
 	targets := map[string]struct {
 		oldValue interface{}
 		newValue interface{}
@@ -139,13 +151,19 @@ func (u User) UpdateUserDetail(ctx context.Context, oldUser *user.User, update u
 			oldValue: string(oldUser.Detail.StudentID),
 			newValue: update.StudentID,
 		},
+		"status": {
+			oldValue: oldUser.Status,
+			newValue: newStatus,
+		},
 	}
 	for key, value := range targets {
 		if value.oldValue != value.newValue {
 			updateTargets = append(updateTargets, firestore.Update{Path: key, Value: value.newValue})
 		}
 	}
-	updateTargets = append(updateTargets, firestore.Update{Path: "status", Value: int(user.StatusRegistered)})
+	if len(updateTargets) == 0 {
+		return nil
+	}
 	_, err := u.collection.Doc(oldUser.ID.ExportID()).
 		Update(ctx, updateTargets)
 	if err == nil {

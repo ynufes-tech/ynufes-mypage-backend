@@ -7,7 +7,7 @@ type Gender int
 const (
 	GenderMan          = 1
 	GenderWoman        = 2
-	GenderNotSpecified = 3
+	GenderNotSpecified = 0
 )
 
 func NewGender(gender int) (Gender, error) {

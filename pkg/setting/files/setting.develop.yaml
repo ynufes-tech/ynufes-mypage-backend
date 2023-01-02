@@ -4,7 +4,7 @@ application:
 infrastructure:
   firestore:
     project_id: "ynufes-mypage"
-    json_credential_file: ""
+    json_credential_file: "TESTING"
 third_party:
   line_login:
     client_id: "LINE_AUTH_CLIENT_ID"
