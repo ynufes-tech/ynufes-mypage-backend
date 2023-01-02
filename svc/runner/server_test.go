@@ -27,6 +27,7 @@ func TestImplement(t *testing.T) {
 	// Check redirection
 	assert.Equal(t, "/welcome", w.Header().Get("Location"))
 	cookie := w.Header().Get("Set-Cookie")
+	cookie = cookie[:strings.Index(cookie, ";")]
 	assert.Equal(t, "Authorization=", cookie[:14])
 	jwtToken := cookie[14:]
 	req, _ = http.NewRequest("GET", "/api/v1/user/info", nil)
