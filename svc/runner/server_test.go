@@ -20,7 +20,7 @@ func TestImplement(t *testing.T) {
 	assert.Equal(t, 200, w.Code)
 
 	// Simulate Callback from Line Login
-	req, _ = http.NewRequest("GET", "/api/v1/line/callback", nil)
+	req, _ = http.NewRequest("GET", "/api/v1/auth/line/callback", nil)
 	r.ServeHTTP(w, req)
 	assert.Equal(t, 302, w.Code)
 
@@ -50,7 +50,7 @@ func TestImplement(t *testing.T) {
 	assert.Equal(t, "{\"name_first\":\"太郎\",\"name_last\":\"横国\",\"type\":1,\"profile_icon_url\":\"https://testUserPicture.com\",\"status\":2}", w.Body.String())
 
 	// Simulate Revalidation with LineLogin
-	req, _ = http.NewRequest("GET", "/api/v1/line/callback", nil)
+	req, _ = http.NewRequest("GET", "/api/v1/auth/line/callback", nil)
 	r.ServeHTTP(w, req)
 	assert.Equal(t, 302, w.Code)
 
