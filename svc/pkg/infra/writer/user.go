@@ -97,7 +97,62 @@ func (u User) UpdateLine(ctx context.Context, oldUser *user.User, update user.Li
 	_, err := u.collection.
 		Doc(oldUser.ID.ExportID()).
 		Update(ctx, updates)
-	oldUser.Line = update
+	if err == nil {
+		oldUser.Line = update
+	}
+	return err
+}
+
+func (u User) UpdateUserDetail(ctx context.Context, oldUser *user.User, update user.Detail) error {
+	log.Printf("UPDATE USER INFO: %v -> %v\n", oldUser, update)
+
+	var updateTargets []firestore.Update
+	targets := map[string]struct {
+		oldValue interface{}
+		newValue interface{}
+	}{
+		"detail-name_first": {
+			oldValue: oldUser.Detail.Name.FirstName,
+			newValue: update.Name.FirstName,
+		},
+		"detail-name_first_kana": {
+			oldValue: oldUser.Detail.Name.FirstNameKana,
+			newValue: update.Name.FirstNameKana,
+		},
+		"detail-name_last": {
+			oldValue: oldUser.Detail.Name.LastName,
+			newValue: update.Name.LastName,
+		},
+		"detail-name_last_kana": {
+			oldValue: oldUser.Detail.Name.LastNameKana,
+			newValue: update.Name.LastNameKana,
+		},
+		"detail-email": {
+			oldValue: string(oldUser.Detail.Email),
+			newValue: update.Email,
+		},
+		"detail-gender": {
+			oldValue: oldUser.Detail.Gender,
+			newValue: update.Gender,
+		},
+		"detail-student_id": {
+			oldValue: string(oldUser.Detail.StudentID),
+			newValue: update.StudentID,
+		},
+	}
+	for key, value := range targets {
+		if value.oldValue != value.newValue {
+			updateTargets = append(updateTargets, firestore.Update{Path: key, Value: value.newValue})
+		}
+	}
+	updateTargets = append(updateTargets, firestore.Update{Path: "status", Value: int(user.StatusRegistered)})
+	_, err := u.collection.Doc(oldUser.ID.ExportID()).
+		Update(ctx, updateTargets)
+	if err == nil {
+		// do not update field: Type
+		update.Type = oldUser.Detail.Type
+		oldUser.Detail = update
+	}
 	return err
 }
 

@@ -17,6 +17,7 @@ type AuthUseCase struct {
 	authVerifier *line.AuthVerifier
 	userQ        query.User
 	userC        command.User
+	enableLine   bool
 }
 
 type AuthInput struct {
@@ -26,36 +27,49 @@ type AuthInput struct {
 }
 
 type AuthOutput struct {
-	AccessToken  string
-	RefreshToken string
-	ErrorMsg     string
-	UserInfo     *user.User
+	ErrorMsg string
+	UserInfo *user.User
 }
 
-func NewAuthCodeUseCase(rgst registry.Registry, authVerifier *line.AuthVerifier) AuthUseCase {
+func NewAuthCodeUseCase(rgst registry.Registry, enableLineAuth bool, authVerifier *line.AuthVerifier) AuthUseCase {
 	return AuthUseCase{
 		authVerifier: authVerifier,
 		userQ:        rgst.Repository().NewUserQuery(),
 		userC:        rgst.Repository().NewUserCommand(),
+		enableLine:   enableLineAuth,
 	}
 }
 
 func (uc AuthUseCase) Do(ipt AuthInput) (*AuthOutput, error) {
-	token, err := (*uc.authVerifier).RequestAccessToken(ipt.Code, ipt.State)
-	if err != nil {
-		err = fmt.Errorf("bad request, failed to authorize with LINE: %v", err)
-		log.Printf("error: %v", err)
-		return &AuthOutput{
-			ErrorMsg: err.Error(),
-		}, nil
-	}
-	aToken := user.NewEncryptedAccessToken(user.PlainAccessToken(token.AccessToken))
-	rToken := user.NewEncryptedRefreshToken(user.PlainRefreshToken(token.RefreshToken))
-	profile, err := linePkg.GetProfile(token.AccessToken)
-	if err != nil {
-		// failed to get profile
-		log.Printf("failed to get profile: %v", err)
-		return nil, err
+	var aToken user.EncryptedAccessToken
+	var rToken user.EncryptedRefreshToken
+	var profile linePkg.ProfileResponse
+	if uc.enableLine {
+		token, err := (*uc.authVerifier).RequestAccessToken(ipt.Code, ipt.State)
+		if err != nil {
+			err = fmt.Errorf("bad request, failed to authorize with LINE: %v", err)
+			log.Printf("error: %v", err)
+			return &AuthOutput{
+				ErrorMsg: err.Error(),
+			}, nil
+		}
+		aToken = user.NewEncryptedAccessToken(user.PlainAccessToken(token.AccessToken))
+		rToken = user.NewEncryptedRefreshToken(user.PlainRefreshToken(token.RefreshToken))
+		profile, err = linePkg.GetProfile(token.AccessToken)
+		if err != nil {
+			// failed to get profile
+			log.Printf("failed to get profile: %v", err)
+			return nil, err
+		}
+	} else {
+		aToken = user.NewEncryptedAccessToken("testAccessToken")
+		rToken = user.NewEncryptedRefreshToken("testRefreshToken")
+		profile = linePkg.ProfileResponse{
+			UserID:        "testUserLineID",
+			DisplayName:   "testUserDisplayName",
+			PictureURL:    "testUserPictureURL",
+			StatusMessage: "testUserStatusMessage",
+		}
 	}
 	lineServiceID := user.LineServiceID(profile.UserID)
 	u, err := uc.userQ.GetByLineServiceID(ipt.Ctx, lineServiceID)
@@ -79,9 +93,7 @@ func (uc AuthUseCase) Do(ipt AuthInput) (*AuthOutput, error) {
 			return nil, err
 		}
 		return &AuthOutput{
-			AccessToken:  token.AccessToken,
-			RefreshToken: token.RefreshToken,
-			UserInfo:     &newUser,
+			UserInfo: &newUser,
 		}, nil
 	}
 	// User found. Update Line info
@@ -89,15 +101,13 @@ func (uc AuthUseCase) Do(ipt AuthInput) (*AuthOutput, error) {
 		LineServiceID:         lineServiceID,
 		LineProfilePictureURL: user.LineProfilePictureURL(profile.PictureURL),
 		LineDisplayName:       profile.DisplayName,
-		EncryptedAccessToken:  user.NewEncryptedAccessToken(user.PlainAccessToken(token.AccessToken)),
-		EncryptedRefreshToken: user.NewEncryptedRefreshToken(user.PlainRefreshToken(token.RefreshToken)),
+		EncryptedAccessToken:  aToken,
+		EncryptedRefreshToken: rToken,
 	}
 	if err := uc.userC.UpdateLine(ipt.Ctx, u, update); err != nil {
 		return nil, fmt.Errorf("failed to update line info: %v", err)
 	}
 	return &AuthOutput{
-		AccessToken:  token.AccessToken,
-		RefreshToken: token.RefreshToken,
-		UserInfo:     u,
+		UserInfo: u,
 	}, nil
 }

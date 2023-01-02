@@ -25,5 +25,6 @@ func Implement(rg *gin.RouterGroup) error {
 	user := userHandler.NewUser(*rgst)
 	authRg := rg.Use(middlewareAuth.VerifyUser())
 	authRg.Handle("GET", "/user/info", user.InfoHandler())
+	authRg.Handle("POST", "/user/info/update", user.InfoUpdateHandler())
 	return nil
 }

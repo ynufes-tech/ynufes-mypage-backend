@@ -12,4 +12,5 @@ third_party:
     callback_uri: "LINE_AUTH_CALLBACK_URI"
     cipher_key: "LINE_AUTH_CIPHER_KEY_TEST_TEST12"
     # CIPHER KEY HAS TO BE 16, 24, OR 32 BYTES LONG
+    enable_line_auth: true
 service:
