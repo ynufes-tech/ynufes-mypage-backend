@@ -50,25 +50,3 @@ func (r InfoUpdateRequest) ApplyToDetail(d *user.Detail) error {
 	*d = cp
 	return nil
 }
-
-func (r InfoUpdateRequest) ToUserDetail() (*user.Detail, error) {
-	email, err := user.NewEmail(r.Email)
-	if err != nil {
-		return nil, err
-	}
-	gender, err := user.NewGender(r.Gender)
-	if err != nil {
-		return nil, err
-	}
-	return &user.Detail{
-		Name: user.Name{
-			FirstName:     r.NameFirst,
-			LastName:      r.NameLast,
-			FirstNameKana: r.NameFirstKana,
-			LastNameKana:  r.NameLastKana,
-		},
-		Email:     email,
-		Gender:    gender,
-		StudentID: user.StudentID(r.StudentID),
-	}, nil
-}
