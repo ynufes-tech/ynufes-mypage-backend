@@ -5,7 +5,7 @@ import "errors"
 type Type int
 
 const (
-	TypeNormal Type = 0
+	TypeNormal Type = 1
 )
 
 func NewType(t int) (Type, error) {
