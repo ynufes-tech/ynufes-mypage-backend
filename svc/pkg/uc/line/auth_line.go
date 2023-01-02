@@ -67,7 +67,7 @@ func (uc AuthUseCase) Do(ipt AuthInput) (*AuthOutput, error) {
 		profile = linePkg.ProfileResponse{
 			UserID:        "testUserLineID",
 			DisplayName:   "testUserDisplayName",
-			PictureURL:    "testUserPictureURL",
+			PictureURL:    "https://testUserPicture.com",
 			StatusMessage: "testUserStatusMessage",
 		}
 	}
