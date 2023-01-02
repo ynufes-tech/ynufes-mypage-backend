@@ -28,12 +28,10 @@ func NewInfoUpdate(rgst registry.Registry) UserInfoUpdateUseCase {
 	}
 }
 
-func (uc UserInfoUpdateUseCase) Do(input UserInfoUpdateInput) UserInfoUpdateOutput {
+func (uc UserInfoUpdateUseCase) Do(input UserInfoUpdateInput) (*UserInfoUpdateOutput, error) {
 	if !input.NewDetail.MeetsBasicRequirement() {
-		return UserInfoUpdateOutput{Error: errors.New("invalid user update request")}
+		return &UserInfoUpdateOutput{Error: errors.New("your request does not meet the basic requirement")}, nil
 	}
 	err := uc.userC.UpdateUserDetail(input.Ctx, input.OldUser, input.NewDetail)
-	return UserInfoUpdateOutput{
-		Error: err,
-	}
+	return nil, err
 }

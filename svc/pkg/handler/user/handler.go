@@ -60,14 +60,17 @@ func (uh User) InfoUpdateHandler() gin.HandlerFunc {
 			c.AbortWithStatusJSON(400, gin.H{"status": false, "message": err.Error()})
 			return
 		}
-		out := uh.infoUpdateUC.Do(uc.UserInfoUpdateInput{
+		out, err := uh.infoUpdateUC.Do(uc.UserInfoUpdateInput{
 			Ctx:       c,
 			OldUser:   &u,
 			NewDetail: newDetail,
 		})
-		if out.Error != nil {
+		if err != nil {
 			c.AbortWithStatusJSON(500, gin.H{"status": false, "message": out.Error.Error()})
 			return
+		}
+		if out.Error != nil {
+			c.AbortWithStatusJSON(400, gin.H{"status": false, "message": out.Error.Error()})
 		}
 		c.Status(200)
 	}
