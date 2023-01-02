@@ -45,7 +45,7 @@ func (uh User) InfoUpdateHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		uA, exists := c.Get(middleware.UserContextKey)
 		u, ok := uA.(user.User)
-		if !exists || !ok || u.IsValid() {
+		if !exists || !ok || !u.IsValid() {
 			c.AbortWithStatusJSON(400, gin.H{"status": false, "message": "failed to retrieve user from context"})
 			return
 		}
