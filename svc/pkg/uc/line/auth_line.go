@@ -87,6 +87,13 @@ func (uc AuthUseCase) Do(ipt AuthInput) (*AuthOutput, error) {
 				EncryptedAccessToken:  aToken,
 				EncryptedRefreshToken: rToken,
 			},
+			Detail: user.Detail{
+				Name:      user.Name{},
+				Email:     "",
+				Gender:    user.GenderNotSpecified,
+				StudentID: "",
+				Type:      user.TypeNormal,
+			},
 		}
 		if err = uc.userC.Create(ipt.Ctx, newUser); err != nil {
 			log.Println(ipt.Ctx, "failed to create user: %v", err)
