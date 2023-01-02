@@ -60,6 +60,7 @@ func (uh User) InfoUpdateHandler() gin.HandlerFunc {
 			return
 		}
 		out := uh.infoUpdateUC.Do(uc.UserInfoUpdateInput{
+			Ctx:       c,
 			OldUser:   &u,
 			NewDetail: *detail,
 		})

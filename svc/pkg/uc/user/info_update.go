@@ -10,10 +10,10 @@ import (
 
 type UserInfoUpdateUseCase struct {
 	userC command.User
-	ctx   context.Context
 }
 
 type UserInfoUpdateInput struct {
+	Ctx       context.Context
 	OldUser   *user.User
 	NewDetail user.Detail
 }
@@ -32,7 +32,7 @@ func (uc UserInfoUpdateUseCase) Do(input UserInfoUpdateInput) UserInfoUpdateOutp
 	if !input.NewDetail.MeetsBasicRequirement() {
 		return UserInfoUpdateOutput{Error: errors.New("invalid user update request")}
 	}
-	err := uc.userC.UpdateUserDetail(uc.ctx, input.OldUser, input.NewDetail)
+	err := uc.userC.UpdateUserDetail(input.Ctx, input.OldUser, input.NewDetail)
 	return UserInfoUpdateOutput{
 		Error: err,
 	}
