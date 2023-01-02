@@ -20,6 +20,7 @@ func TestImplement(t *testing.T) {
 	assert.Equal(t, 200, w.Code)
 
 	// Simulate Callback from Line Login
+	w = httptest.NewRecorder()
 	req, _ = http.NewRequest("GET", "/api/v1/auth/line/callback", nil)
 	r.ServeHTTP(w, req)
 	assert.Equal(t, 302, w.Code)
@@ -29,6 +30,9 @@ func TestImplement(t *testing.T) {
 	cookie := w.Header().Get("Set-Cookie")
 	cookie = cookie[:strings.Index(cookie, ";")]
 	assert.Equal(t, "Authorization=", cookie[:14])
+
+	// Simulate User Info Api
+	w = httptest.NewRecorder()
 	jwtToken := cookie[14:]
 	req, _ = http.NewRequest("GET", "/api/v1/user/info", nil)
 	req.Header.Set("Authorization", "Bearer "+jwtToken)
@@ -37,13 +41,15 @@ func TestImplement(t *testing.T) {
 	assert.Equal(t, "{\"name_first\":\"\",\"name_last\":\"\",\"type\":1,\"profile_icon_url\":\"https://testUserPicture.com\",\"status\":1}", w.Body.String())
 
 	// Simulate user info update
-	body := `{"name_first":"太郎"","name_last":"横国","type":0,"profile_icon_url":"https://testUserPicture.com","status":0}`
+	w = httptest.NewRecorder()
+	body := `{"name_first":"太郎","name_last":"横国","type":1,"profile_icon_url":"https://testUserPicture.com","status":1}`
 	req, _ = http.NewRequest("POST", "/api/v1/user/info/update", strings.NewReader(body))
 	req.Header.Set("Authorization", "Bearer "+jwtToken)
 	r.ServeHTTP(w, req)
 	assert.Equal(t, 200, w.Code)
 	assert.Equal(t, "", w.Body.String())
 
+	w = httptest.NewRecorder()
 	req, _ = http.NewRequest("GET", "/api/v1/user/info", nil)
 	req.Header.Set("Authorization", "Bearer "+jwtToken)
 	r.ServeHTTP(w, req)
@@ -51,6 +57,7 @@ func TestImplement(t *testing.T) {
 	assert.Equal(t, "{\"name_first\":\"太郎\",\"name_last\":\"横国\",\"type\":1,\"profile_icon_url\":\"https://testUserPicture.com\",\"status\":2}", w.Body.String())
 
 	// Simulate Revalidation with LineLogin
+	w = httptest.NewRecorder()
 	req, _ = http.NewRequest("GET", "/api/v1/auth/line/callback", nil)
 	r.ServeHTTP(w, req)
 	assert.Equal(t, 302, w.Code)
