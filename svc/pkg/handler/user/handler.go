@@ -54,7 +54,8 @@ func (uh User) InfoUpdateHandler() gin.HandlerFunc {
 			c.AbortWithStatusJSON(400, gin.H{"status": false, "message": err.Error()})
 			return
 		}
-		detail, err := req.ToUserDetail()
+		newDetail := u.Detail
+		err := req.ApplyToDetail(&newDetail)
 		if err != nil {
 			c.AbortWithStatusJSON(400, gin.H{"status": false, "message": err.Error()})
 			return
@@ -62,7 +63,7 @@ func (uh User) InfoUpdateHandler() gin.HandlerFunc {
 		out := uh.infoUpdateUC.Do(uc.UserInfoUpdateInput{
 			Ctx:       c,
 			OldUser:   &u,
-			NewDetail: *detail,
+			NewDetail: newDetail,
 		})
 		if out.Error != nil {
 			c.AbortWithStatusJSON(500, gin.H{"status": false, "message": out.Error.Error()})
