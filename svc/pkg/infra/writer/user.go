@@ -145,6 +145,7 @@ func (u User) UpdateUserDetail(ctx context.Context, oldUser *user.User, update u
 			updateTargets = append(updateTargets, firestore.Update{Path: key, Value: value.newValue})
 		}
 	}
+	updateTargets = append(updateTargets, firestore.Update{Path: "status", Value: int(user.StatusRegistered)})
 	_, err := u.collection.Doc(oldUser.ID.ExportID()).
 		Update(ctx, updateTargets)
 	if err == nil {
