@@ -46,17 +46,17 @@ func (uh User) InfoUpdateHandler() gin.HandlerFunc {
 		uA, exists := c.Get(middleware.UserContextKey)
 		u, ok := uA.(user.User)
 		if !exists || !ok || u.IsValid() {
-			_ = c.AbortWithError(500, errors.New("failed to retrieve user from context"))
+			c.AbortWithStatusJSON(400, gin.H{"status": false, "message": "failed to retrieve user from context"})
 			return
 		}
 		var req schema.InfoUpdateRequest
 		if err := c.ShouldBindJSON(&req); err != nil {
-			_ = c.AbortWithError(400, err)
+			c.AbortWithStatusJSON(400, gin.H{"status": false, "message": err.Error()})
 			return
 		}
 		detail, err := req.ToUserDetail()
 		if err != nil {
-			_ = c.AbortWithError(400, err)
+			c.AbortWithStatusJSON(400, gin.H{"status": false, "message": err.Error()})
 			return
 		}
 		out := uh.infoUpdateUC.Do(uc.UserInfoUpdateInput{
@@ -64,7 +64,8 @@ func (uh User) InfoUpdateHandler() gin.HandlerFunc {
 			NewDetail: *detail,
 		})
 		if out.Error != nil {
-			_ = c.AbortWithError(500, out.Error)
+			c.AbortWithStatusJSON(500, gin.H{"status": false, "message": out.Error.Error()})
+			return
 		}
 		c.Status(200)
 	}
