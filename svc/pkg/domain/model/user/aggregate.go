@@ -13,9 +13,9 @@ type (
 
 const (
 	// StatusNew indicates that user is newly created and hasn't finished its basic registration.
-	StatusNew Status = 0
+	StatusNew Status = 1
 	// StatusRegistered indicates that user has finished its basic registration.
-	StatusRegistered Status = 1
+	StatusRegistered Status = 2
 )
 
 func (u User) IsValid() bool {
