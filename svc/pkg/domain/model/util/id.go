@@ -1,4 +1,4 @@
-package id
+package util
 
 import (
 	"ynufes-mypage-backend/pkg/identity"
