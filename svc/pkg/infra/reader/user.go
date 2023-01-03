@@ -14,7 +14,7 @@ const (
 
 type (
 	User struct {
-		Collection *firestore.CollectionRef
+		collection *firestore.CollectionRef
 	}
 )
 
@@ -27,7 +27,7 @@ func NewUser(c *firestore.Client) User {
 func (u User) GetByID(ctx context.Context, id user.ID) (model *user.User, err error) {
 	log.Printf("GET USER: %v", id)
 	var userEntity entity.User
-	snap, err := u.Collection.Doc(id.ExportID()).Get(ctx)
+	snap, err := u.collection.Doc(id.ExportID()).Get(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -46,7 +46,7 @@ func (u User) GetByID(ctx context.Context, id user.ID) (model *user.User, err er
 func (u User) GetByLineServiceID(ctx context.Context, id user.LineServiceID) (model *user.User, err error) {
 	log.Printf("GET USER BY LINE ID: %v", id)
 	var userEntity entity.User
-	snap, err := u.Collection.Where("line-id", "==", string(id)).Documents(ctx).Next()
+	snap, err := u.collection.Where("line-id", "==", string(id)).Documents(ctx).Next()
 	if err != nil {
 		// user not found
 
