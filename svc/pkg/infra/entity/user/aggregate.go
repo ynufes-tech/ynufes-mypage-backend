@@ -8,7 +8,6 @@ type User struct {
 	Status int    `firestore:"status"`
 	UserDetail
 	Line
-	UserDashboard
 }
 
 func (u User) ToModel() (*user.User, error) {

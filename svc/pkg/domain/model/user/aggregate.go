@@ -2,11 +2,10 @@ package user
 
 type (
 	User struct {
-		ID        ID
-		Status    Status
-		Detail    Detail
-		Line      Line
-		Dashboard Dashboard
+		ID     ID
+		Status Status
+		Detail Detail
+		Line   Line
 	}
 	Status int
 )

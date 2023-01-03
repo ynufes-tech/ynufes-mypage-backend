@@ -24,9 +24,6 @@ func Users() []user.User {
 				EncryptedAccessToken:  "EncryptedAccessToken",
 				EncryptedRefreshToken: "EncryptedRefreshToken",
 			},
-			Dashboard: user.Dashboard{
-				Grants: []string{"grant1", "grant2"},
-			},
 		},
 		{
 			ID:     12344,
@@ -47,9 +44,6 @@ func Users() []user.User {
 				LineServiceID:         "LineServiceID",
 				EncryptedAccessToken:  "EncryptedAccessToken",
 				EncryptedRefreshToken: "EncryptedRefreshToken",
-			},
-			Dashboard: user.Dashboard{
-				Grants: []string{"grant1", "grant2"},
 			},
 		},
 	}
