@@ -1,8 +1,11 @@
 package user
 
-import "strconv"
+import (
+	"strconv"
+	"ynufes-mypage-backend/pkg/snowflake"
+)
 
-type ID int64
+type ID snowflake.Snowflake
 
 func NewID(id int64) ID {
 	return ID(id)

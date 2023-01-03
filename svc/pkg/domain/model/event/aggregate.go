@@ -4,7 +4,8 @@ import "ynufes-mypage-backend/pkg/snowflake"
 
 type (
 	Event struct {
-		ID   snowflake.Snowflake
+		ID   ID
 		Name string
 	}
+	ID snowflake.Snowflake
 )
