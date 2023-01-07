@@ -11,7 +11,7 @@ const (
 )
 
 func NewGender(gender int) (Gender, error) {
-	switch gender {
+	switch Gender(gender) {
 	case GenderMan:
 		return GenderMan, nil
 	case GenderWoman:

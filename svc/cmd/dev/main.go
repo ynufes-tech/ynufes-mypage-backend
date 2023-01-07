@@ -10,7 +10,7 @@ import (
 func main() {
 	engine := gin.New()
 	apiV1 := engine.Group("/api/v1")
-	err := runner.Implement(apiV1)
+	err := runner.Implement(apiV1, true)
 	if err != nil {
 		log.Fatalf("Failed to start server... %v", err)
 		return
