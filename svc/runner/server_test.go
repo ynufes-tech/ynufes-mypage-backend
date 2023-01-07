@@ -13,7 +13,7 @@ func TestImplement(t *testing.T) {
 	r := gin.Default()
 	w := httptest.NewRecorder()
 	rg := r.Group("/api/v1")
-	err := Implement(rg)
+	err := Implement(rg, true)
 	assert.NoError(t, err)
 	req, _ := http.NewRequest("GET", "/api/v1/auth/line/state", nil)
 	r.ServeHTTP(w, req)
