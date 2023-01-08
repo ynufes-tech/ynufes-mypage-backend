@@ -5,18 +5,30 @@ import (
 	"ynufes-mypage-backend/pkg/snowflake"
 )
 
-type ID snowflake.Snowflake
+type (
+	ID        snowflake.Snowflake
+	IDManager struct {
+	}
+)
 
-func NewID(id int64) ID {
-	return ID(id)
+func NewIDManager() IDManager {
+	return IDManager{}
 }
 
-func ImportID(id string) (ID, error) {
+func (IDManager) IssueID() ID {
+	return ID(snowflake.NewSnowflake())
+}
+
+func (IDManager) ImportID(id string) (ID, error) {
 	result, err := strconv.ParseInt(id, 36, 64)
 	if err != nil {
 		return 0, err
 	}
 	return ID(result), nil
+}
+
+func NewID(id int64) ID {
+	return ID(id)
 }
 
 func (i ID) ExportID() string {
