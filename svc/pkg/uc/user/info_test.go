@@ -3,7 +3,8 @@ package uc
 import (
 	"github.com/go-playground/assert/v2"
 	"testing"
-	userDomain "ynufes-mypage-backend/svc/pkg/domain/model/user"
+	"ynufes-mypage-backend/pkg/identity"
+	"ynufes-mypage-backend/svc/pkg/domain/model/user"
 )
 
 func TestInfoUseCase(t *testing.T) {
@@ -13,22 +14,22 @@ func TestInfoUseCase(t *testing.T) {
 	}{
 		{
 			args: InfoInput{
-				User: userDomain.User{
-					ID:     12345,
+				User: user.User{
+					ID:     user.ID(identity.NewID(12345)),
 					Status: 0,
-					Detail: userDomain.Detail{
-						Name: userDomain.Name{
+					Detail: user.Detail{
+						Name: user.Name{
 							FirstName:     "名前",
 							LastName:      "苗字",
 							FirstNameKana: "ナマエ",
 							LastNameKana:  "ミョウジ",
 						},
 						Email:     "testing@testing.co.jp",
-						Gender:    userDomain.GenderWoman,
+						Gender:    user.GenderWoman,
 						StudentID: "2164022",
-						Type:      userDomain.TypeNormal,
+						Type:      user.TypeNormal,
 					},
-					Line: userDomain.Line{
+					Line: user.Line{
 						LineServiceID:         "SERVICE_ID",
 						LineProfilePictureURL: "https://testing.co.jp/test.png",
 						LineDisplayName:       "みょーじねーむ",
