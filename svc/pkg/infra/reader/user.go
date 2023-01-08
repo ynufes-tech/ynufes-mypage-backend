@@ -4,7 +4,9 @@ import (
 	"cloud.google.com/go/firestore"
 	"context"
 	"log"
+	"ynufes-mypage-backend/pkg/identity"
 	"ynufes-mypage-backend/svc/pkg/domain/model/user"
+	"ynufes-mypage-backend/svc/pkg/domain/service/util"
 	entity "ynufes-mypage-backend/svc/pkg/infra/entity/user"
 )
 
@@ -15,12 +17,14 @@ const (
 type (
 	User struct {
 		collection *firestore.CollectionRef
+		idManager  util.IDManager
 	}
 )
 
 func NewUser(c *firestore.Client) User {
 	return User{
-		c.Collection("users"),
+		collection: c.Collection("users"),
+		idManager:  identity.NewIDManager(),
 	}
 }
 
@@ -35,7 +39,7 @@ func (u User) GetByID(ctx context.Context, id user.ID) (model *user.User, err er
 	if err != nil {
 		return nil, err
 	}
-	userEntity.ID = snap.Ref.ID
+	userEntity.ID = id
 	model, err = userEntity.ToModel()
 	if err != nil {
 		return nil, err
@@ -56,7 +60,10 @@ func (u User) GetByLineServiceID(ctx context.Context, id user.LineServiceID) (mo
 	if err != nil {
 		return nil, err
 	}
-	userEntity.ID = snap.Ref.ID
+	userEntity.ID, err = u.idManager.ImportID(snap.Ref.ID)
+	if err != nil {
+		return nil, err
+	}
 	model, err = userEntity.ToModel()
 	if err != nil {
 		return nil, err

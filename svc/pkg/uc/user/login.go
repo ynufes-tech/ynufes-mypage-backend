@@ -6,12 +6,14 @@ import (
 	"ynufes-mypage-backend/pkg/setting"
 	userDomain "ynufes-mypage-backend/svc/pkg/domain/model/user"
 	"ynufes-mypage-backend/svc/pkg/domain/query"
+	"ynufes-mypage-backend/svc/pkg/domain/service/util"
 	"ynufes-mypage-backend/svc/pkg/registry"
 )
 
 type LoginUseCase struct {
 	userQuery query.User
 	jwtSecret string
+	idManager util.IDManager
 }
 
 type LoginInput struct {
@@ -22,12 +24,12 @@ type LoginOutput struct {
 	User userDomain.User
 }
 
-// NewLoginUseCase TODO: add userQuery, login
 func NewLoginUseCase(registry registry.Registry) LoginUseCase {
 	config := setting.Get()
 	return LoginUseCase{
 		userQuery: registry.Repository().NewUserQuery(),
 		jwtSecret: config.Application.Admin.JwtSecret,
+		idManager: registry.Service().NewIDManager(),
 	}
 }
 
@@ -36,7 +38,7 @@ func (uc LoginUseCase) Do(ctx context.Context, input LoginInput) (*LoginOutput, 
 	if err != nil {
 		return nil, err
 	}
-	id, err := userDomain.ImportID(claims.Id)
+	id, err := uc.idManager.ImportID(claims.Id)
 	if err != nil {
 		return nil, err
 	}
