@@ -16,12 +16,13 @@ import (
 )
 
 type LineAuth struct {
-	verifier   *lineDomain.AuthVerifier
-	userQ      query.User
-	userC      command.User
-	domain     string
-	devSetting devSetting
-	authUC     lineUC.AuthUseCase
+	verifier     *lineDomain.AuthVerifier
+	userQ        query.User
+	userC        command.User
+	domain       string
+	devSetting   devSetting
+	secureCookie bool
+	authUC       lineUC.AuthUseCase
 }
 type devSetting struct {
 	callbackURI string
@@ -40,7 +41,8 @@ func NewLineAuth(registry registry.Registry) LineAuth {
 			callbackURI: conf.ThirdParty.LineLogin.CallbackURI,
 			clientID:    conf.ThirdParty.LineLogin.ClientID,
 		},
-		authUC: lineUC.NewAuthCodeUseCase(registry, conf.ThirdParty.LineLogin.EnableLineAuth, &authVerifier),
+		secureCookie: conf.Service.Authentication.SecureCookie,
+		authUC:       lineUC.NewAuthCodeUseCase(registry, conf.ThirdParty.LineLogin.EnableLineAuth, &authVerifier),
 	}
 }
 
@@ -87,7 +89,7 @@ func (a LineAuth) setCookie(c *gin.Context, id string) error {
 		return err
 	}
 	// maxAge is set to 1 day
-	c.SetCookie("Authorization", token, 3600*24, "/", a.domain, true, true)
+	c.SetCookie("Authorization", token, 3600*24, "/", a.domain, a.secureCookie, true)
 	return nil
 }
 
