@@ -1,11 +1,13 @@
 package event
 
-import "ynufes-mypage-backend/pkg/snowflake"
+import (
+	"ynufes-mypage-backend/svc/pkg/domain/model/util"
+)
 
 type (
 	Event struct {
 		ID   ID
 		Name string
 	}
-	ID snowflake.Snowflake
+	ID util.ID
 )
