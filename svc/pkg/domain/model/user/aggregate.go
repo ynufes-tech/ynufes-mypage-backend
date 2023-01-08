@@ -1,5 +1,7 @@
 package user
 
+import "ynufes-mypage-backend/svc/pkg/domain/model/util"
+
 type (
 	User struct {
 		ID     ID
@@ -7,6 +9,7 @@ type (
 		Detail Detail
 		Line   Line
 	}
+	ID     util.ID
 	Status int
 )
 
@@ -18,5 +21,5 @@ const (
 )
 
 func (u User) IsValid() bool {
-	return u.ID != 0 && u.Line.LineServiceID != ""
+	return u.ID.HasValue() && u.Line.LineServiceID != ""
 }
