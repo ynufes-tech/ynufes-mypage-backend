@@ -4,21 +4,17 @@ import (
 	"cloud.google.com/go/firestore"
 	"context"
 	"fmt"
-	"ynufes-mypage-backend/pkg/identity"
 	"ynufes-mypage-backend/svc/pkg/domain/model/event"
-	"ynufes-mypage-backend/svc/pkg/domain/service/util"
 	entity "ynufes-mypage-backend/svc/pkg/infra/entity/event"
 )
 
 type Event struct {
 	collection *firestore.CollectionRef
-	idManager  util.IDManager
 }
 
 func NewEvent(c *firestore.Client) Event {
 	return Event{
 		collection: c.Collection("events"),
-		idManager:  identity.NewIDManager(),
 	}
 }
 
