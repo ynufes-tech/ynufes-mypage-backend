@@ -3,6 +3,7 @@ package identity
 import (
 	"strconv"
 	"ynufes-mypage-backend/pkg/snowflake"
+	"ynufes-mypage-backend/svc/pkg/domain/model/util"
 )
 
 type (
@@ -15,14 +16,14 @@ func NewIDManager() IDManager {
 	return IDManager{}
 }
 
-func (IDManager) IssueID() ID {
+func (IDManager) IssueID() util.ID {
 	return ID(snowflake.NewSnowflake())
 }
 
-func (IDManager) ImportID(id string) (ID, error) {
+func (IDManager) ImportID(id string) (util.ID, error) {
 	result, err := strconv.ParseInt(id, 36, 64)
 	if err != nil {
-		return 0, err
+		return ID(0), err
 	}
 	return ID(result), nil
 }
