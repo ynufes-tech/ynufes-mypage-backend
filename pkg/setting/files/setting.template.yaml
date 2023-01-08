@@ -14,3 +14,5 @@ third_party:
     # CIPHER KEY HAS TO BE 16, 24, OR 32 BYTES LONG
     enable_line_auth: true
 service:
+  authentication:
+    secure_cookie: true

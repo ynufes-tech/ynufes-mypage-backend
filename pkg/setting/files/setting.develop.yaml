@@ -15,3 +15,6 @@ third_party:
     enable_line_auth: false
     # DISABLE LINE AUTH ON TESTING
 service:
+  authentication:
+    secure_cookie: false
+    # DISABLE SECURE COOKIE ON TESTING
