@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	engine := gin.New()
+	engine := gin.Default()
 	apiV1 := engine.Group("/api/v1")
 	err := runner.Implement(apiV1, true)
 	if err != nil {
