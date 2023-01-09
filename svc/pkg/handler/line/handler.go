@@ -20,6 +20,7 @@ type LineAuth struct {
 	userQ        query.User
 	userC        command.User
 	domain       string
+	domainF      string
 	devSetting   devSetting
 	secureCookie bool
 	authUC       lineUC.AuthUseCase
@@ -37,6 +38,7 @@ func NewLineAuth(registry registry.Registry) LineAuth {
 		userQ:    registry.Repository().NewUserQuery(),
 		userC:    registry.Repository().NewUserCommand(),
 		domain:   conf.Application.Server.Domain,
+		domainF:  conf.Application.Server.FrontendDomain,
 		devSetting: devSetting{
 			callbackURI: conf.ThirdParty.LineLogin.CallbackURI,
 			clientID:    conf.ThirdParty.LineLogin.ClientID,
@@ -75,10 +77,10 @@ func (a LineAuth) VerificationHandler() gin.HandlerFunc {
 			return
 		}
 		if authOut.UserInfo.Status == user.StatusNew {
-			c.Redirect(302, "/welcome")
+			c.Redirect(302, a.domainF+"/welcome")
 			return
 		}
-		c.Redirect(302, "/")
+		c.Redirect(302, a.domainF+"/")
 	}
 }
 
@@ -89,7 +91,7 @@ func (a LineAuth) setCookie(c *gin.Context, id string) error {
 		return err
 	}
 	// maxAge is set to 1 day
-	c.SetCookie("Authorization", token, 3600*24, "/", a.domain, a.secureCookie, true)
+	c.SetCookie("Authorization", token, 3600*24, "/", a.domainF, a.secureCookie, true)
 	return nil
 }
 

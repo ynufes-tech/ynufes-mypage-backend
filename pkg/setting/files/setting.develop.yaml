@@ -1,6 +1,7 @@
 application:
   server:
     domain: ""
+    frontend_domain: ""
 infrastructure:
   firestore:
     project_id: "ynufes-mypage"
