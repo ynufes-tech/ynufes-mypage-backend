@@ -1,7 +1,8 @@
 application:
   server:
     domain: "ynufes-mypage.shion.pro"
-    frontend_domain: "ynufes-mypage.shion.pro"
+    front_domain: "ynufes-mypage.shion.pro"
+    front_domain_port: "ynufes-mypage.shion.pro"
 infrastructure:
   firestore:
     project_id: "ynufes-mypage"

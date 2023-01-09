@@ -1,7 +1,8 @@
 application:
   server:
     domain: ""
-    frontend_domain: ""
+    front_domain: ""
+    front_domain_port: ""
 infrastructure:
   firestore:
     project_id: "ynufes-mypage"

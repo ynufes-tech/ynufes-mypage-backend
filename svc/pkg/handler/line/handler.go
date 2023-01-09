@@ -1,6 +1,7 @@
 package line
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"log"
 	"time"
@@ -21,6 +22,7 @@ type LineAuth struct {
 	userC        command.User
 	domain       string
 	domainF      string
+	domainFP     string
 	devSetting   devSetting
 	secureCookie bool
 	authUC       lineUC.AuthUseCase
@@ -38,7 +40,8 @@ func NewLineAuth(registry registry.Registry) LineAuth {
 		userQ:    registry.Repository().NewUserQuery(),
 		userC:    registry.Repository().NewUserCommand(),
 		domain:   conf.Application.Server.Domain,
-		domainF:  conf.Application.Server.FrontendDomain,
+		domainF:  conf.Application.Server.FrontDomain,
+		domainFP: conf.Application.Server.FrontDomainPort,
 		devSetting: devSetting{
 			callbackURI: conf.ThirdParty.LineLogin.CallbackURI,
 			clientID:    conf.ThirdParty.LineLogin.ClientID,
@@ -67,6 +70,7 @@ func (a LineAuth) VerificationHandler() gin.HandlerFunc {
 		}
 		if authOut.UserInfo == nil {
 			_, _ = c.Writer.WriteString(authOut.ErrorMsg)
+			fmt.Println(authOut.ErrorMsg)
 			c.AbortWithStatus(400)
 			return
 		}
@@ -77,10 +81,10 @@ func (a LineAuth) VerificationHandler() gin.HandlerFunc {
 			return
 		}
 		if authOut.UserInfo.Status == user.StatusNew {
-			c.Redirect(302, a.domainF+"/welcome")
+			c.Redirect(302, "http://"+a.domainFP+"/welcome")
 			return
 		}
-		c.Redirect(302, a.domainF+"/")
+		c.Redirect(302, "http://"+a.domainFP+"/")
 	}
 }
 
@@ -91,7 +95,7 @@ func (a LineAuth) setCookie(c *gin.Context, id string) error {
 		return err
 	}
 	// maxAge is set to 1 day
-	c.SetCookie("Authorization", token, 3600*24, "/", a.domainF, a.secureCookie, true)
+	c.SetCookie("Authorization", token, 3600*24, "/", a.domainF, a.secureCookie, false)
 	return nil
 }
 
