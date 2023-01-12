@@ -20,9 +20,7 @@ type LineAuth struct {
 	verifier     *lineDomain.AuthVerifier
 	userQ        query.User
 	userC        command.User
-	domain       string
-	domainF      string
-	domainFP     string
+	serverConf   setting.Server
 	devSetting   devSetting
 	secureCookie bool
 	authUC       lineUC.AuthUseCase
@@ -36,12 +34,10 @@ func NewLineAuth(registry registry.Registry) LineAuth {
 	conf := setting.Get()
 	authVerifier := registry.Service().NewLineAuthVerifier()
 	return LineAuth{
-		verifier: &authVerifier,
-		userQ:    registry.Repository().NewUserQuery(),
-		userC:    registry.Repository().NewUserCommand(),
-		domain:   conf.Application.Server.Domain,
-		domainF:  conf.Application.Server.FrontDomain,
-		domainFP: conf.Application.Server.FrontDomainPort,
+		verifier:   &authVerifier,
+		userQ:      registry.Repository().NewUserQuery(),
+		userC:      registry.Repository().NewUserCommand(),
+		serverConf: conf.Application.Server,
 		devSetting: devSetting{
 			callbackURI: conf.ThirdParty.LineLogin.CallbackURI,
 			clientID:    conf.ThirdParty.LineLogin.ClientID,
@@ -80,22 +76,34 @@ func (a LineAuth) VerificationHandler() gin.HandlerFunc {
 			c.AbortWithStatus(500)
 			return
 		}
-		if authOut.UserInfo.Status == user.StatusNew {
-			c.Redirect(302, "http://"+a.domainFP+"/welcome")
-			return
+		if a.serverConf.OnProduction {
+			if authOut.UserInfo.Status == user.StatusNew {
+				c.Redirect(302, "/welcome")
+				return
+			}
+			c.Redirect(302, "/")
+		} else {
+			front := a.serverConf.Frontend
+			if authOut.UserInfo.Status == user.StatusNew {
+				c.Redirect(302,
+					fmt.Sprintf("%s%s%s/welcome", front.Protocol, front.Domain, front.Port))
+				return
+			}
+			c.Redirect(302,
+				fmt.Sprintf("%s%s%s/", front.Protocol, front.Domain, front.Port))
 		}
-		c.Redirect(302, "http://"+a.domainFP+"/")
 	}
 }
 
 func (a LineAuth) setCookie(c *gin.Context, id string) error {
-	claim := jwt.CreateClaims(id, 24*time.Hour, a.domain)
+	claim := jwt.CreateClaims(id, 24*time.Hour, a.serverConf.Backend.Domain)
 	token, err := jwt.IssueJWT(claim, config.JWT.JWTSecret)
 	if err != nil {
 		return err
 	}
 	// maxAge is set to 1 day
-	c.SetCookie("Authorization", token, 3600*24, "/", a.domainF, a.secureCookie, false)
+	c.SetCookie("Authorization", token, 3600*24,
+		"/", a.serverConf.Frontend.Domain, a.secureCookie, false)
 	return nil
 }
 
