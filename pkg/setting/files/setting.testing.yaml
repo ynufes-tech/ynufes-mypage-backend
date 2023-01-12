@@ -1,7 +1,8 @@
+# This file is used for GitHub Action CI
 application:
   server:
     on_production: true
-    # IF FRONTEND AND BACKEND SERVICE ARE ON THE SAME SERVER, MAKE THIS TRUE
+    # ASSUME IF FRONTEND AND BACKEND SERVICE ARE ON THE SAME SERVER
     frontend:
       protocol: "https://"
       domain: "ynufes-mypage.shion.pro"
@@ -9,12 +10,12 @@ application:
     backend:
       protocol: "https://"
       domain: "ynufes-mypage.shion.pro"
-      port: ":1306"
+      port: ""
     # CONCATING PROTOCOL, DOMAIN, AND PORT TOGETHER SHOULD GIVE THE FULL URL
 infrastructure:
   firestore:
     project_id: "ynufes-mypage"
-    json_credential_file: "ynufes-mypage-xxxxxxxxxxxx.json"
+    json_credential_file: "TESTING"
 third_party:
   line_login:
     client_id: "LINE_AUTH_CLIENT_ID"
@@ -22,8 +23,9 @@ third_party:
     callback_uri: "LINE_AUTH_CALLBACK_URI"
     cipher_key: "LINE_AUTH_CIPHER_KEY_TEST_TEST12"
     # CIPHER KEY HAS TO BE 16, 24, OR 32 BYTES LONG
-    enable_line_auth: true
+    enable_line_auth: false
+    # DISABLE LINE AUTH ON TESTING
 service:
   authentication:
-    secure_cookie: true
-    # YOU CAN DISABLE SECURE COOKIE FOR TESTING PURPOSES
+    secure_cookie: false
+    # DISABLE SECURE COOKIE ON TESTING

@@ -1,14 +1,15 @@
 package entity
 
-import "ynufes-mypage-backend/svc/pkg/domain/model/user"
+import (
+	"ynufes-mypage-backend/svc/pkg/domain/model/user"
+)
 
 type User struct {
 	// ignore id from firestore
-	ID     string `firestore:"-"`
-	Status int    `firestore:"status"`
+	ID     user.ID `firestore:"-"`
+	Status int     `firestore:"status"`
 	UserDetail
 	Line
-	UserDashboard
 }
 
 func (u User) ToModel() (*user.User, error) {
@@ -20,12 +21,8 @@ func (u User) ToModel() (*user.User, error) {
 	if err != nil {
 		return nil, err
 	}
-	id, err := user.ImportID(u.ID)
-	if err != nil {
-		return nil, err
-	}
 	return &user.User{
-		ID:     id,
+		ID:     u.ID,
 		Status: user.Status(u.Status),
 		Detail: user.Detail{
 			Name: user.Name{

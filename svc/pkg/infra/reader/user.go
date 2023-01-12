@@ -4,7 +4,9 @@ import (
 	"cloud.google.com/go/firestore"
 	"context"
 	"log"
+	"ynufes-mypage-backend/pkg/identity"
 	"ynufes-mypage-backend/svc/pkg/domain/model/user"
+	"ynufes-mypage-backend/svc/pkg/domain/service/util"
 	entity "ynufes-mypage-backend/svc/pkg/infra/entity/user"
 )
 
@@ -14,20 +16,22 @@ const (
 
 type (
 	User struct {
-		Collection *firestore.CollectionRef
+		collection *firestore.CollectionRef
+		idManager  util.IDManager
 	}
 )
 
 func NewUser(c *firestore.Client) User {
 	return User{
-		c.Collection("users"),
+		collection: c.Collection("users"),
+		idManager:  identity.NewIDManager(),
 	}
 }
 
 func (u User) GetByID(ctx context.Context, id user.ID) (model *user.User, err error) {
 	log.Printf("GET USER: %v", id)
 	var userEntity entity.User
-	snap, err := u.Collection.Doc(id.ExportID()).Get(ctx)
+	snap, err := u.collection.Doc(id.ExportID()).Get(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -35,7 +39,7 @@ func (u User) GetByID(ctx context.Context, id user.ID) (model *user.User, err er
 	if err != nil {
 		return nil, err
 	}
-	userEntity.ID = snap.Ref.ID
+	userEntity.ID = id
 	model, err = userEntity.ToModel()
 	if err != nil {
 		return nil, err
@@ -46,7 +50,7 @@ func (u User) GetByID(ctx context.Context, id user.ID) (model *user.User, err er
 func (u User) GetByLineServiceID(ctx context.Context, id user.LineServiceID) (model *user.User, err error) {
 	log.Printf("GET USER BY LINE ID: %v", id)
 	var userEntity entity.User
-	snap, err := u.Collection.Where("line-id", "==", string(id)).Documents(ctx).Next()
+	snap, err := u.collection.Where("line-id", "==", string(id)).Documents(ctx).Next()
 	if err != nil {
 		// user not found
 
@@ -56,7 +60,10 @@ func (u User) GetByLineServiceID(ctx context.Context, id user.LineServiceID) (mo
 	if err != nil {
 		return nil, err
 	}
-	userEntity.ID = snap.Ref.ID
+	userEntity.ID, err = u.idManager.ImportID(snap.Ref.ID)
+	if err != nil {
+		return nil, err
+	}
 	model, err = userEntity.ToModel()
 	if err != nil {
 		return nil, err

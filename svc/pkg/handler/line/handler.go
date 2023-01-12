@@ -1,6 +1,7 @@
 package line
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"log"
 	"time"
@@ -16,12 +17,13 @@ import (
 )
 
 type LineAuth struct {
-	verifier   *lineDomain.AuthVerifier
-	userQ      query.User
-	userC      command.User
-	domain     string
-	devSetting devSetting
-	authUC     lineUC.AuthUseCase
+	verifier     *lineDomain.AuthVerifier
+	userQ        query.User
+	userC        command.User
+	serverConf   setting.Server
+	devSetting   devSetting
+	secureCookie bool
+	authUC       lineUC.AuthUseCase
 }
 type devSetting struct {
 	callbackURI string
@@ -32,15 +34,16 @@ func NewLineAuth(registry registry.Registry) LineAuth {
 	conf := setting.Get()
 	authVerifier := registry.Service().NewLineAuthVerifier()
 	return LineAuth{
-		verifier: &authVerifier,
-		userQ:    registry.Repository().NewUserQuery(),
-		userC:    registry.Repository().NewUserCommand(),
-		domain:   conf.Application.Server.Domain,
+		verifier:   &authVerifier,
+		userQ:      registry.Repository().NewUserQuery(),
+		userC:      registry.Repository().NewUserCommand(),
+		serverConf: conf.Application.Server,
 		devSetting: devSetting{
 			callbackURI: conf.ThirdParty.LineLogin.CallbackURI,
 			clientID:    conf.ThirdParty.LineLogin.ClientID,
 		},
-		authUC: lineUC.NewAuthCodeUseCase(registry, conf.ThirdParty.LineLogin.EnableLineAuth, &authVerifier),
+		secureCookie: conf.Service.Authentication.SecureCookie,
+		authUC:       lineUC.NewAuthCodeUseCase(registry, conf.ThirdParty.LineLogin.EnableLineAuth, &authVerifier),
 	}
 }
 
@@ -63,6 +66,7 @@ func (a LineAuth) VerificationHandler() gin.HandlerFunc {
 		}
 		if authOut.UserInfo == nil {
 			_, _ = c.Writer.WriteString(authOut.ErrorMsg)
+			fmt.Println(authOut.ErrorMsg)
 			c.AbortWithStatus(400)
 			return
 		}
@@ -72,22 +76,34 @@ func (a LineAuth) VerificationHandler() gin.HandlerFunc {
 			c.AbortWithStatus(500)
 			return
 		}
-		if authOut.UserInfo.Status == user.StatusNew {
-			c.Redirect(302, "/welcome")
-			return
+		if a.serverConf.OnProduction {
+			if authOut.UserInfo.Status == user.StatusNew {
+				c.Redirect(302, "/welcome")
+				return
+			}
+			c.Redirect(302, "/")
+		} else {
+			front := a.serverConf.Frontend
+			if authOut.UserInfo.Status == user.StatusNew {
+				c.Redirect(302,
+					fmt.Sprintf("%s%s%s/welcome", front.Protocol, front.Domain, front.Port))
+				return
+			}
+			c.Redirect(302,
+				fmt.Sprintf("%s%s%s/", front.Protocol, front.Domain, front.Port))
 		}
-		c.Redirect(302, "/")
 	}
 }
 
 func (a LineAuth) setCookie(c *gin.Context, id string) error {
-	claim := jwt.CreateClaims(id, 24*time.Hour, a.domain)
+	claim := jwt.CreateClaims(id, 24*time.Hour, a.serverConf.Backend.Domain)
 	token, err := jwt.IssueJWT(claim, config.JWT.JWTSecret)
 	if err != nil {
 		return err
 	}
 	// maxAge is set to 1 day
-	c.SetCookie("Authorization", token, 3600*24, "/", a.domain, true, true)
+	c.SetCookie("Authorization", token, 3600*24,
+		"/", a.serverConf.Frontend.Domain, a.secureCookie, false)
 	return nil
 }
 

@@ -11,8 +11,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
       - run: |
-          echo "ENV_LOCATION=$GITHUB_WORKSPACE/pkg/setting/files/setting.develop.yaml"
-          echo "ENV_LOCATION=$GITHUB_WORKSPACE/pkg/setting/files/setting.develop.yaml" >> $GITHUB_ENV
+          echo "ENV_LOCATION=$GITHUB_WORKSPACE/pkg/setting/files/setting.testing.yaml"
+          echo "ENV_LOCATION=$GITHUB_WORKSPACE/pkg/setting/files/setting.testing.yaml" >> $GITHUB_ENV
       - name: 'Set up Cloud SDK'
         uses: 'google-github-actions/setup-gcloud@v1'
       - name: 'Install gcloud required components'

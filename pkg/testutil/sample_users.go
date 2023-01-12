@@ -1,11 +1,14 @@
 package testutil
 
-import "ynufes-mypage-backend/svc/pkg/domain/model/user"
+import (
+	"ynufes-mypage-backend/pkg/identity"
+	"ynufes-mypage-backend/svc/pkg/domain/model/user"
+)
 
 func Users() []user.User {
 	return []user.User{
 		{
-			ID:     1234,
+			ID:     user.ID(identity.NewID(1234)),
 			Status: user.StatusNew,
 			Detail: user.Detail{
 				Name: user.Name{
@@ -24,12 +27,9 @@ func Users() []user.User {
 				EncryptedAccessToken:  "EncryptedAccessToken",
 				EncryptedRefreshToken: "EncryptedRefreshToken",
 			},
-			Dashboard: user.Dashboard{
-				Grants: []string{"grant1", "grant2"},
-			},
 		},
 		{
-			ID:     12344,
+			ID:     user.ID(identity.NewID(12344)),
 			Status: user.StatusRegistered,
 			Detail: user.Detail{
 				Name: user.Name{
@@ -47,9 +47,6 @@ func Users() []user.User {
 				LineServiceID:         "LineServiceID",
 				EncryptedAccessToken:  "EncryptedAccessToken",
 				EncryptedRefreshToken: "EncryptedRefreshToken",
-			},
-			Dashboard: user.Dashboard{
-				Grants: []string{"grant1", "grant2"},
 			},
 		},
 	}

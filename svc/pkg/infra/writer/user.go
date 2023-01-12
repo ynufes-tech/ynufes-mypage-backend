@@ -41,9 +41,6 @@ func (u User) Create(ctx context.Context, model user.User) error {
 			EncryptedAccessToken:  string(model.Line.EncryptedAccessToken),
 			EncryptedRefreshToken: string(model.Line.EncryptedRefreshToken),
 		},
-		UserDashboard: entity.UserDashboard{
-			Grants: model.Dashboard.Grants,
-		},
 	}
 	//NOTE: Create fails if the document already exists
 	_, err := u.collection.Doc(model.ID.ExportID()).
@@ -56,8 +53,22 @@ func (u User) Create(ctx context.Context, model user.User) error {
 
 func (u User) UpdateAll(ctx context.Context, model user.User) error {
 	log.Printf("UPDATE USER: %v", model)
+	e := entity.User{
+		Status: int(model.Status),
+		UserDetail: entity.UserDetail{
+			NameFirst:     model.Detail.Name.FirstName,
+			NameFirstKana: model.Detail.Name.FirstNameKana,
+			NameLast:      model.Detail.Name.LastName,
+			NameLastKana:  model.Detail.Name.LastNameKana,
+			Gender:        int(model.Detail.Gender),
+			StudentID:     string(model.Detail.StudentID),
+			Email:         string(model.Detail.Email),
+			Type:          int(model.Detail.Type),
+		},
+		Line: entity.Line{},
+	}
 	_, err := u.collection.Doc(model.ID.ExportID()).
-		Set(ctx, model)
+		Set(ctx, e)
 	return err
 }
 
