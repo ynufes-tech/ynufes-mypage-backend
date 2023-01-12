@@ -1,8 +1,17 @@
+# This file is used for GitHub Action CI
 application:
   server:
-    domain: ""
-    front_domain: ""
-    front_domain_port: ""
+    on_production: true
+    # ASSUME IF FRONTEND AND BACKEND SERVICE ARE ON THE SAME SERVER
+    frontend:
+      protocol: "https://"
+      domain: "ynufes-mypage.shion.pro"
+      port: ""
+    backend:
+      protocol: "https://"
+      domain: "ynufes-mypage.shion.pro"
+      port: ""
+    # CONCATING PROTOCOL, DOMAIN, AND PORT TOGETHER SHOULD GIVE THE FULL URL
 infrastructure:
   firestore:
     project_id: "ynufes-mypage"

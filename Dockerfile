@@ -9,6 +9,6 @@ COPY . .
 
 #CMD ["gcloud", "beta", "emulators" ,"firestore","start","--quiet","--host-port","localhost:8020"]
 CMD /bin/sh -c "./run-test.sh"
-COPY ./pkg/setting/files/setting.develop.yaml /setting.yaml
+COPY pkg/setting/files/setting.testing.yaml /setting.yaml
 ENV ENV_LOCATION /setting.yaml
 ENV FIRESTORE_EMULATOR_HOST localhost:8020
