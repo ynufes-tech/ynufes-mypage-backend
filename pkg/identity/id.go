@@ -7,20 +7,14 @@ import (
 )
 
 type (
-	ID        snowflake.Snowflake
-	IDManager struct {
-	}
+	ID snowflake.Snowflake
 )
 
-func NewIDManager() IDManager {
-	return IDManager{}
-}
-
-func (IDManager) IssueID() util.ID {
+func IssueID() util.ID {
 	return ID(snowflake.NewSnowflake())
 }
 
-func (IDManager) ImportID(id string) (util.ID, error) {
+func ImportID(id string) (util.ID, error) {
 	result, err := strconv.ParseInt(id, 36, 64)
 	if err != nil {
 		return ID(0), err
