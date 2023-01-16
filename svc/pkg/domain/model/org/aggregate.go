@@ -9,9 +9,10 @@ import (
 type (
 	Org struct {
 		ID      ID
-		EventID event.ID
+		Event   event.Event
 		Name    string
 		Members []user.ID
+		IsOpen  bool
 	}
 	ID util.ID
 )
