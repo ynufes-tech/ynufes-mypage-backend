@@ -33,3 +33,7 @@ func (i ID) ExportID() string {
 func (i ID) HasValue() bool {
 	return i != 0
 }
+
+func (i ID) GetValue() int64 {
+	return int64(i)
+}
