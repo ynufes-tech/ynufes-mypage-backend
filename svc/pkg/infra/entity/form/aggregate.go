@@ -13,5 +13,6 @@ type (
 		QuestionText string                 `firestore:"question"`
 		QuestionType int                    `firestore:"question_type"`
 		QuestionData map[string]interface{} `firestore:"question_data"`
+		Order        int                    `firestore:"order"`
 	}
 )
