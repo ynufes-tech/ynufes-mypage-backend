@@ -1,9 +1,11 @@
 package form
 
-import "ynufes-mypage-backend/svc/pkg/domain/model/util"
+import (
+	"ynufes-mypage-backend/svc/pkg/domain/model/util"
+)
 
 type (
-	CheckBoxQuestion struct {
+	CheckBoxQuestionProperties struct {
 		Options []CheckBoxOption
 	}
 	CheckBoxOption struct {
@@ -14,7 +16,7 @@ type (
 	OptionID util.ID
 )
 
-func (q CheckBoxQuestion) Export() map[string]interface{} {
+func (q CheckBoxQuestionProperties) Export() interface{} {
 	var optStr map[string]interface{}
 	for i := range q.Options {
 		optStr[q.Options[i].ID.ExportID()] = q.Options[i].Export()

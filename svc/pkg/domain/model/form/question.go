@@ -21,6 +21,6 @@ type (
 	QuestionType       int
 	QID                util.ID
 	QuestionProperties interface {
-		Export() map[string]interface{}
+		Export() interface{}
 	}
 )
