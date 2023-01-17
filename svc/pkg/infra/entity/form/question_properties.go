@@ -28,8 +28,8 @@ func importQuestionProperties(questionType form.QuestionType, data interface{}) 
 
 type (
 	CheckBoxQuestionProperties map[string]struct {
-		Text  string
-		Order int
+		Text  string `firestore:"text"`
+		Order int    `firestore:"order"`
 	}
 )
 
@@ -49,4 +49,22 @@ func (p CheckBoxQuestionProperties) Import() (form.QuestionProperties, error) {
 	return form.CheckBoxQuestionProperties{
 		Options: options,
 	}, nil
+}
+
+func ExportCheckBoxQuestionProperties(props form.CheckBoxQuestionProperties) (CheckBoxQuestionProperties, error) {
+	var options CheckBoxQuestionProperties
+	for i := range props.Options {
+		if !props.Options[i].ID.HasValue() {
+			return nil, errors.New("invalid id")
+		}
+		d := struct {
+			Text  string `firestore:"text"`
+			Order int    `firestore:"order"`
+		}{
+			Text:  props.Options[i].Text,
+			Order: props.Options[i].Order,
+		}
+		options[props.Options[i].ID.ExportID()] = d
+	}
+	return options, nil
 }
