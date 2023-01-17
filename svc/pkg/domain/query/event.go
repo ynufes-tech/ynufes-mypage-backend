@@ -1,9 +1,10 @@
 package query
 
 import (
+	"context"
 	"ynufes-mypage-backend/svc/pkg/domain/model/event"
 )
 
 type Event interface {
-	GetByID(id event.ID) (*event.Event, error)
+	GetByID(ctx context.Context, id event.ID) (*event.Event, error)
 }
