@@ -26,6 +26,19 @@ func importQuestionProperties(questionType form.QuestionType, data interface{}) 
 	return &properties, nil
 }
 
+func exportQuestionProperties(props form.QuestionProperties) (interface{}, error) {
+	switch props.Type() {
+	case form.CheckBox:
+		p, ok := props.(form.CheckBoxQuestionProperties)
+		if !ok {
+			return nil, errors.New("invalid data type")
+		}
+		return ExportCheckBoxQuestionProperties(p)
+	default:
+		return nil, errors.New("invalid question type")
+	}
+}
+
 type (
 	CheckBoxQuestionProperties map[string]struct {
 		Text  string `firestore:"text"`
