@@ -27,3 +27,11 @@ func (repo Repository) NewUserQuery() query.User {
 func (repo Repository) NewUserCommand() command.User {
 	return writer.NewUser(repo.fs)
 }
+
+func (repo Repository) NewEventQuery() query.Event {
+	return reader.NewEvent(repo.fs)
+}
+
+func (repo Repository) NewEventCommand() command.Event {
+	return writer.NewEvent(repo.fs)
+}
