@@ -5,6 +5,9 @@ import (
 )
 
 type (
+	QuestionProperties interface {
+		Type() QuestionType
+	}
 	CheckBoxQuestionProperties struct {
 		Options []CheckBoxOption
 	}
@@ -15,6 +18,10 @@ type (
 	}
 	OptionID util.ID
 )
+
+func (p CheckBoxQuestionProperties) Type() QuestionType {
+	return CheckBox
+}
 
 func (q CheckBoxQuestionProperties) Export() interface{} {
 	var optStr map[string]interface{}

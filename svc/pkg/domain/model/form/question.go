@@ -18,9 +18,6 @@ type (
 		Order        int
 		Properties   QuestionProperties
 	}
-	QuestionType       int
-	QID                util.ID
-	QuestionProperties interface {
-		Export() interface{}
-	}
+	QuestionType int
+	QID          util.ID
 )
