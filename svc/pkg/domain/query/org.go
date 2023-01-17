@@ -8,5 +8,5 @@ import (
 
 type Org interface {
 	GetByID(ctx context.Context, id org.ID) (*org.Org, error)
-	ListByGrantedUserID(ctx context.Context, id user.ID) ([]*org.Org, error)
+	ListByGrantedUserID(ctx context.Context, id user.ID) ([]org.Org, error)
 }
