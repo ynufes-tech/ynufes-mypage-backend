@@ -42,7 +42,6 @@ func (q QuestionBasic) Text() string {
 type (
 	CheckboxQuestion struct {
 		QuestionBasic
-		QID     QID
 		Options []CheckboxOption
 	}
 	CheckboxOption struct {

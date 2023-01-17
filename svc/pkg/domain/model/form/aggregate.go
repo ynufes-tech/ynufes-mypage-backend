@@ -8,7 +8,7 @@ type (
 		Title       string
 		Summary     string
 		Description string
-		Questions   map[QID]Question
+		Questions   []Question
 	}
 	ID util.ID
 )

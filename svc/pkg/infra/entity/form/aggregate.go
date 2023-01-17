@@ -1,7 +1,6 @@
 package entity
 
 import (
-	"fmt"
 	"ynufes-mypage-backend/pkg/identity"
 	"ynufes-mypage-backend/svc/pkg/domain/model/form"
 )
@@ -15,11 +14,11 @@ type (
 		Questions   map[string]Question `firestore:"questions"`
 	}
 	Question struct {
-		ID           string      `firestore:"question_id"`
-		QuestionText string      `firestore:"question"`
-		QuestionType int         `firestore:"question_type"`
-		Properties   interface{} `firestore:"properties"`
-		Order        int         `firestore:"order"`
+		ID           string                 `firestore:"-"`
+		QuestionText string                 `firestore:"text"`
+		QuestionType int                    `firestore:"type"`
+		Properties   map[string]interface{} `firestore:"props"`
+		Order        int                    `firestore:"order"`
 	}
 )
 
@@ -28,23 +27,13 @@ func (f Form) ToModel() (*form.Form, error) {
 	if err != nil {
 		return nil, err
 	}
-	questions := make(map[form.QID]form.Question)
+	var questions []form.Question
 	for _, v := range f.Questions {
-		qid, err := identity.ImportID(v.ID)
+		q, err := ImportQuestion(v)
 		if err != nil {
 			return nil, err
 		}
-		properties, err := importQuestionProperties(form.QuestionType(v.QuestionType), v.Properties)
-		if err != nil {
-			return nil, fmt.Errorf("failed to import question properties in ToModel(): %w", err)
-		}
-		questions[qid] = form.Question{
-			ID:           qid,
-			Type:         form.QuestionType(v.QuestionType),
-			QuestionText: v.QuestionText,
-			Order:        0,
-			Properties:   *properties,
-		}
+		questions = append(questions, q)
 	}
 	return &form.Form{
 		ID:          fid,
