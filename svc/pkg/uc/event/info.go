@@ -1,6 +1,7 @@
 package event
 
 import (
+	"context"
 	"errors"
 	"ynufes-mypage-backend/svc/pkg/domain/model/event"
 	"ynufes-mypage-backend/svc/pkg/domain/query"
@@ -25,8 +26,8 @@ func NewInfoUseCase(rgst registry.Registry) InfoUseCase {
 	}
 }
 
-func (uc InfoUseCase) Do(input InfoUseCaseInput) (InfoUseCaseOutput, error) {
-	eventD, err := uc.eventQ.GetByID(input.ID)
+func (uc InfoUseCase) Do(ctx context.Context, input InfoUseCaseInput) (InfoUseCaseOutput, error) {
+	eventD, err := uc.eventQ.GetByID(ctx, input.ID)
 	if err != nil {
 		return InfoUseCaseOutput{}, errors.New("event not found")
 	}
