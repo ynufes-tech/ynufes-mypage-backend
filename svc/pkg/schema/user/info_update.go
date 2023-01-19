@@ -1,4 +1,4 @@
-package schema
+package user
 
 import (
 	"ynufes-mypage-backend/svc/pkg/domain/model/user"

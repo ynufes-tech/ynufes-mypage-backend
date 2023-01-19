@@ -49,7 +49,7 @@ func (uh User) InfoUpdateHandler() gin.HandlerFunc {
 			c.AbortWithStatusJSON(400, gin.H{"status": false, "message": "failed to retrieve user from context"})
 			return
 		}
-		var req schema.InfoUpdateRequest
+		var req userSchema.InfoUpdateRequest
 		if err := c.ShouldBindJSON(&req); err != nil {
 			c.AbortWithStatusJSON(400, gin.H{"status": false, "message": err.Error()})
 			return
