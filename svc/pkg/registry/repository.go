@@ -35,3 +35,11 @@ func (repo Repository) NewEventQuery() query.Event {
 func (repo Repository) NewEventCommand() command.Event {
 	return writer.NewEvent(repo.fs)
 }
+
+func (repo Repository) NewOrgQuery() query.Org {
+	return reader.NewOrg(repo.fs)
+}
+
+func (repo Repository) NewOrgCommand() command.Org {
+	return writer.NewOrg(repo.fs)
+}
