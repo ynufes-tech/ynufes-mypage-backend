@@ -2,13 +2,12 @@ package user
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"ynufes-mypage-backend/svc/pkg/domain/command"
 	"ynufes-mypage-backend/svc/pkg/domain/model/user"
 	"ynufes-mypage-backend/svc/pkg/domain/query"
-	"ynufes-mypage-backend/svc/pkg/middleware"
+	"ynufes-mypage-backend/svc/pkg/handler/util"
 	"ynufes-mypage-backend/svc/pkg/registry"
 	userSchema "ynufes-mypage-backend/svc/pkg/schema/user"
 	uc "ynufes-mypage-backend/svc/pkg/uc/user"
@@ -29,13 +28,7 @@ func NewUser(rgst registry.Registry) User {
 }
 
 func (uh User) InfoHandler() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		uAny, exists := c.Get(middleware.UserContextKey)
-		if !exists || !(uAny).(user.User).IsValid() {
-			_ = c.AbortWithError(500, errors.New("failed to retrieve user from context"))
-			return
-		}
-		u := uAny.(user.User)
+	var h util.Handler = func(c *gin.Context, u user.User) {
 		output := userSchema.InfoResponse{
 			NameFirst:       u.Detail.Name.FirstName,
 			NameLast:        u.Detail.Name.LastName,
@@ -51,16 +44,11 @@ func (uh User) InfoHandler() gin.HandlerFunc {
 		_, _ = c.Writer.WriteString(string(j))
 		c.Status(200)
 	}
+	return h.GinHandler()
 }
 
 func (uh User) InfoUpdateHandler() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		uA, exists := c.Get(middleware.UserContextKey)
-		u, ok := uA.(user.User)
-		if !exists || !ok || !u.IsValid() {
-			c.AbortWithStatusJSON(400, gin.H{"status": false, "message": "failed to retrieve user from context"})
-			return
-		}
+	var h util.Handler = func(c *gin.Context, u user.User) {
 		var req userSchema.InfoUpdateRequest
 		if err := c.ShouldBindJSON(&req); err != nil {
 			c.AbortWithStatusJSON(400, gin.H{"status": false, "message": err.Error()})
@@ -87,4 +75,5 @@ func (uh User) InfoUpdateHandler() gin.HandlerFunc {
 		}
 		c.Status(200)
 	}
+	return h.GinHandler()
 }
