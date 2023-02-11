@@ -3,6 +3,7 @@ package runner
 import (
 	"github.com/gin-gonic/gin"
 	"ynufes-mypage-backend/svc/pkg/handler/line"
+	orgHandler "ynufes-mypage-backend/svc/pkg/handler/org"
 	userHandler "ynufes-mypage-backend/svc/pkg/handler/user"
 	"ynufes-mypage-backend/svc/pkg/middleware"
 	"ynufes-mypage-backend/svc/pkg/registry"
@@ -32,8 +33,10 @@ func Implement(rg *gin.RouterGroup, devTool bool) error {
 	middlewareAuth := middleware.NewAuth(*rgst)
 
 	user := userHandler.NewUser(*rgst)
+	org := orgHandler.NewOrg(*rgst)
 	authRg := rg.Use(middlewareAuth.VerifyUser())
 	authRg.Handle("GET", "/user/info", user.InfoHandler())
 	authRg.Handle("POST", "/user/info/update", user.InfoUpdateHandler())
+	authRg.Handle("GET", "/orgs", org.OrgsHandler())
 	return nil
 }
