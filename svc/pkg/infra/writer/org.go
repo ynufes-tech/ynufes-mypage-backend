@@ -33,12 +33,14 @@ func (o Org) Create(ctx context.Context, org *org.Org) error {
 		Members:   memberE,
 		IsOpen:    org.IsOpen,
 	}
-	_, err := o.collection.Doc(id.ExportID()).Create(ctx, e)
-	if err != nil {
+
+	if _, err := o.collection.Doc(id.ExportID()).Create(ctx, e); err != nil {
 		log.Printf("Failed to create org: %v", err)
 		return fmt.Errorf("failed to create org: %w", err)
 	}
-	org.AssignID(org.ID)
+	if err := org.AssignID(org.ID); err != nil {
+		return err
+	}
 	return nil
 }
 
