@@ -14,7 +14,7 @@ type User struct {
 
 func NewUser(c *firestore.Client) User {
 	return User{
-		collection: c.Collection("users"),
+		collection: c.Collection(entity.UserCollectionName),
 	}
 }
 

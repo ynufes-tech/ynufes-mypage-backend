@@ -14,7 +14,7 @@ type Event struct {
 
 func NewEvent(c *firestore.Client) Event {
 	return Event{
-		collection: c.Collection("events"),
+		collection: c.Collection(entity.EventCollectionName),
 	}
 }
 

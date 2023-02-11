@@ -5,6 +5,8 @@ import (
 	"ynufes-mypage-backend/svc/pkg/domain/model/form"
 )
 
+const FormCollectionName = "Forms"
+
 type (
 	Form struct {
 		ID          string              `firestore:"-"`

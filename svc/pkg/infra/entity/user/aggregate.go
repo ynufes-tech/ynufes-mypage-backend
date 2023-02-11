@@ -4,6 +4,8 @@ import (
 	"ynufes-mypage-backend/svc/pkg/domain/model/user"
 )
 
+const UserCollectionName = "users"
+
 type User struct {
 	// ignore id from firestore
 	ID     user.ID `firestore:"-"`

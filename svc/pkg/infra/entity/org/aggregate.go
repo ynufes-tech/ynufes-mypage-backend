@@ -7,6 +7,8 @@ import (
 	"ynufes-mypage-backend/svc/pkg/domain/model/user"
 )
 
+const OrgCollectionName = "Orgs"
+
 type Org struct {
 	ID        string  `firestore:"-"`
 	EventID   int64   `firestore:"event_id"`

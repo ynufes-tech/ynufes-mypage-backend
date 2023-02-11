@@ -9,10 +9,6 @@ import (
 	entity "ynufes-mypage-backend/svc/pkg/infra/entity/user"
 )
 
-const (
-	UserCollectionName = "users"
-)
-
 type (
 	User struct {
 		collection *firestore.CollectionRef
@@ -21,7 +17,7 @@ type (
 
 func NewUser(c *firestore.Client) User {
 	return User{
-		collection: c.Collection("users"),
+		collection: c.Collection(entity.UserCollectionName),
 	}
 }
 

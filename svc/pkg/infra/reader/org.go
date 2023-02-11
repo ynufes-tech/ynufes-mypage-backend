@@ -14,7 +14,7 @@ type Org struct {
 
 func NewOrg(c *firestore.Client) Org {
 	return Org{
-		collection: c.Collection("Orgs"),
+		collection: c.Collection(entity.OrgCollectionName),
 	}
 }
 

@@ -5,6 +5,8 @@ import (
 	"ynufes-mypage-backend/svc/pkg/domain/model/response"
 )
 
+const ResponseCollectionName = "Responses"
+
 type (
 	Response struct {
 		ID       string     `firestore:"-"`
