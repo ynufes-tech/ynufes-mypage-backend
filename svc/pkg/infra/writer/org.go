@@ -38,6 +38,6 @@ func (o Org) Create(ctx context.Context, org *org.Org) error {
 		log.Printf("Failed to create org: %v", err)
 		return fmt.Errorf("failed to create org: %w", err)
 	}
-	org.ID = id
+	org.AssignID(org.ID)
 	return nil
 }
