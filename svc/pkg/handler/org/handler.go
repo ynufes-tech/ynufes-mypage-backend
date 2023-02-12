@@ -10,12 +10,14 @@ import (
 )
 
 type Org struct {
-	orgsUC org.OrgsUseCase
+	orgsUC     org.OrgsUseCase
+	registerUC org.RegisterUseCase
 }
 
 func NewOrg(rgst registry.Registry) Org {
 	return Org{
-		orgsUC: org.NewOrgs(rgst),
+		orgsUC:     org.NewOrgs(rgst),
+		registerUC: org.NewRegister(rgst),
 	}
 }
 
@@ -44,6 +46,36 @@ func (o Org) OrgsHandler() gin.HandlerFunc {
 			Orgs: orgs,
 		}
 		context.JSON(200, resp)
+	}
+	return h.GinHandler()
+}
+
+func (o Org) OrgRegisterHandler() gin.HandlerFunc {
+	var h util.Handler = func(ctx *gin.Context, user user.User) {
+		var req schema.RegisterRequest
+		err := ctx.BindJSON(&req)
+		if err != nil {
+			ctx.AbortWithStatusJSON(400, gin.H{"error": "invalid request"})
+			return
+		}
+		ipt := org.RegisterInput{
+			Ctx:    ctx,
+			UserID: user.ID,
+			Token:  req.Token,
+		}
+		opt, err := o.registerUC.Do(ipt)
+		if err != nil {
+			ctx.JSON(500, err)
+			return
+		}
+		resp := schema.RegisterResponse{
+			Added:     opt.Added,
+			OrgID:     opt.Org.ID.ExportID(),
+			OrgName:   opt.Org.Name,
+			EventID:   opt.Org.Event.ID.ExportID(),
+			EventName: opt.Org.Event.Name,
+		}
+		ctx.JSON(200, resp)
 	}
 	return h.GinHandler()
 }
