@@ -52,7 +52,9 @@ func ImplementAdmin(rg *gin.RouterGroup) error {
 	//middlewareAuth := middleware.NewAuth(*rgst)
 	//middlewareAdmin := middleware.NewAdmin(*rgst)
 	//adminRg := rg.Use(middlewareAuth.VerifyUser(), middlewareAdmin.VerifyAdmin())
+	event := adminOrg.NewEvent(*rgst)
 	org := adminOrg.NewOrg(*rgst)
+	rg.Handle("GET", "/admin/event/create", event.CreateHandler())
 	rg.Handle("GET", "/admin/org/create", org.CreateHandler())
 	rg.Handle("GET", "/admin/org/token", org.IssueOrgInviteToken())
 	return nil
