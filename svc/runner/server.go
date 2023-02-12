@@ -53,7 +53,7 @@ func ImplementAdmin(rg *gin.RouterGroup) error {
 	//middlewareAdmin := middleware.NewAdmin(*rgst)
 	//adminRg := rg.Use(middlewareAuth.VerifyUser(), middlewareAdmin.VerifyAdmin())
 	org := adminOrg.NewOrg(*rgst)
-	rg.Handle("POST", "/admin/org/create", org.CreateHandler())
+	rg.Handle("GET", "/admin/org/create", org.CreateHandler())
 	rg.Handle("GET", "/admin/org/token", org.IssueOrgInviteToken())
 	return nil
 }
