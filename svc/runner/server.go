@@ -2,6 +2,7 @@ package runner
 
 import (
 	"github.com/gin-gonic/gin"
+	adminOrg "ynufes-mypage-backend/svc/pkg/handler/admin"
 	"ynufes-mypage-backend/svc/pkg/handler/line"
 	orgHandler "ynufes-mypage-backend/svc/pkg/handler/org"
 	userHandler "ynufes-mypage-backend/svc/pkg/handler/user"
@@ -38,5 +39,20 @@ func Implement(rg *gin.RouterGroup, devTool bool) error {
 	authRg.Handle("GET", "/user/info", user.InfoHandler())
 	authRg.Handle("POST", "/user/info/update", user.InfoUpdateHandler())
 	authRg.Handle("GET", "/orgs", org.OrgsHandler())
+	return nil
+}
+
+func ImplementAdmin(rg *gin.RouterGroup) error {
+	// TODO: Implement admin Auth middleware
+	rgst, err := registry.New()
+	if err != nil {
+		return err
+	}
+	//middlewareAuth := middleware.NewAuth(*rgst)
+	//middlewareAdmin := middleware.NewAdmin(*rgst)
+	//adminRg := rg.Use(middlewareAuth.VerifyUser(), middlewareAdmin.VerifyAdmin())
+	org := adminOrg.NewOrg(*rgst)
+	rg.Handle("POST", "/admin/org/create", org.CreateHandler())
+	rg.Handle("GET", "/admin/org/token", org.IssueOrgInviteToken())
 	return nil
 }
