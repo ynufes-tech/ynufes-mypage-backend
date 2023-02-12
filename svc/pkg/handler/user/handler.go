@@ -4,9 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"ynufes-mypage-backend/svc/pkg/domain/command"
 	"ynufes-mypage-backend/svc/pkg/domain/model/user"
-	"ynufes-mypage-backend/svc/pkg/domain/query"
 	"ynufes-mypage-backend/svc/pkg/handler/util"
 	"ynufes-mypage-backend/svc/pkg/registry"
 	userSchema "ynufes-mypage-backend/svc/pkg/schema/user"
@@ -14,15 +12,11 @@ import (
 )
 
 type User struct {
-	userQ        query.User
-	userC        command.User
 	infoUpdateUC uc.UserInfoUpdateUseCase
 }
 
 func NewUser(rgst registry.Registry) User {
 	return User{
-		userQ:        rgst.Repository().NewUserQuery(),
-		userC:        rgst.Repository().NewUserCommand(),
 		infoUpdateUC: uc.NewInfoUpdate(rgst),
 	}
 }
