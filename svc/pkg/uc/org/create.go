@@ -38,6 +38,7 @@ func (uc CreateOrgUseCase) Do(ipt CreateOrgInput) (*CreateOrgOutput, error) {
 		return nil, err
 	}
 	o := org.Org{
+		ID:      org.ID(identity.IssueID()),
 		Event:   *e,
 		Name:    ipt.OrgName,
 		Members: nil,

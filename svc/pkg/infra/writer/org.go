@@ -5,8 +5,8 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"ynufes-mypage-backend/pkg/identity"
 	"ynufes-mypage-backend/svc/pkg/domain/model/org"
+	"ynufes-mypage-backend/svc/pkg/exception"
 	entity "ynufes-mypage-backend/svc/pkg/infra/entity/org"
 )
 
@@ -20,12 +20,14 @@ func NewOrg(c *firestore.Client) Org {
 	}
 }
 
-func (o Org) Create(ctx context.Context, org *org.Org) error {
+func (o Org) Create(ctx context.Context, org org.Org) error {
+	if !org.ID.HasValue() {
+		return exception.ErrIDNotAssigned
+	}
 	memberE := make([]int64, len(org.Members))
 	for i := range org.Members {
 		memberE[i] = org.Members[i].GetValue()
 	}
-	id := identity.IssueID()
 	e := entity.Org{
 		EventID:   org.Event.ID.GetValue(),
 		EventName: org.Event.Name,
@@ -33,13 +35,9 @@ func (o Org) Create(ctx context.Context, org *org.Org) error {
 		Members:   memberE,
 		IsOpen:    org.IsOpen,
 	}
-
-	if _, err := o.collection.Doc(id.ExportID()).Create(ctx, e); err != nil {
+	if _, err := o.collection.Doc(org.ID.ExportID()).Create(ctx, e); err != nil {
 		log.Printf("Failed to create org: %v", err)
 		return fmt.Errorf("failed to create org: %w", err)
-	}
-	if err := org.AssignID(org.ID); err != nil {
-		return err
 	}
 	return nil
 }

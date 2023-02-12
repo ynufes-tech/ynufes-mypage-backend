@@ -5,6 +5,7 @@ import (
 	"context"
 	"log"
 	"ynufes-mypage-backend/svc/pkg/domain/model/user"
+	"ynufes-mypage-backend/svc/pkg/exception"
 	entity "ynufes-mypage-backend/svc/pkg/infra/entity/user"
 )
 
@@ -19,7 +20,9 @@ func NewUser(c *firestore.Client) User {
 }
 
 func (u User) Create(ctx context.Context, model user.User) error {
-	log.Printf("CREATE USER: %v", model)
+	if !model.ID.HasValue() {
+		return exception.ErrIDNotAssigned
+	}
 	e := entity.User{
 		//ID is not required as it will not be used by firestore
 		//ID: int64(model.ID),
