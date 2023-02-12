@@ -32,7 +32,7 @@ func NewLoginUseCase(registry registry.Registry) LoginUseCase {
 }
 
 func (uc LoginUseCase) Do(ctx context.Context, input LoginInput) (*LoginOutput, error) {
-	claims, err := jwt.Verify(input.JWT, uc.jwtSecret)
+	claims, err := jwt.Verify(string(input.JWT), uc.jwtSecret)
 	if err != nil {
 		return nil, err
 	}

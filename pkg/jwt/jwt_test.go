@@ -5,7 +5,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
-	"ynufes-mypage-backend/svc/pkg/domain/model/user"
 	"ynufes-mypage-backend/svc/pkg/exception"
 )
 
@@ -21,7 +20,7 @@ func TestJWT(t *testing.T) {
 		}
 		issueJWT, err := IssueJWT(claims, "testSecret")
 		assert.NoError(t, err)
-		newClaims, err := Verify(user.JWT(issueJWT), "testSecret")
+		newClaims, err := Verify(issueJWT, "testSecret")
 		assert.EqualError(t, err, exception.ErrInvalidJWT.Error())
 		assert.Nil(t, newClaims)
 	})
@@ -36,7 +35,7 @@ func TestJWT(t *testing.T) {
 		}
 		issueJWT, err := IssueJWT(claims, "testSecret")
 		assert.NoError(t, err)
-		newClaims, err := Verify(user.JWT(issueJWT), "testSecret")
+		newClaims, err := Verify(issueJWT, "testSecret")
 		assert.NoError(t, err)
 		assert.Equal(t, claims.Audience, newClaims.Audience)
 		assert.Equal(t, claims.ExpiresAt, newClaims.ExpiresAt)
@@ -68,7 +67,7 @@ func TestCreateClaims(t *testing.T) {
 				t.Errorf("IssueJWT() error = %v", err)
 				return
 			}
-			verify, err := Verify(user.JWT(got), tt.secret)
+			verify, err := Verify(got, tt.secret)
 			assert.NoError(t, err)
 			assert.Equal(t, claims.Id, verify.Id)
 		})
