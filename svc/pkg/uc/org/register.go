@@ -42,11 +42,11 @@ func NewRegister(rgst registry.Registry) RegisterUseCase {
 func (uc RegisterUseCase) Do(ipt RegisterInput) (*RegisterOutput, error) {
 	verify, err := jwt.Verify(ipt.Token, uc.jwtSecret)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to verify token in RegisterUC: %w", err)
 	}
 	id, err := identity.ImportID(verify.Id)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to import id in RegisterUC: %w", err)
 	}
 	o, err := uc.orgQ.GetByID(ipt.Ctx, id)
 	if err != nil {
