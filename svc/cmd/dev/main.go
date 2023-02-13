@@ -10,14 +10,17 @@ import (
 func main() {
 	engine := gin.Default()
 	apiV1 := engine.Group("/api/v1")
-	err := runner.Implement(apiV1, true)
-	if err != nil {
+	if err := runner.Implement(apiV1, true); err != nil {
 		log.Fatalf("Failed to start server... %v", err)
 		return
 	}
+	if err := runner.ImplementAdmin(apiV1); err != nil {
+		log.Fatalf("Failed to start server... %v", err)
+		return
+	}
+
 	engine.GET("/hello/", test.TestHello)
-	err = engine.Run("localhost:1306")
-	if err != nil {
+	if err := engine.Run("localhost:1306"); err != nil {
 		log.Fatalf("Failed to start server... %v", err)
 		return
 	}

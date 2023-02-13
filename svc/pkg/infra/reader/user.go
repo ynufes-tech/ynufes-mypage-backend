@@ -6,25 +6,18 @@ import (
 	"log"
 	"ynufes-mypage-backend/pkg/identity"
 	"ynufes-mypage-backend/svc/pkg/domain/model/user"
-	"ynufes-mypage-backend/svc/pkg/domain/service/util"
 	entity "ynufes-mypage-backend/svc/pkg/infra/entity/user"
-)
-
-const (
-	UserCollectionName = "users"
 )
 
 type (
 	User struct {
 		collection *firestore.CollectionRef
-		idManager  util.IDManager
 	}
 )
 
 func NewUser(c *firestore.Client) User {
 	return User{
-		collection: c.Collection("users"),
-		idManager:  identity.NewIDManager(),
+		collection: c.Collection(entity.UserCollectionName),
 	}
 }
 
@@ -60,7 +53,7 @@ func (u User) GetByLineServiceID(ctx context.Context, id user.LineServiceID) (mo
 	if err != nil {
 		return nil, err
 	}
-	userEntity.ID, err = u.idManager.ImportID(snap.Ref.ID)
+	userEntity.ID, err = identity.ImportID(snap.Ref.ID)
 	if err != nil {
 		return nil, err
 	}

@@ -4,7 +4,6 @@ import (
 	"errors"
 	"github.com/golang-jwt/jwt"
 	"time"
-	"ynufes-mypage-backend/svc/pkg/domain/model/user"
 	"ynufes-mypage-backend/svc/pkg/exception"
 )
 
@@ -26,8 +25,8 @@ func IssueJWT(claims jwt.Claims, secret string) (string, error) {
 	return tokenString, nil
 }
 
-func Verify(j user.JWT, secret string) (*jwt.StandardClaims, error) {
-	token, err := jwt.ParseWithClaims(string(j), &jwt.StandardClaims{}, func(token *jwt.Token) (interface{}, error) {
+func Verify(j string, secret string) (*jwt.StandardClaims, error) {
+	token, err := jwt.ParseWithClaims(j, &jwt.StandardClaims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return "", errors.New("UNEXPECTED SIGNING METHOD")
 		}

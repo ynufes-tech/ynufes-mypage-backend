@@ -1,55 +1,49 @@
 package user
 
 import (
-	"errors"
+	"encoding/json"
+	"fmt"
 	"github.com/gin-gonic/gin"
-	"ynufes-mypage-backend/svc/pkg/domain/command"
 	"ynufes-mypage-backend/svc/pkg/domain/model/user"
-	"ynufes-mypage-backend/svc/pkg/domain/query"
-	"ynufes-mypage-backend/svc/pkg/middleware"
+	"ynufes-mypage-backend/svc/pkg/handler/util"
 	"ynufes-mypage-backend/svc/pkg/registry"
-	"ynufes-mypage-backend/svc/pkg/schema"
+	userSchema "ynufes-mypage-backend/svc/pkg/schema/user"
 	uc "ynufes-mypage-backend/svc/pkg/uc/user"
 )
 
 type User struct {
-	userQ        query.User
-	userC        command.User
-	infoUC       uc.InfoUseCase
 	infoUpdateUC uc.UserInfoUpdateUseCase
 }
 
 func NewUser(rgst registry.Registry) User {
 	return User{
-		userQ:        rgst.Repository().NewUserQuery(),
-		userC:        rgst.Repository().NewUserCommand(),
-		infoUC:       uc.NewInfoUseCase(),
 		infoUpdateUC: uc.NewInfoUpdate(rgst),
 	}
 }
 
 func (uh User) InfoHandler() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		u, exists := c.Get(middleware.UserContextKey)
-		u = u.(user.User)
-		if !exists || !(u).(user.User).IsValid() {
-			_ = c.AbortWithError(500, errors.New("failed to retrieve user from context"))
+	var h util.Handler = func(c *gin.Context, u user.User) {
+		output := userSchema.InfoResponse{
+			NameFirst:       u.Detail.Name.FirstName,
+			NameLast:        u.Detail.Name.LastName,
+			Type:            int(u.Detail.Type),
+			ProfileImageURL: string(u.Line.LineProfilePictureURL),
+			Status:          int(u.Status),
+		}
+		j, err := json.Marshal(output)
+		if err != nil {
+			_ = c.AbortWithError(500, fmt.Errorf("failed to marshal output: %w", err))
 			return
 		}
-		_, _ = c.Writer.WriteString(uh.infoUC.Do(uc.InfoInput{User: u.(user.User)}).Response)
+		_, _ = c.Writer.WriteString(string(j))
 		c.Status(200)
 	}
+	return h.GinHandler()
 }
 
 func (uh User) InfoUpdateHandler() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		uA, exists := c.Get(middleware.UserContextKey)
-		u, ok := uA.(user.User)
-		if !exists || !ok || !u.IsValid() {
-			c.AbortWithStatusJSON(400, gin.H{"status": false, "message": "failed to retrieve user from context"})
-			return
-		}
-		var req schema.InfoUpdateRequest
+	var h util.Handler = func(c *gin.Context, u user.User) {
+		var req userSchema.InfoUpdateRequest
 		if err := c.ShouldBindJSON(&req); err != nil {
 			c.AbortWithStatusJSON(400, gin.H{"status": false, "message": err.Error()})
 			return
@@ -75,4 +69,5 @@ func (uh User) InfoUpdateHandler() gin.HandlerFunc {
 		}
 		c.Status(200)
 	}
+	return h.GinHandler()
 }

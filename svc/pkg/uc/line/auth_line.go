@@ -4,12 +4,12 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"ynufes-mypage-backend/pkg/identity"
 	linePkg "ynufes-mypage-backend/pkg/line"
 	"ynufes-mypage-backend/svc/pkg/domain/command"
 	"ynufes-mypage-backend/svc/pkg/domain/model/user"
 	"ynufes-mypage-backend/svc/pkg/domain/query"
 	"ynufes-mypage-backend/svc/pkg/domain/service/line"
-	"ynufes-mypage-backend/svc/pkg/domain/service/util"
 	"ynufes-mypage-backend/svc/pkg/registry"
 )
 
@@ -18,7 +18,6 @@ type AuthUseCase struct {
 	userQ        query.User
 	userC        command.User
 	enableLine   bool
-	idManager    util.IDManager
 }
 
 type AuthInput struct {
@@ -38,7 +37,6 @@ func NewAuthCodeUseCase(rgst registry.Registry, enableLineAuth bool, authVerifie
 		userQ:        rgst.Repository().NewUserQuery(),
 		userC:        rgst.Repository().NewUserCommand(),
 		enableLine:   enableLineAuth,
-		idManager:    rgst.Service().NewIDManager(),
 	}
 }
 
@@ -78,7 +76,7 @@ func (uc AuthUseCase) Do(ipt AuthInput) (*AuthOutput, error) {
 	if err != nil {
 		// if error is "user not found", Create User and redirect to basic info form
 		// Otherwise, respond with error
-		newID := user.ID(uc.idManager.IssueID())
+		newID := user.ID(identity.IssueID())
 		newUser := user.User{
 			ID:     newID,
 			Status: user.StatusNew,
