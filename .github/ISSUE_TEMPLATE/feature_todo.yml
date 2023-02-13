@@ -1,0 +1,33 @@
+name: Feature implementation
+about: Are you working on a feature? Tell us more about it!
+title: "✨⚡️📝🔥🔧 "
+labels: "todo"
+assignees:
+  - shion1305
+  - tomoyahiroe
+body:
+  - type: textarea
+    id: todo_description
+    attributes:
+      label: TODO (実装する内容)
+      description: "Are you working on a feature? Tell us about your awesome feature!"
+      render: markdown
+    validations:
+      required: true
+  - type: textarea
+    id: impact
+    attributes:
+      label: Impact (実装による変更の影響範囲)
+      description: "How are you gonna change the world? 
+      Be specific and play safe, you gotta ensure it never breaks this world, and I mean never. Minimum is better, or you can split the universe in multiple git request."
+      render: markdown
+    validations:
+      required: true
+  - type: textarea
+    id: consideration
+    attributes:
+      label: Note (補足・考慮すべきこと)
+      description: "Is there something else worth mentioning? Blog it!"
+      render: markdown
+    validations:
+      required: false
