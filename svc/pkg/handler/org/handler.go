@@ -29,7 +29,7 @@ func (o Org) OrgsHandler() gin.HandlerFunc {
 		}
 		opt, err := o.orgsUC.Do(ipt)
 		if err != nil {
-			context.JSON(500, err)
+			context.JSON(500, gin.H{"error": err.Error()})
 			return
 		}
 		orgs := make([]schema.Org, len(opt.Orgs))
@@ -65,7 +65,7 @@ func (o Org) OrgRegisterHandler() gin.HandlerFunc {
 		}
 		opt, err := o.registerUC.Do(ipt)
 		if err != nil {
-			ctx.JSON(500, err)
+			_ = ctx.AbortWithError(500, err)
 			return
 		}
 		resp := schema.RegisterResponse{
