@@ -26,8 +26,8 @@ type CreateOrgOutput struct {
 	Org org.Org
 }
 
-func NewCreateOrg(rgst registry.Registry) *CreateOrgUseCase {
-	return &CreateOrgUseCase{
+func NewCreateOrg(rgst registry.Registry) CreateOrgUseCase {
+	return CreateOrgUseCase{
 		orgC:   rgst.Repository().NewOrgCommand(),
 		eventQ: rgst.Repository().NewEventQuery(),
 	}
@@ -45,7 +45,7 @@ func (uc CreateOrgUseCase) Do(ipt CreateOrgInput) (*CreateOrgOutput, error) {
 		Members: nil,
 		IsOpen:  ipt.IsOpen,
 	}
-	err = uc.orgC.Create(ipt.Ctx, &o)
+	err = uc.orgC.Create(ipt.Ctx, o)
 	if err != nil {
 		return nil, err
 	}

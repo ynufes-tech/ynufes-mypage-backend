@@ -32,7 +32,7 @@ func (c CreateUseCase) Do(ipt CreateInput) (*CreateOutput, error) {
 		Name: ipt.EventName,
 		ID:   identity.IssueID(),
 	}
-	if err := c.eventC.Create(ipt.Ctx, &e); err != nil {
+	if err := c.eventC.Create(ipt.Ctx, e); err != nil {
 		return nil, err
 	}
 	return &CreateOutput{

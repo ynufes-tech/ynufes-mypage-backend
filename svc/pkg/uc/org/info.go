@@ -26,7 +26,7 @@ func NewInfo(rgst registry.Registry) InfoUseCase {
 	}
 }
 
-func (uc InfoUseCase) Do(ipt InfoInput) (opt *InfoOutput, err error) {
+func (uc InfoUseCase) Do(ipt InfoInput) (*InfoOutput, error) {
 	o, err := uc.orgQ.GetByID(ipt.Ctx, ipt.ID)
 	if err != nil {
 		return nil, err
