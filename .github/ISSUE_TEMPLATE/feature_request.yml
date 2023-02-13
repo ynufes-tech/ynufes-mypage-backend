@@ -1,0 +1,34 @@
+name: Feature request
+about: "Are you thinking about a crazy long time and can't stop thinking about it? Wanna talk with us to make it real?
+    If you'd like to make anything, request it! Grow the world as you want. ALWAYS great ideas are in your mind.
+    Unleashing it to let them see the sunlight!"
+title: "✨⚡️📝🔥🔧 "
+labels: "suggestion"
+assignees:
+  - shion1305
+  - tomoyahiroe
+body:
+  - type: textarea
+    id: feature_description
+    attributes:
+      label: Idea (提案する内容)
+      description: "What do you want to request? Don't write something like \"Better analytics\". But it's a feature, and what is it's purpose?"
+      render: markdown
+    validations:
+      required: true
+  - type: textarea
+    id: impact
+    attributes:
+      label: Impact (提案による変更の影響範囲)
+      description: "How do you gonna make this universe a better place? Lay it down. Play safe! Minimum is better."
+      render: markdown
+    validations:
+      required: true
+  - type: textarea
+    id: consideration
+    attributes:
+      label: Note (補足・考慮すべきこと)
+      description: "If there is something worth mentioning, then write it down. We might need it later :)"
+      render: markdown
+    validations:
+      required: false
