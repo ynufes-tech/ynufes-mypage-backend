@@ -6,6 +6,7 @@ import (
 	"time"
 	"ynufes-mypage-backend/pkg/identity"
 	"ynufes-mypage-backend/pkg/jwt"
+	"ynufes-mypage-backend/pkg/setting"
 	"ynufes-mypage-backend/svc/pkg/registry"
 	"ynufes-mypage-backend/svc/pkg/schema/admin"
 	"ynufes-mypage-backend/svc/pkg/uc/org"
@@ -14,11 +15,15 @@ import (
 type Org struct {
 	createOrgUC org.CreateOrgUseCase
 	infoOrgUC   org.InfoUseCase
+	jwtSecret   string
 }
 
 func NewOrg(rgst registry.Registry) *Org {
+	config := setting.Get()
 	return &Org{
-		createOrgUC: *org.NewCreateOrg(rgst),
+		createOrgUC: org.NewCreateOrg(rgst),
+		infoOrgUC:   org.NewInfo(rgst),
+		jwtSecret:   config.Application.Admin.JwtSecret,
 	}
 }
 
@@ -80,7 +85,9 @@ func (o Org) IssueOrgInviteToken() gin.HandlerFunc {
 			c.AbortWithStatusJSON(400, gin.H{"error": "invalid duration"})
 			return
 		}
-		issueJWT, err := jwt.IssueJWT(jwt.CreateClaims(orgID.ExportID(), duration, "testIssuer"), "org")
+		// TODO: include information about issuer
+		claims := jwt.CreateClaims(orgID.ExportID(), duration, "YNUFesMyPageSystem")
+		issueJWT, err := jwt.IssueJWT(claims, o.jwtSecret)
 		if err != nil {
 			return
 		}
