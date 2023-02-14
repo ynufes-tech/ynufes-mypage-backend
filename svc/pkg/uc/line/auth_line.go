@@ -3,6 +3,7 @@ package line
 import (
 	"context"
 	"fmt"
+	"github.com/gin-gonic/gin"
 	"log"
 	"ynufes-mypage-backend/pkg/identity"
 	linePkg "ynufes-mypage-backend/pkg/line"
@@ -62,13 +63,18 @@ func (uc AuthUseCase) Do(ipt AuthInput) (*AuthOutput, error) {
 			return nil, err
 		}
 	} else {
-		aToken = user.NewEncryptedAccessToken("testAccessToken")
-		rToken = user.NewEncryptedRefreshToken("testRefreshToken")
+		// if line auth is disabled, return dummy data
+		// if the request has query, it will be used.
+		c := ipt.Ctx.(*gin.Context)
+		aToken = user.NewEncryptedAccessToken(
+			user.PlainAccessToken(c.DefaultQuery("accessToken", "testAccessToken")))
+		rToken = user.NewEncryptedRefreshToken(
+			user.PlainRefreshToken(c.DefaultQuery("refreshToken", "testRefreshToken")))
 		profile = linePkg.ProfileResponse{
-			UserID:        "testUserLineID",
-			DisplayName:   "testUserDisplayName",
-			PictureURL:    "https://testUserPicture.com",
-			StatusMessage: "testUserStatusMessage",
+			UserID:        c.DefaultQuery("userID", "testUserID"),
+			DisplayName:   c.DefaultQuery("displayName", "testDisplayName"),
+			PictureURL:    c.DefaultQuery("pictureURL", "https://testUserPicture.com"),
+			StatusMessage: c.DefaultQuery("statusMessage", "testStatusMessage"),
 		}
 	}
 	lineServiceID := user.LineServiceID(profile.UserID)
