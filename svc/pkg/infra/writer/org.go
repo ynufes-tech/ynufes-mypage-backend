@@ -24,15 +24,15 @@ func (o Org) Create(ctx context.Context, org org.Org) error {
 	if !org.ID.HasValue() {
 		return exception.ErrIDNotAssigned
 	}
-	memberE := make([]int64, len(org.Members))
-	for i := range org.Members {
-		memberE[i] = org.Members[i].GetValue()
+	usersE := make([]int64, len(org.Users))
+	for i := range org.Users {
+		usersE[i] = org.Users[i].GetValue()
 	}
 	e := entity.Org{
 		EventID:   org.Event.ID.GetValue(),
 		EventName: org.Event.Name,
 		Name:      org.Name,
-		Members:   memberE,
+		Users:     usersE,
 		IsOpen:    org.IsOpen,
 	}
 	if _, err := o.collection.Doc(org.ID.ExportID()).Create(ctx, e); err != nil {
@@ -43,16 +43,16 @@ func (o Org) Create(ctx context.Context, org org.Org) error {
 }
 
 func (o Org) Set(ctx context.Context, org org.Org) error {
-	memberE := make([]int64, len(org.Members))
+	usersE := make([]int64, len(org.Users))
 	e := entity.Org{
 		EventID:   org.Event.ID.GetValue(),
 		EventName: org.Event.Name,
 		Name:      org.Name,
-		Members:   memberE,
+		Users:     usersE,
 		IsOpen:    org.IsOpen,
 	}
-	for i := range org.Members {
-		memberE[i] = org.Members[i].GetValue()
+	for i := range org.Users {
+		usersE[i] = org.Users[i].GetValue()
 	}
 	_, err := o.collection.Doc(org.ID.ExportID()).Set(ctx, e)
 	if err != nil {
@@ -62,18 +62,18 @@ func (o Org) Set(ctx context.Context, org org.Org) error {
 	return nil
 }
 
-func (o Org) UpdateMembers(ctx context.Context, org org.Org) error {
-	memberE := make([]int64, len(org.Members))
-	for i := range org.Members {
-		memberE[i] = org.Members[i].GetValue()
+func (o Org) UpdateUsers(ctx context.Context, org org.Org) error {
+	usersE := make([]int64, len(org.Users))
+	for i := range org.Users {
+		usersE[i] = org.Users[i].GetValue()
 	}
 	_, err := o.collection.Doc(org.ID.ExportID()).Update(ctx,
 		[]firestore.Update{
-			{Path: "member_ids", Value: memberE},
+			{Path: "user_ids", Value: usersE},
 		})
 	if err != nil {
-		log.Printf("Failed to update org members: %v", err)
-		return fmt.Errorf("failed to update org members: %w", err)
+		log.Printf("Failed to update org users: %v", err)
+		return fmt.Errorf("failed to update org users: %w", err)
 	}
 	return nil
 }

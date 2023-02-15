@@ -8,11 +8,11 @@ import (
 
 type (
 	Org struct {
-		ID      ID
-		Event   event.Event
-		Name    string
-		Members []user.ID
-		IsOpen  bool
+		ID     ID
+		Event  event.Event
+		Name   string
+		Users  []user.ID
+		IsOpen bool
 	}
 	ID util.ID
 )
