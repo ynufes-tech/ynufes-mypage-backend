@@ -14,7 +14,7 @@ func main() {
 		log.Fatalf("Failed to start server... %v", err)
 		return
 	}
-	if err := runner.ImplementAdmin(apiV1); err != nil {
+	if err := runner.ImplementAgent(apiV1); err != nil {
 		log.Fatalf("Failed to start server... %v", err)
 		return
 	}

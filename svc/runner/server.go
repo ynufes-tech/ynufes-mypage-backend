@@ -2,7 +2,7 @@ package runner
 
 import (
 	"github.com/gin-gonic/gin"
-	adminOrg "ynufes-mypage-backend/svc/pkg/handler/admin"
+	agentOrg "ynufes-mypage-backend/svc/pkg/handler/agent"
 	"ynufes-mypage-backend/svc/pkg/handler/line"
 	orgHandler "ynufes-mypage-backend/svc/pkg/handler/org"
 	userHandler "ynufes-mypage-backend/svc/pkg/handler/user"
@@ -43,19 +43,19 @@ func Implement(rg *gin.RouterGroup, devTool bool) error {
 	return nil
 }
 
-func ImplementAdmin(rg *gin.RouterGroup) error {
-	// TODO: Implement admin Auth middleware
+func ImplementAgent(rg *gin.RouterGroup) error {
+	// TODO: Implement agent Auth middleware
 	rgst, err := registry.New()
 	if err != nil {
 		return err
 	}
 	//middlewareAuth := middleware.NewAuth(*rgst)
-	//middlewareAdmin := middleware.NewAdmin(*rgst)
-	//adminRg := rg.Use(middlewareAuth.VerifyUser(), middlewareAdmin.VerifyAdmin())
-	event := adminOrg.NewEvent(*rgst)
-	org := adminOrg.NewOrg(*rgst)
-	rg.Handle("GET", "/admin/event/create", event.CreateHandler())
-	rg.Handle("GET", "/admin/org/create", org.CreateHandler())
-	rg.Handle("GET", "/admin/org/token", org.IssueOrgInviteToken())
+	//middlewareAgent := middleware.NewAgent(*rgst)
+	//agentRg := rg.Use(middlewareAuth.VerifyUser(), middlewareAgent.VerifyAgent())
+	event := agentOrg.NewEvent(*rgst)
+	org := agentOrg.NewOrg(*rgst)
+	rg.Handle("GET", "/agent/event/create", event.CreateHandler())
+	rg.Handle("GET", "/agent/org/create", org.CreateHandler())
+	rg.Handle("GET", "/agent/org/token", org.IssueOrgInviteToken())
 	return nil
 }

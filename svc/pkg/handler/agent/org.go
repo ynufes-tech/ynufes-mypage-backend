@@ -1,4 +1,4 @@
-package admin
+package agent
 
 import (
 	"github.com/gin-gonic/gin"
@@ -8,7 +8,7 @@ import (
 	"ynufes-mypage-backend/pkg/jwt"
 	"ynufes-mypage-backend/pkg/setting"
 	"ynufes-mypage-backend/svc/pkg/registry"
-	"ynufes-mypage-backend/svc/pkg/schema/admin"
+	"ynufes-mypage-backend/svc/pkg/schema/agent"
 	"ynufes-mypage-backend/svc/pkg/uc/org"
 )
 
@@ -52,7 +52,7 @@ func (o Org) CreateHandler() gin.HandlerFunc {
 			c.AbortWithStatusJSON(500, gin.H{"error": "failed to create org"})
 			return
 		}
-		resp := admin.CreateOrgResponse{
+		resp := agent.CreateOrgResponse{
 			EventID:   opt.Org.Event.ID.ExportID(),
 			EventName: opt.Org.Event.Name,
 			OrgID:     opt.Org.ID.ExportID(),
@@ -91,7 +91,7 @@ func (o Org) IssueOrgInviteToken() gin.HandlerFunc {
 		if err != nil {
 			return
 		}
-		resp := admin.IssueOrgInviteTokenResponse{
+		resp := agent.IssueOrgInviteTokenResponse{
 			Token:      issueJWT,
 			OrgID:      opt.Org.ID.ExportID(),
 			ValidUntil: time.Now().Add(duration).Format(time.RFC3339),
