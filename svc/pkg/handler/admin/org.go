@@ -23,7 +23,7 @@ func NewOrg(rgst registry.Registry) *Org {
 	return &Org{
 		createOrgUC: org.NewCreateOrg(rgst),
 		infoOrgUC:   org.NewInfo(rgst),
-		jwtSecret:   config.Application.Admin.JwtSecret,
+		jwtSecret:   config.Application.Authentication.JwtSecret,
 	}
 }
 

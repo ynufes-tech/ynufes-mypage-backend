@@ -35,7 +35,7 @@ func NewRegister(rgst registry.Registry) RegisterUseCase {
 	return RegisterUseCase{
 		orgC:      rgst.Repository().NewOrgCommand(),
 		orgQ:      rgst.Repository().NewOrgQuery(),
-		jwtSecret: config.Application.Admin.JwtSecret,
+		jwtSecret: config.Application.Authentication.JwtSecret,
 	}
 }
 
