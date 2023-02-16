@@ -15,7 +15,7 @@ func TestImplement(t *testing.T) {
 	rg := r.Group("/api/v1")
 	err := Implement(rg, true)
 	assert.NoError(t, err)
-	err = ImplementAdmin(rg)
+	err = ImplementAgent(rg)
 	assert.NoError(t, err)
 
 	req, _ := http.NewRequest("GET", "/api/v1/auth/line/state", nil)

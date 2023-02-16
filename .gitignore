@@ -1,2 +1,5 @@
 .idea
 .env
+setting.dev.yaml
+gcloud-credential.json
+*.exe

@@ -6,7 +6,7 @@ var JWT jwt
 
 func init() {
 	config := setting.Get()
-	JWT = jwt{JWTSecret: config.Application.Admin.JwtSecret}
+	JWT = jwt{JWTSecret: config.Application.Authentication.JwtSecret}
 }
 
 type jwt struct {

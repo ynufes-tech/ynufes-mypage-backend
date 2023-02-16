@@ -35,7 +35,7 @@ func NewRegister(rgst registry.Registry) RegisterUseCase {
 	return RegisterUseCase{
 		orgC:      rgst.Repository().NewOrgCommand(),
 		orgQ:      rgst.Repository().NewOrgQuery(),
-		jwtSecret: config.Application.Admin.JwtSecret,
+		jwtSecret: config.Application.Authentication.JwtSecret,
 	}
 }
 
@@ -52,14 +52,14 @@ func (uc RegisterUseCase) Do(ipt RegisterInput) (*RegisterOutput, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to get org in RegisterUC: %w", err)
 	}
-	if hasMember(&o.Members, ipt.UserID) {
+	if hasUser(&o.Users, ipt.UserID) {
 		return &RegisterOutput{
 			Added: false,
 			Org:   *o,
 		}, nil
 	}
-	o.Members = append(o.Members, ipt.UserID)
-	if err := uc.orgC.UpdateMembers(ipt.Ctx, *o); err != nil {
+	o.Users = append(o.Users, ipt.UserID)
+	if err := uc.orgC.UpdateUsers(ipt.Ctx, *o); err != nil {
 		return nil, err
 	}
 	return &RegisterOutput{
@@ -68,9 +68,9 @@ func (uc RegisterUseCase) Do(ipt RegisterInput) (*RegisterOutput, error) {
 	}, nil
 }
 
-func hasMember(members *[]user.ID, member user.ID) bool {
-	for _, m := range *members {
-		if m.GetValue() == member.GetValue() {
+func hasUser(users *[]user.ID, targetUser user.ID) bool {
+	for _, m := range *users {
+		if m.GetValue() == targetUser.GetValue() {
 			return true
 		}
 	}

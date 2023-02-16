@@ -1,4 +1,4 @@
-package admin
+package agent
 
 type CreateEventResponse struct {
 	EventID   string `json:"event_id"`

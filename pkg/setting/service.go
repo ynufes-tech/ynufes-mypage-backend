@@ -5,6 +5,7 @@ type (
 		Authentication Authentication `yaml:"authentication"`
 	}
 	Authentication struct {
-		SecureCookie bool `yaml:"secure_cookie"`
+		SecureCookie bool   `yaml:"secure_cookie"`
+		JwtSecret    string `yaml:"jwt_secret"`
 	}
 )

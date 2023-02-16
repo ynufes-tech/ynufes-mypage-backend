@@ -11,8 +11,6 @@ application:
       domain: "ynufes-mypage.shion.pro"
       port: ":1306"
     # CONCATING PROTOCOL, DOMAIN, AND PORT TOGETHER SHOULD GIVE THE FULL URL
-  admin:
-    jwt_secret: "ADMIN_AUTH_CIPHER_KEY_TEST_TOKEN"
 infrastructure:
   firestore:
     project_id: "ynufes-mypage"
@@ -27,5 +25,6 @@ third_party:
     enable_line_auth: true
 service:
   authentication:
+    jwt_secret: "LEN32_AUTH_CIPHER_KEY_TEST_TOKEN"
     secure_cookie: true
     # YOU CAN DISABLE SECURE COOKIE FOR TESTING PURPOSES
