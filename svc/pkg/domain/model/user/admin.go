@@ -1,10 +1,13 @@
 package user
 
-import "time"
+import (
+	"time"
+)
 
 type (
 	Admin struct {
 		IsSuperAdmin bool
-		GrantedTime  time.Time
+		GrantedTime  *time.Time
+		// if IsSuperAdmin is false, GrantedTime should be nil.
 	}
 )

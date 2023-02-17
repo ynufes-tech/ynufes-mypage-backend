@@ -39,6 +39,11 @@ func (u User) ToModel() (*user.User, error) {
 			GrantedTime: time.UnixMilli(role.GrantedTime),
 		}
 	}
+	var adminGrantedTime *time.Time
+	if u.IsSuperAdmin {
+		t := time.UnixMilli(u.GrantedTime)
+		adminGrantedTime = &t
+	}
 	return &user.User{
 		ID:     u.ID,
 		Status: user.Status(u.Status),
@@ -64,7 +69,7 @@ func (u User) ToModel() (*user.User, error) {
 		},
 		Admin: user.Admin{
 			IsSuperAdmin: u.IsSuperAdmin,
-			GrantedTime:  time.UnixMilli(u.GrantedTime),
+			GrantedTime:  adminGrantedTime,
 		},
 		Agent: user.Agent{
 			Roles: roles,
