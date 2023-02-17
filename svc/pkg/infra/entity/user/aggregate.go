@@ -1,6 +1,8 @@
 package entity
 
 import (
+	"time"
+	"ynufes-mypage-backend/pkg/identity"
 	"ynufes-mypage-backend/svc/pkg/domain/model/user"
 )
 
@@ -12,6 +14,8 @@ type User struct {
 	Status int     `firestore:"status"`
 	UserDetail
 	Line
+	Admin
+	Agent
 }
 
 func (u User) ToModel() (*user.User, error) {
@@ -22,6 +26,18 @@ func (u User) ToModel() (*user.User, error) {
 	gender, err := user.NewGender(u.Gender)
 	if err != nil {
 		return nil, err
+	}
+	roles := make([]user.Role, len(u.Roles))
+	for i, role := range u.Roles {
+		lv, err := user.NewRoleLevel(role.Level)
+		if err != nil {
+			return nil, err
+		}
+		roles[i] = user.Role{
+			ID:          identity.NewID(role.ID),
+			Level:       lv,
+			GrantedTime: time.UnixMilli(role.GrantedTime),
+		}
 	}
 	return &user.User{
 		ID:     u.ID,
@@ -45,6 +61,13 @@ func (u User) ToModel() (*user.User, error) {
 			LineDisplayName:       u.LineDisplayName,
 			EncryptedAccessToken:  user.EncryptedAccessToken(u.EncryptedAccessToken),
 			EncryptedRefreshToken: user.EncryptedRefreshToken(u.EncryptedRefreshToken),
+		},
+		Admin: user.Admin{
+			IsSuperAdmin: u.IsSuperAdmin,
+			GrantedTime:  time.UnixMilli(u.GrantedTime),
+		},
+		Agent: user.Agent{
+			Roles: roles,
 		},
 	}, nil
 }
