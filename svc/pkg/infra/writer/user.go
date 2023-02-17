@@ -184,6 +184,7 @@ func (u User) UpdateUserDetail(ctx context.Context, oldUser *user.User, update u
 		// do not update field: Type
 		update.Type = oldUser.Detail.Type
 		oldUser.Detail = update
+		oldUser.Status = user.Status(newStatus)
 	}
 	return err
 }
