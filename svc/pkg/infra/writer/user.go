@@ -4,6 +4,7 @@ import (
 	"cloud.google.com/go/firestore"
 	"context"
 	"log"
+	"time"
 	"ynufes-mypage-backend/svc/pkg/domain/model/user"
 	"ynufes-mypage-backend/svc/pkg/exception"
 	entity "ynufes-mypage-backend/svc/pkg/infra/entity/user"
@@ -19,6 +20,7 @@ func NewUser(c *firestore.Client) User {
 	}
 }
 
+// Create Note that new user will be created with no roles or authority.
 func (u User) Create(ctx context.Context, model user.User) error {
 	if !model.ID.HasValue() {
 		return exception.ErrIDNotAssigned
@@ -43,6 +45,14 @@ func (u User) Create(ctx context.Context, model user.User) error {
 			LineDisplayName:       model.Line.LineDisplayName,
 			EncryptedAccessToken:  string(model.Line.EncryptedAccessToken),
 			EncryptedRefreshToken: string(model.Line.EncryptedRefreshToken),
+		},
+		// new user will not have any roles
+		Admin: entity.Admin{
+			IsSuperAdmin: false,
+			GrantedTime:  0,
+		},
+		Agent: entity.Agent{
+			Roles: []entity.Role{},
 		},
 	}
 	//NOTE: Create fails if the document already exists
@@ -184,8 +194,58 @@ func (u User) UpdateUserDetail(ctx context.Context, oldUser *user.User, update u
 		// do not update field: Type
 		update.Type = oldUser.Detail.Type
 		oldUser.Detail = update
+		oldUser.Status = user.Status(newStatus)
 	}
 	return err
+}
+
+func (u User) UpdateAgent(ctx context.Context, oldUser *user.User, newAgent user.Agent) error {
+	var updateTargets []firestore.Update
+	targets := map[string]struct {
+		oldValue interface{}
+		newValue interface{}
+	}{
+		"agent-roles": {
+			oldValue: oldUser.Agent.Roles,
+			newValue: newAgent.Roles,
+		},
+	}
+	for key, value := range targets {
+		if value.oldValue != value.newValue {
+			updateTargets = append(updateTargets, firestore.Update{Path: key, Value: value.newValue})
+		}
+	}
+	if len(targets) == 0 {
+		return nil
+	}
+	if _, err := u.collection.Doc(oldUser.ID.ExportID()).
+		Update(ctx, updateTargets); err != nil {
+		return err
+	}
+	oldUser.Agent = newAgent
+	return nil
+}
+
+func (u User) UpdateAdmin(ctx context.Context, oldUser *user.User, newAdmin user.Admin) error {
+	var updateTargets []firestore.Update
+	if oldUser.Admin.IsSuperAdmin == newAdmin.IsSuperAdmin {
+		return nil
+	}
+	if newAdmin.IsSuperAdmin {
+		updateTargets = append(updateTargets,
+			firestore.Update{Path: "admin-is_super_admin", Value: true},
+			firestore.Update{Path: "admin-granted_time", Value: time.Now()})
+	} else {
+		updateTargets = append(updateTargets,
+			firestore.Update{Path: "admin-is_super_admin", Value: false},
+			firestore.Update{Path: "admin-granted_time", Value: 0})
+	}
+	if _, err := u.collection.Doc(oldUser.ID.ExportID()).
+		Update(ctx, updateTargets); err != nil {
+		return err
+	}
+	oldUser.Admin = newAdmin
+	return nil
 }
 
 func (u User) Delete(ctx context.Context, model user.User) error {

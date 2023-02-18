@@ -1,9 +1,9 @@
-package admin
+package agent
 
 import (
 	"github.com/gin-gonic/gin"
 	"ynufes-mypage-backend/svc/pkg/registry"
-	"ynufes-mypage-backend/svc/pkg/schema/admin"
+	"ynufes-mypage-backend/svc/pkg/schema/agent"
 	"ynufes-mypage-backend/svc/pkg/uc/event"
 )
 
@@ -33,7 +33,7 @@ func (uc Event) CreateHandler() gin.HandlerFunc {
 		if err != nil {
 			return
 		}
-		resp := admin.CreateEventResponse{
+		resp := agent.CreateEventResponse{
 			EventID:   opt.Event.ID.ExportID(),
 			EventName: opt.Event.Name,
 		}

@@ -14,14 +14,14 @@ type Org struct {
 	EventID   int64   `firestore:"event_id"`
 	EventName string  `firestore:"event_name"`
 	Name      string  `firestore:"name"`
-	Members   []int64 `firestore:"member_ids"`
+	Users     []int64 `firestore:"user_ids"`
 	IsOpen    bool    `firestore:"is_open"`
 }
 
 func (o Org) ToModel() (*org.Org, error) {
-	var members []user.ID
-	for i := range o.Members {
-		members = append(members, identity.NewID(o.Members[i]))
+	var users []user.ID
+	for i := range o.Users {
+		users = append(users, identity.NewID(o.Users[i]))
 	}
 	id, err := identity.ImportID(o.ID)
 	if err != nil {
@@ -33,8 +33,8 @@ func (o Org) ToModel() (*org.Org, error) {
 			ID:   identity.NewID(o.EventID),
 			Name: o.EventName,
 		},
-		Name:    o.Name,
-		Members: members,
-		IsOpen:  o.IsOpen,
+		Name:   o.Name,
+		Users:  users,
+		IsOpen: o.IsOpen,
 	}, nil
 }

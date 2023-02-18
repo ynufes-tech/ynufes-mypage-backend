@@ -27,7 +27,7 @@ func NewLoginUseCase(registry registry.Registry) LoginUseCase {
 	config := setting.Get()
 	return LoginUseCase{
 		userQuery: registry.Repository().NewUserQuery(),
-		jwtSecret: config.Application.Admin.JwtSecret,
+		jwtSecret: config.Application.Authentication.JwtSecret,
 	}
 }
 

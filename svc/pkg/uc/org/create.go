@@ -39,11 +39,11 @@ func (uc CreateOrgUseCase) Do(ipt CreateOrgInput) (*CreateOrgOutput, error) {
 		return nil, err
 	}
 	o := org.Org{
-		ID:      org.ID(identity.IssueID()),
-		Event:   *e,
-		Name:    ipt.OrgName,
-		Members: nil,
-		IsOpen:  ipt.IsOpen,
+		ID:     org.ID(identity.IssueID()),
+		Event:  *e,
+		Name:   ipt.OrgName,
+		Users:  nil,
+		IsOpen: ipt.IsOpen,
 	}
 	err = uc.orgC.Create(ipt.Ctx, o)
 	if err != nil {

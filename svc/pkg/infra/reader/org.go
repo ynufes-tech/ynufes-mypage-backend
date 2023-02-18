@@ -37,7 +37,7 @@ func (o Org) GetByID(ctx context.Context, id org.ID) (*org.Org, error) {
 func (o Org) ListByGrantedUserID(ctx context.Context, id user.ID) ([]org.Org, error) {
 	var orgs []org.Org
 	uid := id.GetValue()
-	iter := o.collection.Where("member_ids", "array-contains", uid).Documents(ctx)
+	iter := o.collection.Where("user_ids", "array-contains", uid).Documents(ctx)
 	for {
 		var orgEntity entity.Org
 		snap, err := iter.Next()

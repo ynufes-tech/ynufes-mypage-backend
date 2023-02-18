@@ -8,6 +8,8 @@ type (
 		Status Status
 		Detail Detail
 		Line   Line
+		Admin  Admin
+		Agent  Agent
 	}
 	ID     util.ID
 	Status int
