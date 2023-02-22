@@ -9,18 +9,10 @@ const FormCollectionName = "Forms"
 
 type (
 	Form struct {
-		ID          string              `firestore:"-"`
-		Title       string              `firestore:"title"`
-		Summary     string              `firestore:"summary"`
-		Description string              `firestore:"description"`
-		Questions   map[string]Question `firestore:"questions"`
-	}
-	Question struct {
-		ID           string                 `firestore:"-"`
-		QuestionText string                 `firestore:"text"`
-		QuestionType int                    `firestore:"type"`
-		Properties   map[string]interface{} `firestore:"props"`
-		Order        int                    `firestore:"order"`
+		ID          string `firestore:"-"`
+		Title       string `firestore:"title"`
+		Summary     string `firestore:"summary"`
+		Description string `firestore:"description"`
 	}
 )
 
