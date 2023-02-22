@@ -24,6 +24,8 @@ func (q Question) ToModel() (question.Question, error) {
 	sq := question.NewStandardQuestion(
 		question.Type(q.Type),
 		id,
+		identity.NewID(q.EventID),
+		identity.NewID(q.FormID),
 		q.Text,
 		q.Customs,
 	)

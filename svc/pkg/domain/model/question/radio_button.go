@@ -4,13 +4,14 @@ import (
 	"errors"
 	"fmt"
 	"ynufes-mypage-backend/pkg/identity"
+	"ynufes-mypage-backend/svc/pkg/domain/model/event"
+	"ynufes-mypage-backend/svc/pkg/domain/model/form"
 	"ynufes-mypage-backend/svc/pkg/domain/model/util"
 )
 
 type (
 	RadioButtonsQuestion struct {
-		ID           ID
-		Text         string
+		Basic
 		Options      []RadioButtonOption
 		OptionsOrder []RadioButtonOptionID
 	}
@@ -27,11 +28,10 @@ const (
 )
 
 func NewRadioButtonsQuestion(
-	id ID, text string, options []RadioButtonOption, order []RadioButtonOptionID,
+	id ID, text string, eventID event.ID, formID form.ID, options []RadioButtonOption, order []RadioButtonOptionID,
 ) *RadioButtonsQuestion {
 	return &RadioButtonsQuestion{
-		ID:           id,
-		Text:         text,
+		Basic:        NewBasic(id, text, eventID, formID, TypeRadio),
 		Options:      options,
 		OptionsOrder: order,
 	}
@@ -74,7 +74,7 @@ func ImportRadioButtonsQuestion(q StandardQuestion) (*RadioButtonsQuestion, erro
 			Text: text,
 		})
 	}
-	return NewRadioButtonsQuestion(q.ID, q.Text, options, optionsOrder), nil
+	return NewRadioButtonsQuestion(q.ID, q.Text, q.EventID, q.FormID, options, optionsOrder), nil
 }
 
 func (q RadioButtonsQuestion) Export() StandardQuestion {
@@ -92,17 +92,5 @@ func (q RadioButtonsQuestion) Export() StandardQuestion {
 	customs[RadioButtonOptionsField] = options
 	customs[RadioButtonOptionsOrderField] = optionsOrder
 
-	return NewStandardQuestion(TypeRadio, q.ID, q.Text, customs)
-}
-
-func (q RadioButtonsQuestion) GetType() Type {
-	return TypeRadio
-}
-
-func (q RadioButtonsQuestion) GetID() ID {
-	return q.ID
-}
-
-func (q RadioButtonsQuestion) GetText() string {
-	return q.Text
+	return NewStandardQuestion(TypeRadio, q.ID, q.EventID, q.FormID, q.Text, customs)
 }

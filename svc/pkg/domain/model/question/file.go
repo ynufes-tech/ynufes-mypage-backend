@@ -3,12 +3,13 @@ package question
 import (
 	"errors"
 	"fmt"
+	"ynufes-mypage-backend/svc/pkg/domain/model/event"
+	"ynufes-mypage-backend/svc/pkg/domain/model/form"
 )
 
 type (
 	FileQuestion struct {
-		ID         ID
-		Text       string
+		Basic
 		FileType   FileType
 		Constraint FileConstraint
 	}
@@ -23,10 +24,10 @@ const (
 	FileConstraintsCustomsField          = "fileConstraint"
 )
 
-func NewFileQuestion(id ID, text string, fileType FileType, constraint FileConstraint) *FileQuestion {
+func NewFileQuestion(id ID, text string, eventID event.ID, formID form.ID, fileType FileType, constraint FileConstraint,
+) *FileQuestion {
 	return &FileQuestion{
-		ID:         id,
-		Text:       text,
+		Basic:      NewBasic(id, text, eventID, formID, TypeFile),
 		FileType:   fileType,
 		Constraint: constraint,
 	}
@@ -58,13 +59,13 @@ func ImportFileQuestion(q StandardQuestion) (*FileQuestion, error) {
 	}
 
 	if fileType == Any {
-		return NewFileQuestion(q.ID, q.Text, fileType, nil), nil
+		return NewFileQuestion(q.ID, q.Text, q.EventID, q.FormID, fileType, nil), nil
 	}
 
 	constraintsCustomsData, has := q.Customs[FileConstraintsCustomsField]
 	// if FileConstraintsCustomsField is not present, return FileQuestion without constraint
 	if !has {
-		return NewFileQuestion(q.ID, q.Text, fileType, nil), nil
+		return NewFileQuestion(q.ID, q.Text, q.EventID, q.FormID, fileType, nil), nil
 	}
 
 	constraintsCustoms, ok := constraintsCustomsData.(map[string]interface{})
@@ -75,7 +76,7 @@ func ImportFileQuestion(q StandardQuestion) (*FileQuestion, error) {
 	}
 
 	constraint := NewStandardFileConstraint(fileType, constraintsCustoms)
-	question := NewFileQuestion(q.ID, q.Text, fileType, ImportFileConstraint(constraint))
+	question := NewFileQuestion(q.ID, q.Text, q.EventID, q.FormID, fileType, ImportFileConstraint(constraint))
 	if err != nil {
 		return nil, err
 	}
@@ -90,17 +91,5 @@ func (q FileQuestion) Export() StandardQuestion {
 	if q.Constraint != nil {
 		customs[FileConstraintsCustomsField] = q.Constraint.Export().Customs
 	}
-	return NewStandardQuestion(TypeFile, q.ID, q.Text, customs)
-}
-
-func (q FileQuestion) GetType() Type {
-	return TypeFile
-}
-
-func (q FileQuestion) GetID() ID {
-	return q.ID
-}
-
-func (q FileQuestion) GetText() string {
-	return q.Text
+	return NewStandardQuestion(TypeFile, q.ID, q.EventID, q.FormID, q.Text, customs)
 }

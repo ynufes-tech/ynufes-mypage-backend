@@ -4,6 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"ynufes-mypage-backend/pkg/identity"
+	"ynufes-mypage-backend/svc/pkg/domain/model/event"
+	"ynufes-mypage-backend/svc/pkg/domain/model/form"
 	"ynufes-mypage-backend/svc/pkg/domain/model/util"
 )
 
@@ -11,8 +13,7 @@ type (
 	CheckBoxOptionID util.ID
 
 	CheckBoxQuestion struct {
-		ID           ID
-		Text         string
+		Basic
 		Options      []CheckBoxOption
 		OptionsOrder []CheckBoxOptionID
 	}
@@ -29,11 +30,10 @@ const (
 )
 
 func NewCheckBoxQuestion(
-	id ID, text string, options []CheckBoxOption, optionsOrder []CheckBoxOptionID,
+	id ID, text string, eventID event.ID, formID form.ID, options []CheckBoxOption, optionsOrder []CheckBoxOptionID,
 ) *CheckBoxQuestion {
 	return &CheckBoxQuestion{
-		ID:           id,
-		Text:         text,
+		Basic:        NewBasic(id, text, eventID, formID, TypeCheckBox),
 		Options:      options,
 		OptionsOrder: optionsOrder,
 	}
@@ -95,7 +95,7 @@ func ImportCheckBoxQuestion(q StandardQuestion) (*CheckBoxQuestion, error) {
 			Text: text,
 		})
 	}
-	return NewCheckBoxQuestion(q.ID, q.Text, options, optionsOrder), nil
+	return NewCheckBoxQuestion(q.ID, q.Text, q.EventID, q.FormID, options, optionsOrder), nil
 }
 
 func (q CheckBoxQuestion) Export() StandardQuestion {
@@ -110,17 +110,5 @@ func (q CheckBoxQuestion) Export() StandardQuestion {
 	}
 	customs[CheckBoxOptionsField] = options
 	customs[CheckBoxOptionsOrderField] = optionsOrder
-	return NewStandardQuestion(TypeCheckBox, q.ID, q.Text, customs)
-}
-
-func (q CheckBoxQuestion) GetType() Type {
-	return TypeCheckBox
-}
-
-func (q CheckBoxQuestion) GetID() ID {
-	return q.ID
-}
-
-func (q CheckBoxQuestion) GetText() string {
-	return q.Text
+	return NewStandardQuestion(TypeCheckBox, q.ID, q.Basic.EventID, q.Basic.FormID, q.Text, customs)
 }
