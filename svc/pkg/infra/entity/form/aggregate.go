@@ -21,19 +21,5 @@ func (f Form) ToModel() (*form.Form, error) {
 	if err != nil {
 		return nil, err
 	}
-	var questions []form.Question
-	for _, v := range f.Questions {
-		q, err := ImportQuestion(v)
-		if err != nil {
-			return nil, err
-		}
-		questions = append(questions, q)
-	}
-	return &form.Form{
-		ID:          fid,
-		Title:       f.Title,
-		Summary:     f.Summary,
-		Description: f.Description,
-		Questions:   questions,
-	}, nil
+	return form.NewForm(fid, f.Title, f.Summary, f.Description), nil
 }

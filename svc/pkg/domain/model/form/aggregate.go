@@ -15,3 +15,12 @@ type (
 	ID util.ID
 	//SectionID util.ID
 )
+
+func NewForm(id ID, title, summary, description string) *Form {
+	return &Form{
+		ID:          id,
+		Title:       title,
+		Summary:     summary,
+		Description: description,
+	}
+}
