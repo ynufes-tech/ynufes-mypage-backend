@@ -16,3 +16,12 @@ type (
 	}
 	ID util.ID
 )
+
+func (o Org) IsGranted(userID user.ID) bool {
+	for _, u := range o.Users {
+		if u == userID {
+			return true
+		}
+	}
+	return false
+}
