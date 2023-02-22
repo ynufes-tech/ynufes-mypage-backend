@@ -36,13 +36,13 @@ func (w Question) Create(ctx context.Context, q question.Question) error {
 	return nil
 }
 
-func (w Question) UpdateCustoms(ctx context.Context, q question.Question) error {
-	_, err := w.collection.Doc(q.GetID().ExportID()).
+func (w Question) UpdateCustoms(ctx context.Context, id question.ID, customs map[string]interface{}) error {
+	_, err := w.collection.Doc(id.ExportID()).
 		Update(ctx,
 			[]firestore.Update{
 				{
 					Path:  "customs",
-					Value: q.Export().Customs,
+					Value: customs,
 				},
 			})
 	if err != nil {
