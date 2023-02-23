@@ -3,6 +3,7 @@ package reader
 import (
 	"cloud.google.com/go/firestore"
 	"context"
+	"fmt"
 	"ynufes-mypage-backend/svc/pkg/domain/model/event"
 	"ynufes-mypage-backend/svc/pkg/domain/model/form"
 	entity "ynufes-mypage-backend/svc/pkg/infra/entity/form"
@@ -43,11 +44,15 @@ func (f Form) ListByEventID(ctx context.Context, eventID event.ID) ([]form.Form,
 		if err != nil {
 			return nil, err
 		}
-		var e form.Form
+		var e entity.Form
 		err = doc.DataTo(&e)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("failed to decode snap into entity.Form in ListByEventID: %w", err)
 		}
-		forms = append(forms, e)
+		m, err := e.ToModel()
+		if err != nil {
+			return nil, fmt.Errorf("failed to convert entity to model in ListByEventID: %w", err)
+		}
+		forms = append(forms, *m)
 	}
 }
