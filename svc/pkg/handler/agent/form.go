@@ -61,6 +61,9 @@ func (h Form) CreateHandler() gin.HandlerFunc {
 		}
 		opt, err := h.createUC.Do(ipt)
 		if err != nil {
+			c.AbortWithStatusJSON(500,
+				gin.H{"error": "failed to create form"})
+			_ = c.Error(err)
 			return
 		}
 		c.JSON(200, gin.H{
