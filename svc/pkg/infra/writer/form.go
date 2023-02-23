@@ -18,13 +18,13 @@ func NewForm(client *firestore.Client) *Form {
 }
 
 func (f Form) Create(ctx context.Context, target form.Form) error {
-	eventID := target.EventID.ExportID()
+	formID := target.ID.ExportID()
 	var roles = make([]int64, len(target.Roles))
 	for i := 0; i < len(target.Roles); i++ {
 		roles[i] = target.Roles[i].GetValue()
 	}
 	e := entity.NewForm(
-		eventID,
+		formID,
 		target.EventID.GetValue(),
 		target.Title,
 		target.Summary,
@@ -33,7 +33,7 @@ func (f Form) Create(ctx context.Context, target form.Form) error {
 		target.Deadline.UnixMilli(),
 		target.IsOpen,
 	)
-	_, err := f.collection.Doc(eventID).Create(ctx, e)
+	_, err := f.collection.Doc(formID).Create(ctx, e)
 	if err != nil {
 		return err
 	}
@@ -41,13 +41,13 @@ func (f Form) Create(ctx context.Context, target form.Form) error {
 }
 
 func (f Form) Set(ctx context.Context, target form.Form) error {
-	eventID := target.EventID.ExportID()
+	formID := target.ID.ExportID()
 	var roles = make([]int64, len(target.Roles))
 	for i := 0; i < len(target.Roles); i++ {
 		roles[i] = target.Roles[i].GetValue()
 	}
 	e := entity.NewForm(
-		eventID,
+		formID,
 		target.EventID.GetValue(),
 		target.Title,
 		target.Summary,
@@ -56,7 +56,7 @@ func (f Form) Set(ctx context.Context, target form.Form) error {
 		target.Deadline.UnixMilli(),
 		target.IsOpen,
 	)
-	_, err := f.collection.Doc(eventID).Set(ctx, e)
+	_, err := f.collection.Doc(formID).Set(ctx, e)
 	if err != nil {
 		return err
 	}
