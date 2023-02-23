@@ -4,6 +4,7 @@ import (
 	"cloud.google.com/go/firestore"
 	"context"
 	"fmt"
+	"google.golang.org/api/iterator"
 	"ynufes-mypage-backend/svc/pkg/domain/model/event"
 	"ynufes-mypage-backend/svc/pkg/domain/model/form"
 	entity "ynufes-mypage-backend/svc/pkg/infra/entity/form"
@@ -43,6 +44,9 @@ func (f Form) ListByEventID(ctx context.Context, eventID event.ID) ([]form.Form,
 	for {
 		doc, err := iter.Next()
 		if err != nil {
+			if err == iterator.Done {
+				break
+			}
 			return nil, err
 		}
 		var e entity.Form
@@ -57,4 +61,5 @@ func (f Form) ListByEventID(ctx context.Context, eventID event.ID) ([]form.Form,
 		}
 		forms = append(forms, *m)
 	}
+	return forms, nil
 }
