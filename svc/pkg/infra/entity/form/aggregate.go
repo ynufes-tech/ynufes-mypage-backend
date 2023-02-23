@@ -22,6 +22,21 @@ type (
 	}
 )
 
+func NewForm(
+	id string, eventID int64, title, summary, description string, roles []int64, deadline int64, isOpen bool,
+) Form {
+	return Form{
+		ID:          id,
+		EventID:     eventID,
+		Title:       title,
+		Summary:     summary,
+		Description: description,
+		Roles:       roles,
+		Deadline:    deadline,
+		IsOpen:      isOpen,
+	}
+}
+
 func (f Form) ToModel() (*form.Form, error) {
 	fid, err := identity.ImportID(f.ID)
 	if err != nil {
