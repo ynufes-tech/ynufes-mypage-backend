@@ -1,6 +1,7 @@
 package entity
 
 import (
+	"time"
 	"ynufes-mypage-backend/pkg/identity"
 	"ynufes-mypage-backend/svc/pkg/domain/model/form"
 	"ynufes-mypage-backend/svc/pkg/domain/model/user"
@@ -16,6 +17,8 @@ type (
 		Summary     string  `firestore:"summary"`
 		Description string  `firestore:"description"`
 		Roles       []int64 `firestore:"roles"`
+		Deadline    int64   `firestore:"deadline"`
+		IsOpen      bool    `firestore:"is_open"`
 	}
 )
 
@@ -29,5 +32,8 @@ func (f Form) ToModel() (*form.Form, error) {
 	for i, r := range f.Roles {
 		roles[i] = identity.NewID(r)
 	}
-	return form.NewForm(fid, eID, f.Title, f.Summary, f.Description, roles), nil
+	deadline := time.UnixMilli(f.Deadline)
+	return form.NewForm(
+		fid, eID, f.Title, f.Summary, f.Description, roles, deadline, f.IsOpen,
+	), nil
 }

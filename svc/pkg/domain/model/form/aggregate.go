@@ -1,6 +1,7 @@
 package form
 
 import (
+	"time"
 	"ynufes-mypage-backend/svc/pkg/domain/model/event"
 	"ynufes-mypage-backend/svc/pkg/domain/model/user"
 	"ynufes-mypage-backend/svc/pkg/domain/model/util"
@@ -15,6 +16,8 @@ type (
 		Summary     string
 		Description string
 		Roles       []user.RoleID
+		Deadline    time.Time
+		IsOpen      bool
 		//Sections    []SectionID
 	}
 
@@ -22,7 +25,9 @@ type (
 	//SectionID util.ID
 )
 
-func NewForm(id ID, eventID event.ID, title, summary, description string, roles []user.RoleID) *Form {
+func NewForm(
+	id ID, eventID event.ID, title, summary, description string, roles []user.RoleID, deadline time.Time, isOpen bool,
+) *Form {
 	return &Form{
 		ID:          id,
 		EventID:     eventID,
@@ -30,5 +35,7 @@ func NewForm(id ID, eventID event.ID, title, summary, description string, roles 
 		Summary:     summary,
 		Description: description,
 		Roles:       roles,
+		Deadline:    deadline,
+		IsOpen:      isOpen,
 	}
 }
