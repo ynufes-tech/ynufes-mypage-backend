@@ -121,12 +121,13 @@ func (o Org) OrgHandler() gin.HandlerFunc {
 				IsOpen:      f.IsOpen,
 			}
 		}
-		resp := schemaOrg.OrgResponse{
-			ID:      opt.Org.ID.ExportID(),
-			Name:    opt.Org.Name,
-			EventID: opt.Org.Event.ID.ExportID(),
-			Forms:   forms,
-		}
+		resp := schemaOrg.NewOrgResponse(
+			opt.Org.ID.ExportID(),
+			opt.Org.Name,
+			opt.Org.Event.ID.ExportID(),
+			opt.Org.Event.Name,
+			forms,
+		)
 		ctx.JSON(200, resp)
 	}
 	return h.GinHandler()
