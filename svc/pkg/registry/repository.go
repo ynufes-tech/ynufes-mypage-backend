@@ -43,3 +43,19 @@ func (repo Repository) NewOrgQuery() query.Org {
 func (repo Repository) NewOrgCommand() command.Org {
 	return writer.NewOrg(repo.fs)
 }
+
+func (repo Repository) NewFormCommand() command.Form {
+	return writer.NewForm(repo.fs)
+}
+
+func (repo Repository) NewFormQuery() query.Form {
+	return reader.NewForm(repo.fs)
+}
+
+func (repo Repository) NewQuestionQuery() query.Question {
+	return reader.NewQuestion(repo.fs)
+}
+
+func (repo Repository) NewQuestionCommand() command.Question {
+	return writer.NewQuestion(repo.fs)
+}

@@ -40,6 +40,7 @@ func Implement(rg *gin.RouterGroup, devTool bool) error {
 	authRg.Handle("POST", "/user/info/update", user.InfoUpdateHandler())
 	authRg.Handle("GET", "/orgs", org.OrgsHandler())
 	authRg.Handle("POST", "/org/register", org.OrgRegisterHandler())
+	authRg.Handle("GET", "/org/:orgID", org.OrgHandler())
 	return nil
 }
 
@@ -54,8 +55,10 @@ func ImplementAgent(rg *gin.RouterGroup) error {
 	//agentRg := rg.Use(middlewareAuth.VerifyUser(), middlewareAgent.VerifyAgent())
 	event := agentOrg.NewEvent(*rgst)
 	org := agentOrg.NewOrg(*rgst)
+	form := agentOrg.NewForm(*rgst)
 	rg.Handle("GET", "/agent/event/create", event.CreateHandler())
 	rg.Handle("GET", "/agent/org/create", org.CreateHandler())
 	rg.Handle("GET", "/agent/org/token", org.IssueOrgInviteToken())
+	rg.Handle("GET", "/agent/form/create", form.CreateHandler())
 	return nil
 }
