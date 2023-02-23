@@ -29,6 +29,7 @@ func (f Form) GetByID(ctx context.Context, id form.ID) (*form.Form, error) {
 	if err != nil {
 		return nil, err
 	}
+	e.ID = snap.Ref.ID
 	m, err := e.ToModel()
 	if err != nil {
 		return nil, err
@@ -49,6 +50,7 @@ func (f Form) ListByEventID(ctx context.Context, eventID event.ID) ([]form.Form,
 		if err != nil {
 			return nil, fmt.Errorf("failed to decode snap into entity.Form in ListByEventID: %w", err)
 		}
+		e.ID = doc.Ref.ID
 		m, err := e.ToModel()
 		if err != nil {
 			return nil, fmt.Errorf("failed to convert entity to model in ListByEventID: %w", err)
