@@ -1,6 +1,7 @@
 package identity
 
 import (
+	"fmt"
 	"strconv"
 	"ynufes-mypage-backend/pkg/snowflake"
 	"ynufes-mypage-backend/svc/pkg/domain/model/util"
@@ -17,7 +18,7 @@ func IssueID() util.ID {
 func ImportID(id string) (util.ID, error) {
 	result, err := strconv.ParseInt(id, 36, 64)
 	if err != nil {
-		return ID(0), err
+		return ID(0), fmt.Errorf("failed to convert string to ID, req:%s", id)
 	}
 	return ID(result), nil
 }
