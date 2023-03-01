@@ -8,16 +8,16 @@ import (
 )
 
 type Section struct {
-	ID        int64
-	Questions []int64
+	ID        int64   `firestore:"id"`
+	Questions []int64 `firestore:"questions"`
 
 	// ConditionQuestion a question which determines next section based on its answer
 	// Only some of the questions can be condition questions. (e.g. radio, checkbox)
 	// If !ConditionQuestion.HasValue(), then proceed to next section
-	ConditionQuestion int64
+	ConditionQuestion int64 `firestore:"c_question"`
 
 	// ConditionCustoms map[OptionID]NextSectionID
-	ConditionCustoms map[string]int64
+	ConditionCustoms map[string]int64 `firestore:"c_customs"`
 }
 
 func (s Section) ToModel() (*form.Section, error) {
