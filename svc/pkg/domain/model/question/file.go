@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"ynufes-mypage-backend/svc/pkg/domain/model/event"
-	"ynufes-mypage-backend/svc/pkg/domain/model/form"
 )
 
 type (
@@ -24,10 +23,10 @@ const (
 	FileConstraintsCustomsField          = "fileConstraint"
 )
 
-func NewFileQuestion(id ID, text string, eventID event.ID, formID form.ID, fileType FileType, constraint FileConstraint,
+func NewFileQuestion(id ID, text string, eventID event.ID, fileType FileType, constraint FileConstraint,
 ) *FileQuestion {
 	return &FileQuestion{
-		Basic:      NewBasic(id, text, eventID, formID, TypeFile),
+		Basic:      NewBasic(id, text, eventID, TypeFile),
 		FileType:   fileType,
 		Constraint: constraint,
 	}
@@ -59,13 +58,13 @@ func ImportFileQuestion(q StandardQuestion) (*FileQuestion, error) {
 	}
 
 	if fileType == Any {
-		return NewFileQuestion(q.ID, q.Text, q.EventID, q.FormID, fileType, nil), nil
+		return NewFileQuestion(q.ID, q.Text, q.EventID, fileType, nil), nil
 	}
 
 	constraintsCustomsData, has := q.Customs[FileConstraintsCustomsField]
 	// if FileConstraintsCustomsField is not present, return FileQuestion without constraint
 	if !has {
-		return NewFileQuestion(q.ID, q.Text, q.EventID, q.FormID, fileType, nil), nil
+		return NewFileQuestion(q.ID, q.Text, q.EventID, fileType, nil), nil
 	}
 
 	constraintsCustoms, ok := constraintsCustomsData.(map[string]interface{})
@@ -76,7 +75,7 @@ func ImportFileQuestion(q StandardQuestion) (*FileQuestion, error) {
 	}
 
 	constraint := NewStandardFileConstraint(fileType, constraintsCustoms)
-	question := NewFileQuestion(q.ID, q.Text, q.EventID, q.FormID, fileType, ImportFileConstraint(constraint))
+	question := NewFileQuestion(q.ID, q.Text, q.EventID, fileType, ImportFileConstraint(constraint))
 	if err != nil {
 		return nil, err
 	}
@@ -91,5 +90,5 @@ func (q FileQuestion) Export() StandardQuestion {
 	if q.Constraint != nil {
 		customs[FileConstraintsCustomsField] = q.Constraint.Export().Customs
 	}
-	return NewStandardQuestion(TypeFile, q.ID, q.EventID, q.FormID, q.Text, customs)
+	return NewStandardQuestion(TypeFile, q.ID, q.EventID, q.Text, customs)
 }

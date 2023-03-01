@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"ynufes-mypage-backend/pkg/identity"
 	"ynufes-mypage-backend/svc/pkg/domain/model/event"
-	"ynufes-mypage-backend/svc/pkg/domain/model/form"
 	"ynufes-mypage-backend/svc/pkg/domain/model/util"
 )
 
@@ -30,10 +29,10 @@ const (
 )
 
 func NewCheckBoxQuestion(
-	id ID, text string, eventID event.ID, formID form.ID, options []CheckBoxOption, optionsOrder []CheckBoxOptionID,
+	id ID, text string, eventID event.ID, options []CheckBoxOption, optionsOrder []CheckBoxOptionID,
 ) *CheckBoxQuestion {
 	return &CheckBoxQuestion{
-		Basic:        NewBasic(id, text, eventID, formID, TypeCheckBox),
+		Basic:        NewBasic(id, text, eventID, TypeCheckBox),
 		Options:      options,
 		OptionsOrder: optionsOrder,
 	}
@@ -95,7 +94,7 @@ func ImportCheckBoxQuestion(q StandardQuestion) (*CheckBoxQuestion, error) {
 			Text: text,
 		})
 	}
-	return NewCheckBoxQuestion(q.ID, q.Text, q.EventID, q.FormID, options, optionsOrder), nil
+	return NewCheckBoxQuestion(q.ID, q.Text, q.EventID, options, optionsOrder), nil
 }
 
 func (q CheckBoxQuestion) Export() StandardQuestion {
@@ -110,5 +109,5 @@ func (q CheckBoxQuestion) Export() StandardQuestion {
 	}
 	customs[CheckBoxOptionsField] = options
 	customs[CheckBoxOptionsOrderField] = optionsOrder
-	return NewStandardQuestion(TypeCheckBox, q.ID, q.Basic.EventID, q.Basic.FormID, q.Text, customs)
+	return NewStandardQuestion(TypeCheckBox, q.ID, q.Basic.EventID, q.Text, customs)
 }

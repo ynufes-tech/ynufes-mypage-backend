@@ -2,23 +2,20 @@ package question
 
 import (
 	"ynufes-mypage-backend/svc/pkg/domain/model/event"
-	"ynufes-mypage-backend/svc/pkg/domain/model/form"
 )
 
 type Basic struct {
 	ID      ID
 	Text    string
 	EventID event.ID
-	FormID  form.ID
 	qType   Type
 }
 
-func NewBasic(id ID, text string, eventID event.ID, formID form.ID, qType Type) Basic {
+func NewBasic(id ID, text string, eventID event.ID, qType Type) Basic {
 	return Basic{
 		ID:      id,
 		Text:    text,
 		EventID: eventID,
-		FormID:  formID,
 		qType:   qType,
 	}
 }
@@ -33,10 +30,6 @@ func (b Basic) GetText() string {
 
 func (b Basic) GetEventID() event.ID {
 	return b.EventID
-}
-
-func (b Basic) GetFormID() form.ID {
-	return b.FormID
 }
 
 func (b Basic) GetType() Type {
