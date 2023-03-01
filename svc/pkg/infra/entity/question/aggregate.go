@@ -16,6 +16,23 @@ type Question struct {
 	Customs map[string]interface{} `firestore:"customs"`
 }
 
+func NewQuestion(
+	id string,
+	eventID, formID int64,
+	text string,
+	qType int,
+	customs map[string]interface{},
+) Question {
+	return Question{
+		ID:      id,
+		EventID: eventID,
+		FormID:  formID,
+		Text:    text,
+		Type:    qType,
+		Customs: customs,
+	}
+}
+
 func (q Question) ToModel() (question.Question, error) {
 	id, err := identity.ImportID(q.ID)
 	if err != nil {
@@ -25,7 +42,6 @@ func (q Question) ToModel() (question.Question, error) {
 		question.Type(q.Type),
 		id,
 		identity.NewID(q.EventID),
-		identity.NewID(q.FormID),
 		q.Text,
 		q.Customs,
 	)

@@ -20,6 +20,20 @@ type Section struct {
 	ConditionCustoms map[string]int64 `firestore:"c_customs"`
 }
 
+func NewSection(
+	id int64,
+	qs []int64,
+	cq int64,
+	cc map[string]int64,
+) Section {
+	return Section{
+		ID:                id,
+		Questions:         qs,
+		ConditionQuestion: cq,
+		ConditionCustoms:  cc,
+	}
+}
+
 func (s Section) ToModel() (*form.Section, error) {
 	qs := make([]question.ID, len(s.Questions))
 	for i := range s.Questions {
