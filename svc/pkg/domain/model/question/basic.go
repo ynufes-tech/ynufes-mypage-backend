@@ -9,6 +9,7 @@ type Basic struct {
 	ID      id.QuestionID
 	Text    string
 	EventID id.EventID
+	FormID  id.FormID
 	qType   Type
 }
 
@@ -31,6 +32,10 @@ func (b Basic) GetText() string {
 
 func (b Basic) GetEventID() id.EventID {
 	return b.EventID
+}
+
+func (b Basic) GetFormID() id.FormID {
+	return b.FormID
 }
 
 func (b Basic) GetType() Type {

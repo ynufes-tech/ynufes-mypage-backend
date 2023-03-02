@@ -14,6 +14,7 @@ type (
 		GetID() id.QuestionID
 		GetText() string
 		GetEventID() id.EventID
+		GetFormID() id.FormID
 	}
 
 	StandardQuestion struct {
