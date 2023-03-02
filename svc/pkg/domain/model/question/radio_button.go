@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"ynufes-mypage-backend/pkg/identity"
 	"ynufes-mypage-backend/svc/pkg/domain/model/event"
-	"ynufes-mypage-backend/svc/pkg/domain/model/form"
 	"ynufes-mypage-backend/svc/pkg/domain/model/util"
 )
 
@@ -28,10 +27,10 @@ const (
 )
 
 func NewRadioButtonsQuestion(
-	id ID, text string, eventID event.ID, formID form.ID, options []RadioButtonOption, order []RadioButtonOptionID,
+	id ID, text string, eventID event.ID, options []RadioButtonOption, order []RadioButtonOptionID,
 ) *RadioButtonsQuestion {
 	return &RadioButtonsQuestion{
-		Basic:        NewBasic(id, text, eventID, formID, TypeRadio),
+		Basic:        NewBasic(id, text, eventID, TypeRadio),
 		Options:      options,
 		OptionsOrder: order,
 	}
@@ -74,7 +73,7 @@ func ImportRadioButtonsQuestion(q StandardQuestion) (*RadioButtonsQuestion, erro
 			Text: text,
 		})
 	}
-	return NewRadioButtonsQuestion(q.ID, q.Text, q.EventID, q.FormID, options, optionsOrder), nil
+	return NewRadioButtonsQuestion(q.ID, q.Text, q.EventID, options, optionsOrder), nil
 }
 
 func (q RadioButtonsQuestion) Export() StandardQuestion {
@@ -92,5 +91,5 @@ func (q RadioButtonsQuestion) Export() StandardQuestion {
 	customs[RadioButtonOptionsField] = options
 	customs[RadioButtonOptionsOrderField] = optionsOrder
 
-	return NewStandardQuestion(TypeRadio, q.ID, q.EventID, q.FormID, q.Text, customs)
+	return NewStandardQuestion(TypeRadio, q.ID, q.EventID, q.Text, customs)
 }

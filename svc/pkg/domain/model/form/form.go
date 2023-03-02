@@ -8,7 +8,6 @@ import (
 )
 
 type (
-	// Form TODO: Implement Sections field
 	Form struct {
 		ID          ID
 		EventID     event.ID
@@ -18,15 +17,23 @@ type (
 		Roles       []user.RoleID
 		Deadline    time.Time
 		IsOpen      bool
-		//Sections    []SectionID
+		SectionIDs  []SectionID
+		Sections    map[SectionID]Section
 	}
 
-	ID util.ID
-	//SectionID util.ID
+	ID        util.ID
+	SectionID util.ID
 )
 
 func NewForm(
-	id ID, eventID event.ID, title, summary, description string, roles []user.RoleID, deadline time.Time, isOpen bool,
+	id ID,
+	eventID event.ID,
+	title, summary, description string,
+	roles []user.RoleID,
+	deadline time.Time,
+	isOpen bool,
+	sectionIDs []SectionID,
+	sections map[SectionID]Section,
 ) *Form {
 	return &Form{
 		ID:          id,
@@ -37,5 +44,7 @@ func NewForm(
 		Roles:       roles,
 		Deadline:    deadline,
 		IsOpen:      isOpen,
+		SectionIDs:  sectionIDs,
+		Sections:    sections,
 	}
 }
