@@ -1,6 +1,9 @@
 package question
 
-import "ynufes-mypage-backend/svc/pkg/domain/model/id"
+import (
+	"ynufes-mypage-backend/svc/pkg/domain/model/id"
+	"ynufes-mypage-backend/svc/pkg/exception"
+)
 
 type Basic struct {
 	ID      id.QuestionID
@@ -32,4 +35,12 @@ func (b Basic) GetEventID() id.EventID {
 
 func (b Basic) GetType() Type {
 	return b.qType
+}
+
+func (b *Basic) AssignID(id id.QuestionID) error {
+	if b.ID.HasValue() {
+		return exception.ErrIDAlreadyAssigned
+	}
+	b.ID = id
+	return nil
 }

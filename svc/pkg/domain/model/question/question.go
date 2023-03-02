@@ -10,6 +10,7 @@ type (
 	Question interface {
 		Export() StandardQuestion
 		GetType() Type
+		AssignID(id.QuestionID) error
 		GetID() id.QuestionID
 		GetText() string
 		GetEventID() id.EventID
