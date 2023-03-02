@@ -3,6 +3,7 @@ package form
 import (
 	"time"
 	"ynufes-mypage-backend/svc/pkg/domain/model/event"
+	"ynufes-mypage-backend/svc/pkg/domain/model/section"
 	"ynufes-mypage-backend/svc/pkg/domain/model/user"
 	"ynufes-mypage-backend/svc/pkg/domain/model/util"
 )
@@ -17,23 +18,20 @@ type (
 		Roles       []user.RoleID
 		Deadline    time.Time
 		IsOpen      bool
-		SectionIDs  []SectionID
-		Sections    map[SectionID]Section
+		Sections    []section.ID
 	}
 
-	ID        util.ID
-	SectionID util.ID
+	ID util.ID
 )
 
 func NewForm(
 	id ID,
 	eventID event.ID,
 	title, summary, description string,
+	sectionIDs []section.ID,
 	roles []user.RoleID,
 	deadline time.Time,
 	isOpen bool,
-	sectionIDs []SectionID,
-	sections map[SectionID]Section,
 ) *Form {
 	return &Form{
 		ID:          id,
@@ -44,7 +42,6 @@ func NewForm(
 		Roles:       roles,
 		Deadline:    deadline,
 		IsOpen:      isOpen,
-		SectionIDs:  sectionIDs,
-		Sections:    sections,
+		Sections:    sectionIDs,
 	}
 }

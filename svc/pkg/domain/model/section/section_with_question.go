@@ -1,4 +1,4 @@
-package form
+package section
 
 import (
 	"ynufes-mypage-backend/svc/pkg/domain/model/question"

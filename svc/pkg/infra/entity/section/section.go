@@ -2,8 +2,8 @@ package entity
 
 import (
 	"ynufes-mypage-backend/pkg/identity"
-	"ynufes-mypage-backend/svc/pkg/domain/model/form"
 	"ynufes-mypage-backend/svc/pkg/domain/model/question"
+	"ynufes-mypage-backend/svc/pkg/domain/model/section"
 	"ynufes-mypage-backend/svc/pkg/domain/model/util"
 )
 
@@ -34,13 +34,13 @@ func NewSection(
 	}
 }
 
-func (s Section) ToModel() (*form.Section, error) {
+func (s Section) ToModel() (*section.Section, error) {
 	qs := make([]question.ID, len(s.Questions))
 	for i := range s.Questions {
 		qs[i] = identity.NewID(s.Questions[i])
 	}
 
-	conditionCustoms := make(map[util.ID]form.SectionID, len(s.ConditionCustoms))
+	conditionCustoms := make(map[util.ID]section.ID, len(s.ConditionCustoms))
 	for k, v := range s.ConditionCustoms {
 		i, err := identity.ImportID(k)
 		if err != nil {
@@ -49,7 +49,7 @@ func (s Section) ToModel() (*form.Section, error) {
 		conditionCustoms[i] = identity.NewID(v)
 	}
 
-	sec := form.NewSection(
+	sec := section.NewSection(
 		identity.NewID(s.ID),
 		qs,
 		identity.NewID(s.ConditionQuestion),
