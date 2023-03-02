@@ -1,9 +1,11 @@
 package writer
 
 import (
-	"cloud.google.com/go/firestore"
 	"context"
+	"firebase.google.com/go/v4/db"
 	"fmt"
+	"ynufes-mypage-backend/pkg/firebase"
+	"ynufes-mypage-backend/pkg/identity"
 	"ynufes-mypage-backend/svc/pkg/domain/model/event"
 	"ynufes-mypage-backend/svc/pkg/exception"
 	entity "ynufes-mypage-backend/svc/pkg/infra/entity/event"
@@ -12,69 +14,65 @@ import (
 
 type (
 	Event struct {
-		client          *firestore.Client
-		collectionEvent *firestore.CollectionRef
-		collectionOrg   *firestore.CollectionRef
+		eventRef *db.Ref
+		orgRef   *db.Ref
 	}
 )
 
-func NewEvent(c *firestore.Client) Event {
+func NewEvent(f *firebase.Firebase) Event {
 	return Event{
-		client:          c,
-		collectionEvent: c.Collection(entity.EventCollectionName),
-		collectionOrg:   c.Collection(orgEntity.OrgCollectionName),
+		eventRef: f.Client(entity.EventRootName),
+		orgRef:   f.Client(orgEntity.OrgRootName),
 	}
 }
 
-func (eve Event) Create(ctx context.Context, model event.Event) error {
+func (eve Event) Create(ctx context.Context, model *event.Event) error {
+	if model.ID.HasValue() {
+		return exception.ErrIDAlreadyAssigned
+	}
+	model.ID = identity.IssueID()
+	e := entity.Event{
+		Name: model.Name,
+	}
+	err := eve.eventRef.Child(model.ID.ExportID()).Set(ctx, e)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (eve Event) Set(ctx context.Context, model event.Event) error {
 	if !model.ID.HasValue() {
 		return exception.ErrIDNotAssigned
 	}
-	e := &entity.Event{
+	e := entity.Event{
 		Name: model.Name,
 	}
-	_, err := eve.collectionEvent.Doc(model.ID.ExportID()).
-		Create(ctx, e)
+	err := eve.eventRef.Child(model.ID.ExportID()).Set(ctx, e)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-// UpdateName updates name of event, including event_name in Orgs and name in Events
+// UpdateName updates name in EventRoot.
+// event_name in Orgs should be updated by GoogleCloudFunctions or as concurrent process.
+// TODO: implement GoogleCloudFunctions or concurrent process.
 func (eve Event) UpdateName(ctx context.Context, model event.Event) error {
-	err := eve.client.RunTransaction(ctx, func(ctx context.Context, tx *firestore.Transaction) error {
-		orgsRef := eve.collectionOrg.Where("event_id", "==", model.ID.GetValue())
-		orgs, err := tx.Documents(orgsRef).GetAll()
-		if err != nil {
-			return err
-		}
-		for _, org := range orgs {
-			err := tx.Update(org.Ref, []firestore.Update{
-				{Path: "event_name", Value: model.Name},
-			})
-			if err != nil {
-				return err
-			}
-		}
-		if err := tx.Update(eve.collectionEvent.Doc(model.ID.ExportID()), []firestore.Update{
-			{Path: "name", Value: model.Name},
-		}); err != nil {
-			return err
-		}
-		return nil
-	})
+	err := eve.eventRef.Child(model.ID.ExportID()).
+		Transaction(
+			ctx,
+			func(t db.TransactionNode) (interface{}, error) {
+				var target entity.Event
+				if err := t.Unmarshal(&target); err != nil {
+					return nil, err
+				}
+				target.Name = model.Name
+				return target, nil
+			},
+		)
 	if err != nil {
-		return fmt.Errorf("failed to update event: %w", err)
-	}
-	return nil
-}
-
-func (eve Event) Delete(ctx context.Context, model *event.Event) error {
-	_, err := eve.collectionEvent.Doc(model.ID.ExportID()).
-		Delete(ctx)
-	if err != nil {
-		return err
+		return fmt.Errorf("failed to update name of Event: %w", err)
 	}
 	return nil
 }
