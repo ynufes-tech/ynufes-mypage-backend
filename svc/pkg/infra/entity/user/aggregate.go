@@ -43,6 +43,10 @@ func (u User) ToModel() (*user.User, error) {
 		t := time.UnixMilli(u.GrantedTime)
 		adminGrantedTime = &t
 	}
+	ty, err := user.NewType(u.UserDetail.Type)
+	if err != nil {
+		return nil, err
+	}
 	return &user.User{
 		ID: u.ID,
 		Detail: user.Detail{
@@ -56,7 +60,7 @@ func (u User) ToModel() (*user.User, error) {
 			Gender: gender,
 			// TODO: add validation for StudentID, Type
 			StudentID: user.StudentID(u.StudentID),
-			Type:      user.Type(u.Type),
+			Type:      ty,
 		},
 		Line: user.Line{
 			LineServiceID:         user.LineServiceID(u.LineServiceID),
