@@ -10,8 +10,7 @@ import (
 const UserRootName = "Users"
 
 type User struct {
-	ID     id.UserID `json:"-"`
-	Status int       `json:"status"`
+	ID id.UserID `json:"-"`
 	UserDetail
 	Line
 	Admin
@@ -45,8 +44,7 @@ func (u User) ToModel() (*user.User, error) {
 		adminGrantedTime = &t
 	}
 	return &user.User{
-		ID:     u.ID,
-		Status: user.Status(u.Status),
+		ID: u.ID,
 		Detail: user.Detail{
 			Name: user.Name{
 				FirstName:     u.NameFirst,
