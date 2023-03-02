@@ -8,7 +8,7 @@ import (
 const QuestionCollectionName = "Questions"
 
 type Question struct {
-	ID      string                 `json:"-"`
+	ID      question.ID            `json:"-"`
 	EventID int64                  `json:"event_id"`
 	FormID  int64                  `json:"form_id"`
 	Text    string                 `json:"text"`
@@ -17,7 +17,7 @@ type Question struct {
 }
 
 func NewQuestion(
-	id string,
+	id question.ID,
 	eventID, formID int64,
 	text string,
 	qType int,
@@ -34,13 +34,9 @@ func NewQuestion(
 }
 
 func (q Question) ToModel() (question.Question, error) {
-	id, err := identity.ImportID(q.ID)
-	if err != nil {
-		return nil, err
-	}
 	sq := question.NewStandardQuestion(
 		question.Type(q.Type),
-		id,
+		q.ID,
 		identity.NewID(q.EventID),
 		q.Text,
 		q.Customs,

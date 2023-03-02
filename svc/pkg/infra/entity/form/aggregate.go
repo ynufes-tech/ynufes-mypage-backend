@@ -11,7 +11,7 @@ const FormCollectionName = "Forms"
 
 type (
 	Form struct {
-		ID           string    `json:"-"`
+		ID           form.ID   `json:"-"`
 		EventID      int64     `json:"event_id"`
 		Title        string    `json:"title"`
 		Summary      string    `json:"summary"`
@@ -25,7 +25,7 @@ type (
 )
 
 func NewForm(
-	id string, eventID int64, title, summary, description string, roles []int64, deadline int64, isOpen bool,
+	id form.ID, eventID int64, title, summary, description string, roles []int64, deadline int64, isOpen bool,
 	sectionOrder []int64, sections []Section,
 ) Form {
 	return Form{
@@ -43,10 +43,6 @@ func NewForm(
 }
 
 func (f Form) ToModel() (*form.Form, error) {
-	fid, err := identity.ImportID(f.ID)
-	if err != nil {
-		return nil, err
-	}
 	eID := identity.NewID(f.EventID)
 	roles := make([]user.RoleID, len(f.Roles))
 	for i, r := range f.Roles {
@@ -68,7 +64,7 @@ func (f Form) ToModel() (*form.Form, error) {
 
 	deadline := time.UnixMilli(f.Deadline)
 	return form.NewForm(
-		fid, eID, f.Title, f.Summary, f.Description, roles, deadline, f.IsOpen,
+		f.ID, eID, f.Title, f.Summary, f.Description, roles, deadline, f.IsOpen,
 		sectionsOrder, sections,
 	), nil
 }

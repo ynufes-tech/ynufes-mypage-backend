@@ -10,7 +10,7 @@ import (
 const OrgCollectionName = "Orgs"
 
 type Org struct {
-	ID        string  `json:"-"`
+	ID        org.ID  `json:"-"`
 	EventID   int64   `json:"event_id"`
 	EventName string  `json:"event_name"`
 	Name      string  `json:"name"`
@@ -23,12 +23,8 @@ func (o Org) ToModel() (*org.Org, error) {
 	for i := range o.Users {
 		users = append(users, identity.NewID(o.Users[i]))
 	}
-	id, err := identity.ImportID(o.ID)
-	if err != nil {
-		return nil, err
-	}
 	return &org.Org{
-		ID: id,
+		ID: o.ID,
 		Event: event.Event{
 			ID:   identity.NewID(o.EventID),
 			Name: o.EventName,

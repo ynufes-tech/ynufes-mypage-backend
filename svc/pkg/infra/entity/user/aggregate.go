@@ -9,7 +9,6 @@ import (
 const UserCollectionName = "Users"
 
 type User struct {
-	// ignore id from firestore
 	ID     user.ID `json:"-"`
 	Status int     `json:"status"`
 	UserDetail
