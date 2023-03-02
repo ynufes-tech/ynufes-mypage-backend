@@ -1,8 +1,7 @@
 package registry
 
 import (
-	"cloud.google.com/go/firestore"
-	firestorePkg "ynufes-mypage-backend/pkg/firestore"
+	"ynufes-mypage-backend/pkg/firebase"
 	"ynufes-mypage-backend/svc/pkg/domain/command"
 	"ynufes-mypage-backend/svc/pkg/domain/query"
 	"ynufes-mypage-backend/svc/pkg/infra/reader"
@@ -10,52 +9,52 @@ import (
 )
 
 type Repository struct {
-	fs *firestore.Client
+	fb *firebase.Firebase
 }
 
 func NewRepository() (Repository, error) {
-	fs := firestorePkg.New()
+	fb := firebase.New()
 	return Repository{
-		fs: fs,
+		fb: &fb,
 	}, nil
 }
 
 func (repo Repository) NewUserQuery() query.User {
-	return reader.NewUser(repo.fs)
+	return reader.NewUser(repo.fb)
 }
 
 func (repo Repository) NewUserCommand() command.User {
-	return writer.NewUser(repo.fs)
+	return writer.NewUser(repo.fb)
 }
 
 func (repo Repository) NewEventQuery() query.Event {
-	return reader.NewEvent(repo.fs)
+	return reader.NewEvent(repo.fb)
 }
 
 func (repo Repository) NewEventCommand() command.Event {
-	return writer.NewEvent(repo.fs)
+	return writer.NewEvent(repo.fb)
 }
 
 func (repo Repository) NewOrgQuery() query.Org {
-	return reader.NewOrg(repo.fs)
+	return reader.NewOrg(repo.fb)
 }
 
 func (repo Repository) NewOrgCommand() command.Org {
-	return writer.NewOrg(repo.fs)
+	return writer.NewOrg(repo.fb)
 }
 
 func (repo Repository) NewFormCommand() command.Form {
-	return writer.NewForm(repo.fs)
+	return writer.NewForm(repo.fb)
 }
 
 func (repo Repository) NewFormQuery() query.Form {
-	return reader.NewForm(repo.fs)
+	return reader.NewForm(repo.fb)
 }
 
 func (repo Repository) NewQuestionQuery() query.Question {
-	return reader.NewQuestion(repo.fs)
+	return reader.NewQuestion(repo.fb)
 }
 
 func (repo Repository) NewQuestionCommand() command.Question {
-	return writer.NewQuestion(repo.fs)
+	return writer.NewQuestion(repo.fb)
 }
