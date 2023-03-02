@@ -7,6 +7,7 @@ import (
 	"ynufes-mypage-backend/pkg/firebase"
 	"ynufes-mypage-backend/pkg/identity"
 	"ynufes-mypage-backend/svc/pkg/domain/model/event"
+	"ynufes-mypage-backend/svc/pkg/domain/model/id"
 	"ynufes-mypage-backend/svc/pkg/exception"
 	entity "ynufes-mypage-backend/svc/pkg/infra/entity/event"
 	orgEntity "ynufes-mypage-backend/svc/pkg/infra/entity/org"
@@ -30,7 +31,7 @@ func (eve Event) Create(ctx context.Context, model *event.Event) error {
 	if model.ID.HasValue() {
 		return exception.ErrIDAlreadyAssigned
 	}
-	model.ID = identity.IssueID()
+	newID := identity.IssueID()
 	e := entity.Event{
 		Name: model.Name,
 	}
@@ -38,6 +39,7 @@ func (eve Event) Create(ctx context.Context, model *event.Event) error {
 	if err != nil {
 		return err
 	}
+	model.ID = newID
 	return nil
 }
 
@@ -58,8 +60,8 @@ func (eve Event) Set(ctx context.Context, model event.Event) error {
 // UpdateName updates name in EventRoot.
 // event_name in Orgs should be updated by GoogleCloudFunctions or as concurrent process.
 // TODO: implement GoogleCloudFunctions or concurrent process.
-func (eve Event) UpdateName(ctx context.Context, model event.Event) error {
-	err := eve.eventRef.Child(model.ID.ExportID()).
+func (eve Event) UpdateName(ctx context.Context, tid id.EventID, name string) error {
+	err := eve.eventRef.Child(tid.ExportID()).
 		Transaction(
 			ctx,
 			func(t db.TransactionNode) (interface{}, error) {
@@ -67,7 +69,7 @@ func (eve Event) UpdateName(ctx context.Context, model event.Event) error {
 				if err := t.Unmarshal(&target); err != nil {
 					return nil, err
 				}
-				target.Name = model.Name
+				target.Name = name
 				return target, nil
 			},
 		)

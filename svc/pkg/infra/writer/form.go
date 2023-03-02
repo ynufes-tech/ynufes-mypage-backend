@@ -1,23 +1,30 @@
 package writer
 
 import (
-	"cloud.google.com/go/firestore"
 	"context"
+	"firebase.google.com/go/v4/db"
+	"ynufes-mypage-backend/pkg/firebase"
+	"ynufes-mypage-backend/pkg/identity"
 	"ynufes-mypage-backend/svc/pkg/domain/model/form"
+	"ynufes-mypage-backend/svc/pkg/exception"
 	entity "ynufes-mypage-backend/svc/pkg/infra/entity/form"
 )
 
 type Form struct {
-	collection *firestore.CollectionRef
+	ref *db.Ref
 }
 
-func NewForm(client *firestore.Client) *Form {
+func NewForm(f *firebase.Firebase) *Form {
 	return &Form{
-		collection: client.Collection(entity.FormCollectionName),
+		ref: f.Client(entity.FormRootName),
 	}
 }
 
-func (f Form) Create(ctx context.Context, target form.Form) error {
+func (f Form) Create(ctx context.Context, target *form.Form) error {
+	if target.ID.HasValue() {
+		return exception.ErrIDAlreadyAssigned
+	}
+	tid := identity.IssueID()
 	sections := make([]int64, len(target.Sections))
 	for i := range target.Sections {
 		sections[i] = target.Sections[i].GetValue()
@@ -28,7 +35,7 @@ func (f Form) Create(ctx context.Context, target form.Form) error {
 		roles[i] = target.Roles[i].GetValue()
 	}
 	e := entity.NewForm(
-		target.ID,
+		tid,
 		target.EventID.GetValue(),
 		target.Title,
 		target.Summary,
@@ -38,14 +45,18 @@ func (f Form) Create(ctx context.Context, target form.Form) error {
 		target.Deadline.UnixMilli(),
 		target.IsOpen,
 	)
-	_, err := f.collection.Doc(target.ID.ExportID()).Create(ctx, e)
+	err := f.ref.Child(target.ID.ExportID()).Set(ctx, e)
 	if err != nil {
 		return err
 	}
+	target.ID = tid
 	return nil
 }
 
 func (f Form) Set(ctx context.Context, target form.Form) error {
+	if !target.ID.HasValue() {
+		return exception.ErrIDNotAssigned
+	}
 	sections := make([]int64, len(target.Sections))
 	for i := range target.Sections {
 		sections[i] = target.Sections[i].GetValue()
@@ -66,7 +77,7 @@ func (f Form) Set(ctx context.Context, target form.Form) error {
 		target.Deadline.UnixMilli(),
 		target.IsOpen,
 	)
-	_, err := f.collection.Doc(target.ID.ExportID()).Set(ctx, e)
+	err := f.ref.Child(target.ID.ExportID()).Set(ctx, e)
 	if err != nil {
 		return err
 	}

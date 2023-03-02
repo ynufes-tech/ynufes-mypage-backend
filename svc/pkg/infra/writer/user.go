@@ -1,34 +1,35 @@
 package writer
 
 import (
-	"cloud.google.com/go/firestore"
 	"context"
-	"log"
+	"encoding/json"
+	"firebase.google.com/go/v4/db"
 	"time"
+	"ynufes-mypage-backend/pkg/firebase"
+	"ynufes-mypage-backend/pkg/identity"
+	"ynufes-mypage-backend/svc/pkg/domain/model/id"
 	"ynufes-mypage-backend/svc/pkg/domain/model/user"
 	"ynufes-mypage-backend/svc/pkg/exception"
 	entity "ynufes-mypage-backend/svc/pkg/infra/entity/user"
 )
 
 type User struct {
-	collection *firestore.CollectionRef
+	ref *db.Ref
 }
 
-func NewUser(c *firestore.Client) User {
+func NewUser(f *firebase.Firebase) User {
 	return User{
-		collection: c.Collection(entity.UserCollectionName),
+		ref: f.Client(entity.UserRootName),
 	}
 }
 
 // Create Note that new user will be created with no roles or authority.
-func (u User) Create(ctx context.Context, model user.User) error {
-	if !model.ID.HasValue() {
-		return exception.ErrIDNotAssigned
+func (u User) Create(ctx context.Context, model *user.User) error {
+	if model.ID.HasValue() {
+		return exception.ErrIDAlreadyAssigned
 	}
+	tid := identity.IssueID()
 	e := entity.User{
-		//ID is not required as it will not be used by firestore
-		//ID: int64(model.ID),
-		Status: int(model.Status),
 		UserDetail: entity.UserDetail{
 			NameFirst:     model.Detail.Name.FirstName,
 			NameFirstKana: model.Detail.Name.FirstNameKana,
@@ -56,18 +57,33 @@ func (u User) Create(ctx context.Context, model user.User) error {
 		},
 	}
 	//NOTE: Create fails if the document already exists
-	_, err := u.collection.Doc(model.ID.ExportID()).
-		Create(ctx, e)
+	err := u.ref.Child(model.ID.ExportID()).
+		Set(ctx, e)
 	if err != nil {
 		return err
 	}
+	model.ID = tid
 	return nil
 }
 
-func (u User) UpdateAll(ctx context.Context, model user.User) error {
-	log.Printf("UPDATE USER: %v", model)
+func (u User) Set(ctx context.Context, model user.User) error {
+	if !model.ID.HasValue() {
+		return exception.ErrIDNotAssigned
+	}
+	var t int64
+	if model.Admin.IsSuperAdmin {
+		t = time.Now().UnixMilli()
+	}
+
+	rs := make([]entity.Role, len(model.Agent.Roles))
+	for i, r := range model.Agent.Roles {
+		rs[i] = entity.Role{
+			ID:          r.ID.GetValue(),
+			Level:       int(r.Level),
+			GrantedTime: r.GrantedTime.UnixMilli(),
+		}
+	}
 	e := entity.User{
-		Status: int(model.Status),
 		UserDetail: entity.UserDetail{
 			NameFirst:     model.Detail.Name.FirstName,
 			NameFirstKana: model.Detail.Name.FirstNameKana,
@@ -78,179 +94,122 @@ func (u User) UpdateAll(ctx context.Context, model user.User) error {
 			Email:         string(model.Detail.Email),
 			Type:          int(model.Detail.Type),
 		},
-		Line: entity.Line{},
+		Line: entity.Line{
+			LineServiceID:         string(model.Line.LineServiceID),
+			LineProfileURL:        string(model.Line.LineProfilePictureURL),
+			LineDisplayName:       model.Line.LineDisplayName,
+			EncryptedAccessToken:  string(model.Line.EncryptedAccessToken),
+			EncryptedRefreshToken: string(model.Line.EncryptedRefreshToken),
+		},
+		Admin: entity.Admin{
+			IsSuperAdmin: model.Admin.IsSuperAdmin,
+			GrantedTime:  t,
+		},
+		Agent: entity.Agent{
+			Roles: rs,
+		},
 	}
-	_, err := u.collection.Doc(model.ID.ExportID()).
+	err := u.ref.Child(model.ID.ExportID()).
 		Set(ctx, e)
 	return err
 }
 
-func (u User) UpdateLine(ctx context.Context, oldUser *user.User, update user.Line) error {
-	log.Printf("UPDATE USER LINE: %v -> %v\n", oldUser, update)
-	targets := map[string]struct {
-		oldValue string
-		newValue string
-	}{
-		"line-id": {
-			oldValue: string(oldUser.Line.LineServiceID),
-			newValue: string(update.LineServiceID),
-		},
-		"line-profile_url": {
-			oldValue: string(oldUser.Line.LineProfilePictureURL),
-			newValue: string(update.LineProfilePictureURL),
-		},
-		"line-display_name": {
-			oldValue: oldUser.Line.LineDisplayName,
-			newValue: update.LineDisplayName,
-		},
-		"line-access_token": {
-			oldValue: string(oldUser.Line.EncryptedAccessToken),
-			newValue: string(update.EncryptedAccessToken),
-		},
-		"line-refresh_token": {
-			oldValue: string(oldUser.Line.EncryptedRefreshToken),
-			newValue: string(update.EncryptedRefreshToken),
-		},
+func (u User) SetLine(ctx context.Context, tID id.UserID, update user.Line) error {
+	e := entity.Line{
+		LineServiceID:         string(update.LineServiceID),
+		LineProfileURL:        string(update.LineProfilePictureURL),
+		LineDisplayName:       update.LineDisplayName,
+		EncryptedAccessToken:  string(update.EncryptedAccessToken),
+		EncryptedRefreshToken: string(update.EncryptedRefreshToken),
 	}
-	var updates []firestore.Update
-	for key, value := range targets {
-		if value.oldValue != value.newValue {
-			updates = append(updates, firestore.Update{Path: key, Value: value.newValue})
-		}
-	}
-	if len(updates) == 0 {
-		return nil
-	}
-	_, err := u.collection.
-		Doc(oldUser.ID.ExportID()).
-		Update(ctx, updates)
-	if err == nil {
-		oldUser.Line = update
-	}
+	err := u.ref.Child(tID.ExportID()).Child("line").
+		Set(ctx, e)
 	return err
 }
 
-func (u User) UpdateUserDetail(ctx context.Context, oldUser *user.User, update user.Detail) error {
-	log.Printf("UPDATE USER INFO: %v -> %v\n", oldUser, update)
-
-	var updateTargets []firestore.Update
-	var newStatus int
-	switch update.MeetsBasicRequirement() {
-	case true:
-		newStatus = int(user.StatusRegistered)
-		break
-	case false:
-		newStatus = int(user.StatusNew)
-		break
+func (u User) UpdateUserDetail(ctx context.Context, tID id.UserID, detail user.Detail) error {
+	// entity.UserDetail have optional fields,
+	// so empty value will not be updated.
+	e := entity.UserDetail{
+		NameFirst:     detail.Name.FirstName,
+		NameFirstKana: detail.Name.FirstNameKana,
+		NameLast:      detail.Name.LastName,
+		NameLastKana:  detail.Name.LastNameKana,
+		Gender:        int(detail.Gender),
+		StudentID:     string(detail.StudentID),
+		Email:         string(detail.Email),
+		Type:          int(detail.Type),
 	}
-	targets := map[string]struct {
-		oldValue interface{}
-		newValue interface{}
-	}{
-		"detail-name_first": {
-			oldValue: oldUser.Detail.Name.FirstName,
-			newValue: update.Name.FirstName,
-		},
-		"detail-name_first_kana": {
-			oldValue: oldUser.Detail.Name.FirstNameKana,
-			newValue: update.Name.FirstNameKana,
-		},
-		"detail-name_last": {
-			oldValue: oldUser.Detail.Name.LastName,
-			newValue: update.Name.LastName,
-		},
-		"detail-name_last_kana": {
-			oldValue: oldUser.Detail.Name.LastNameKana,
-			newValue: update.Name.LastNameKana,
-		},
-		"detail-email": {
-			oldValue: string(oldUser.Detail.Email),
-			newValue: update.Email,
-		},
-		"detail-gender": {
-			oldValue: oldUser.Detail.Gender,
-			newValue: update.Gender,
-		},
-		"detail-student_id": {
-			oldValue: string(oldUser.Detail.StudentID),
-			newValue: update.StudentID,
-		},
-		"status": {
-			oldValue: oldUser.Status,
-			newValue: newStatus,
-		},
-	}
-	for key, value := range targets {
-		if value.oldValue != value.newValue {
-			updateTargets = append(updateTargets, firestore.Update{Path: key, Value: value.newValue})
-		}
-	}
-	if len(updateTargets) == 0 {
-		return nil
-	}
-	_, err := u.collection.Doc(oldUser.ID.ExportID()).
-		Update(ctx, updateTargets)
-	if err == nil {
-		// do not update field: Type
-		update.Type = oldUser.Detail.Type
-		oldUser.Detail = update
-		oldUser.Status = user.Status(newStatus)
-	}
-	return err
-}
-
-func (u User) UpdateAgent(ctx context.Context, oldUser *user.User, newAgent user.Agent) error {
-	var updateTargets []firestore.Update
-	targets := map[string]struct {
-		oldValue interface{}
-		newValue interface{}
-	}{
-		"agent-roles": {
-			oldValue: oldUser.Agent.Roles,
-			newValue: newAgent.Roles,
-		},
-	}
-	for key, value := range targets {
-		if value.oldValue != value.newValue {
-			updateTargets = append(updateTargets, firestore.Update{Path: key, Value: value.newValue})
-		}
-	}
-	if len(targets) == 0 {
-		return nil
-	}
-	if _, err := u.collection.Doc(oldUser.ID.ExportID()).
-		Update(ctx, updateTargets); err != nil {
+	// marshal to json and unmarshal to map[string]interface{}
+	// so that empty value will not be updated.
+	jsonStr, err := json.Marshal(e)
+	if err != nil {
 		return err
 	}
-	oldUser.Agent = newAgent
+	var m map[string]interface{}
+	if err = json.Unmarshal(jsonStr, &m); err != nil {
+		return err
+	}
+	if err := u.ref.Child(tID.ExportID()).Child("detail").
+		Update(ctx, m); err != nil {
+		return err
+	}
 	return nil
 }
 
-func (u User) UpdateAdmin(ctx context.Context, oldUser *user.User, newAdmin user.Admin) error {
-	var updateTargets []firestore.Update
-	if oldUser.Admin.IsSuperAdmin == newAdmin.IsSuperAdmin {
-		return nil
+func (u User) SetAgent(ctx context.Context, tID id.UserID, newAgent user.Agent) error {
+	if !tID.HasValue() {
+		return exception.ErrIDNotAssigned
 	}
-	if newAdmin.IsSuperAdmin {
-		updateTargets = append(updateTargets,
-			firestore.Update{Path: "admin-is_super_admin", Value: true},
-			firestore.Update{Path: "admin-granted_time", Value: time.Now()})
-	} else {
-		updateTargets = append(updateTargets,
-			firestore.Update{Path: "admin-is_super_admin", Value: false},
-			firestore.Update{Path: "admin-granted_time", Value: 0})
+	rs := make([]entity.Role, len(newAgent.Roles))
+	for i, r := range newAgent.Roles {
+		rs[i] = entity.Role{
+			ID:          r.ID.GetValue(),
+			Level:       int(r.Level),
+			GrantedTime: r.GrantedTime.UnixMilli(),
+		}
 	}
-	if _, err := u.collection.Doc(oldUser.ID.ExportID()).
-		Update(ctx, updateTargets); err != nil {
+	e := entity.Agent{
+		Roles: rs,
+	}
+	if err := u.ref.Child(tID.ExportID()).
+		Transaction(ctx, func(node db.TransactionNode) (interface{}, error) {
+			var u entity.User
+			if err := node.Unmarshal(&u); err != nil {
+				return nil, err
+			}
+			u.Agent = e
+			return u, nil
+		}); err != nil {
 		return err
 	}
-	oldUser.Admin = newAdmin
+	return nil
+}
+
+func (u User) SetAdmin(ctx context.Context, tID id.UserID, admin user.Admin) error {
+	if !tID.HasValue() {
+		return exception.ErrIDNotAssigned
+	}
+	if err := u.ref.Child(tID.ExportID()).
+		Transaction(ctx,
+			func(t db.TransactionNode) (interface{}, error) {
+				var e entity.User
+				if err := t.Unmarshal(&e); err != nil {
+					return nil, err
+				}
+				e.IsSuperAdmin = admin.IsSuperAdmin
+				if admin.IsSuperAdmin {
+					e.Admin.GrantedTime = time.Now().UnixMilli()
+				}
+				return e, nil
+			}); err != nil {
+		return err
+	}
 	return nil
 }
 
 func (u User) Delete(ctx context.Context, model user.User) error {
-	log.Printf("DELETE USER: %v", model)
-	_, err := u.collection.Doc(model.ID.ExportID()).
+	err := u.ref.Child(model.ID.ExportID()).
 		Delete(ctx)
 	return err
 }
