@@ -5,9 +5,10 @@ import "errors"
 type Gender int
 
 const (
-	GenderMan          = 1
-	GenderWoman        = 2
-	GenderNotSpecified = 0
+	GenderUnknown      Gender = 0
+	GenderMan          Gender = 1
+	GenderWoman        Gender = 2
+	GenderNotSpecified Gender = 3
 )
 
 func NewGender(gender int) (Gender, error) {
