@@ -8,12 +8,12 @@ import (
 const QuestionCollectionName = "Questions"
 
 type Question struct {
-	ID      string                 `firestore:"-"`
-	EventID int64                  `firestore:"event_id"`
-	FormID  int64                  `firestore:"form_id"`
-	Text    string                 `firestore:"text"`
-	Type    int                    `firestore:"type"`
-	Customs map[string]interface{} `firestore:"customs"`
+	ID      string                 `json:"-"`
+	EventID int64                  `json:"event_id"`
+	FormID  int64                  `json:"form_id"`
+	Text    string                 `json:"text"`
+	Type    int                    `json:"type"`
+	Customs map[string]interface{} `json:"customs"`
 }
 
 func NewQuestion(

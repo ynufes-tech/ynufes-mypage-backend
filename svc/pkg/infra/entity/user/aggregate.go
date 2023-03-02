@@ -10,8 +10,8 @@ const UserCollectionName = "Users"
 
 type User struct {
 	// ignore id from firestore
-	ID     user.ID `firestore:"-"`
-	Status int     `firestore:"status"`
+	ID     user.ID `json:"-"`
+	Status int     `json:"status"`
 	UserDetail
 	Line
 	Admin

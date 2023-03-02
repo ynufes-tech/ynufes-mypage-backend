@@ -10,12 +10,12 @@ import (
 const OrgCollectionName = "Orgs"
 
 type Org struct {
-	ID        string  `firestore:"-"`
-	EventID   int64   `firestore:"event_id"`
-	EventName string  `firestore:"event_name"`
-	Name      string  `firestore:"name"`
-	Users     []int64 `firestore:"user_ids"`
-	IsOpen    bool    `firestore:"is_open"`
+	ID        string  `json:"-"`
+	EventID   int64   `json:"event_id"`
+	EventName string  `json:"event_name"`
+	Name      string  `json:"name"`
+	Users     []int64 `json:"user_ids"`
+	IsOpen    bool    `json:"is_open"`
 }
 
 func (o Org) ToModel() (*org.Org, error) {

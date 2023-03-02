@@ -2,11 +2,11 @@ package entity
 
 type (
 	Agent struct {
-		Roles []Role `firestore:"agent-roles"`
+		Roles []Role `json:"agent-roles"`
 	}
 	Role struct {
-		ID          int64 `firestore:"id"`
-		Level       int   `firestore:"level"`
-		GrantedTime int64 `firestore:"granted_time"`
+		ID          int64 `json:"id"`
+		Level       int   `json:"level"`
+		GrantedTime int64 `json:"granted_time"`
 	}
 )

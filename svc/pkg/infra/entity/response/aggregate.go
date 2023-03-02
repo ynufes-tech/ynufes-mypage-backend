@@ -9,11 +9,11 @@ const ResponseCollectionName = "Responses"
 
 type (
 	Response struct {
-		ID       string     `firestore:"-"`
-		OrgID    int64      `firestore:"org_id"`
-		AuthorID int64      `firestore:"author_id"`
-		FormID   int64      `firestore:"form_id"`
-		Data     [][]string `firestore:"data"`
+		ID       string     `json:"-"`
+		OrgID    int64      `json:"org_id"`
+		AuthorID int64      `json:"author_id"`
+		FormID   int64      `json:"form_id"`
+		Data     [][]string `json:"data"`
 	}
 )
 

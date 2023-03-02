@@ -11,16 +11,16 @@ const FormCollectionName = "Forms"
 
 type (
 	Form struct {
-		ID           string    `firestore:"-"`
-		EventID      int64     `firestore:"event_id"`
-		Title        string    `firestore:"title"`
-		Summary      string    `firestore:"summary"`
-		Description  string    `firestore:"description"`
-		Roles        []int64   `firestore:"roles"`
-		Deadline     int64     `firestore:"deadline"`
-		IsOpen       bool      `firestore:"is_open"`
-		SectionOrder []int64   `firestore:"section_order"`
-		Sections     []Section `firestore:"sections"`
+		ID           string    `json:"-"`
+		EventID      int64     `json:"event_id"`
+		Title        string    `json:"title"`
+		Summary      string    `json:"summary"`
+		Description  string    `json:"description"`
+		Roles        []int64   `json:"roles"`
+		Deadline     int64     `json:"deadline"`
+		IsOpen       bool      `json:"is_open"`
+		SectionOrder []int64   `json:"section_order"`
+		Sections     []Section `json:"sections"`
 	}
 )
 
