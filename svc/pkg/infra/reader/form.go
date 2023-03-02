@@ -5,8 +5,8 @@ import (
 	"context"
 	"fmt"
 	"google.golang.org/api/iterator"
-	"ynufes-mypage-backend/svc/pkg/domain/model/event"
 	"ynufes-mypage-backend/svc/pkg/domain/model/form"
+	"ynufes-mypage-backend/svc/pkg/domain/model/id"
 	entity "ynufes-mypage-backend/svc/pkg/infra/entity/form"
 )
 
@@ -20,7 +20,7 @@ func NewForm(client *firestore.Client) *Form {
 	}
 }
 
-func (f Form) GetByID(ctx context.Context, id form.ID) (*form.Form, error) {
+func (f Form) GetByID(ctx context.Context, id id.FormID) (*form.Form, error) {
 	snap, err := f.collection.Doc(id.ExportID()).Get(ctx)
 	if err != nil {
 		return nil, err
@@ -30,7 +30,7 @@ func (f Form) GetByID(ctx context.Context, id form.ID) (*form.Form, error) {
 	if err != nil {
 		return nil, err
 	}
-	e.ID = snap.Ref.ID
+	e.ID = id
 	m, err := e.ToModel()
 	if err != nil {
 		return nil, err
@@ -38,7 +38,7 @@ func (f Form) GetByID(ctx context.Context, id form.ID) (*form.Form, error) {
 	return m, nil
 }
 
-func (f Form) ListByEventID(ctx context.Context, eventID event.ID) ([]form.Form, error) {
+func (f Form) ListByEventID(ctx context.Context, eventID id.EventID) ([]form.Form, error) {
 	iter := f.collection.Where("event_id", "==", eventID.GetValue()).Documents(ctx)
 	var forms []form.Form
 	for {
@@ -54,7 +54,7 @@ func (f Form) ListByEventID(ctx context.Context, eventID event.ID) ([]form.Form,
 		if err != nil {
 			return nil, fmt.Errorf("failed to decode snap into entity.Form in ListByEventID: %w", err)
 		}
-		e.ID = doc.Ref.ID
+		e.ID = eventID
 		m, err := e.ToModel()
 		if err != nil {
 			return nil, fmt.Errorf("failed to convert entity to model in ListByEventID: %w", err)

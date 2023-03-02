@@ -2,7 +2,7 @@ package entity
 
 import (
 	"ynufes-mypage-backend/pkg/identity"
-	"ynufes-mypage-backend/svc/pkg/domain/model/question"
+	"ynufes-mypage-backend/svc/pkg/domain/model/id"
 	"ynufes-mypage-backend/svc/pkg/domain/model/section"
 	"ynufes-mypage-backend/svc/pkg/domain/model/util"
 )
@@ -35,12 +35,12 @@ func NewSection(
 }
 
 func (s Section) ToModel() (*section.Section, error) {
-	qs := make([]question.ID, len(s.Questions))
+	qs := make([]id.QuestionID, len(s.Questions))
 	for i := range s.Questions {
 		qs[i] = identity.NewID(s.Questions[i])
 	}
 
-	conditionCustoms := make(map[util.ID]section.ID, len(s.ConditionCustoms))
+	conditionCustoms := make(map[util.ID]id.SectionID, len(s.ConditionCustoms))
 	for k, v := range s.ConditionCustoms {
 		i, err := identity.ImportID(k)
 		if err != nil {

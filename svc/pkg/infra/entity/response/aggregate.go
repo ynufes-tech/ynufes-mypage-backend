@@ -2,15 +2,15 @@ package entity
 
 import (
 	"ynufes-mypage-backend/pkg/identity"
+	"ynufes-mypage-backend/svc/pkg/domain/model/id"
 	"ynufes-mypage-backend/svc/pkg/domain/model/response"
-	"ynufes-mypage-backend/svc/pkg/domain/model/user"
 )
 
 const ResponseCollectionName = "Responses"
 
 type (
 	Response struct {
-		ID       user.ID    `json:"-"`
+		ID       id.UserID  `json:"-"`
 		OrgID    int64      `json:"org_id"`
 		AuthorID int64      `json:"author_id"`
 		FormID   int64      `json:"form_id"`

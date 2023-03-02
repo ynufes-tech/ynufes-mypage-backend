@@ -3,7 +3,7 @@ package question
 import (
 	"errors"
 	"fmt"
-	"ynufes-mypage-backend/svc/pkg/domain/model/event"
+	"ynufes-mypage-backend/svc/pkg/domain/model/id"
 )
 
 type (
@@ -23,7 +23,7 @@ const (
 	FileConstraintsCustomsField          = "fileConstraint"
 )
 
-func NewFileQuestion(id ID, text string, eventID event.ID, fileType FileType, constraint FileConstraint,
+func NewFileQuestion(id id.QuestionID, text string, eventID id.EventID, fileType FileType, constraint FileConstraint,
 ) *FileQuestion {
 	return &FileQuestion{
 		Basic:      NewBasic(id, text, eventID, TypeFile),

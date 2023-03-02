@@ -7,8 +7,8 @@ import (
 	"ynufes-mypage-backend/pkg/jwt"
 	"ynufes-mypage-backend/pkg/setting"
 	"ynufes-mypage-backend/svc/pkg/domain/command"
+	"ynufes-mypage-backend/svc/pkg/domain/model/id"
 	"ynufes-mypage-backend/svc/pkg/domain/model/org"
-	"ynufes-mypage-backend/svc/pkg/domain/model/user"
 	"ynufes-mypage-backend/svc/pkg/domain/query"
 	"ynufes-mypage-backend/svc/pkg/registry"
 )
@@ -21,7 +21,7 @@ type RegisterUseCase struct {
 
 type RegisterInput struct {
 	Ctx    context.Context
-	UserID user.ID
+	UserID id.UserID
 	Token  string
 }
 
@@ -68,7 +68,7 @@ func (uc RegisterUseCase) Do(ipt RegisterInput) (*RegisterOutput, error) {
 	}, nil
 }
 
-func hasUser(users *[]user.ID, targetUser user.ID) bool {
+func hasUser(users *[]id.UserID, targetUser id.UserID) bool {
 	for _, m := range *users {
 		if m.GetValue() == targetUser.GetValue() {
 			return true

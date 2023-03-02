@@ -2,13 +2,14 @@ package entity
 
 import (
 	"ynufes-mypage-backend/pkg/identity"
+	"ynufes-mypage-backend/svc/pkg/domain/model/id"
 	"ynufes-mypage-backend/svc/pkg/domain/model/question"
 )
 
 const QuestionCollectionName = "Questions"
 
 type Question struct {
-	ID      question.ID            `json:"-"`
+	ID      id.QuestionID          `json:"-"`
 	EventID int64                  `json:"event_id"`
 	FormID  int64                  `json:"form_id"`
 	Text    string                 `json:"text"`
@@ -17,7 +18,7 @@ type Question struct {
 }
 
 func NewQuestion(
-	id question.ID,
+	id id.QuestionID,
 	eventID, formID int64,
 	text string,
 	qType int,

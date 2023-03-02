@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"ynufes-mypage-backend/svc/pkg/domain/model/form"
+	"ynufes-mypage-backend/svc/pkg/domain/model/id"
 	"ynufes-mypage-backend/svc/pkg/domain/model/org"
 	"ynufes-mypage-backend/svc/pkg/domain/model/user"
 	"ynufes-mypage-backend/svc/pkg/domain/query"
@@ -19,7 +20,7 @@ type (
 	OrgInput struct {
 		Ctx   context.Context
 		User  user.User
-		OrgID org.ID
+		OrgID id.OrgID
 	}
 	OrgOutput struct {
 		Forms []form.Form

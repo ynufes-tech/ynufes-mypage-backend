@@ -2,6 +2,7 @@ package org
 
 import (
 	"context"
+	"ynufes-mypage-backend/svc/pkg/domain/model/id"
 	"ynufes-mypage-backend/svc/pkg/domain/model/org"
 	"ynufes-mypage-backend/svc/pkg/domain/query"
 	"ynufes-mypage-backend/svc/pkg/registry"
@@ -13,7 +14,7 @@ type InfoUseCase struct {
 
 type InfoInput struct {
 	Ctx context.Context
-	ID  org.ID
+	ID  id.OrgID
 }
 
 type InfoOutput struct {

@@ -4,7 +4,7 @@ import (
 	"context"
 	"ynufes-mypage-backend/pkg/identity"
 	"ynufes-mypage-backend/svc/pkg/domain/command"
-	"ynufes-mypage-backend/svc/pkg/domain/model/event"
+	"ynufes-mypage-backend/svc/pkg/domain/model/id"
 	"ynufes-mypage-backend/svc/pkg/domain/model/org"
 	"ynufes-mypage-backend/svc/pkg/domain/query"
 	"ynufes-mypage-backend/svc/pkg/registry"
@@ -17,7 +17,7 @@ type CreateOrgUseCase struct {
 
 type CreateOrgInput struct {
 	Ctx     context.Context
-	EventID event.ID
+	EventID id.EventID
 	OrgName string
 	IsOpen  bool
 }
@@ -39,7 +39,7 @@ func (uc CreateOrgUseCase) Do(ipt CreateOrgInput) (*CreateOrgOutput, error) {
 		return nil, err
 	}
 	o := org.Org{
-		ID:     org.ID(identity.IssueID()),
+		ID:     id.OrgID(identity.IssueID()),
 		Event:  *e,
 		Name:   ipt.OrgName,
 		Users:  nil,

@@ -2,11 +2,11 @@ package query
 
 import (
 	"context"
+	"ynufes-mypage-backend/svc/pkg/domain/model/id"
 	"ynufes-mypage-backend/svc/pkg/domain/model/org"
-	"ynufes-mypage-backend/svc/pkg/domain/model/user"
 )
 
 type Org interface {
-	GetByID(ctx context.Context, id org.ID) (*org.Org, error)
-	ListByGrantedUserID(ctx context.Context, id user.ID) ([]org.Org, error)
+	GetByID(ctx context.Context, id id.OrgID) (*org.Org, error)
+	ListByGrantedUserID(ctx context.Context, id id.UserID) ([]org.Org, error)
 }

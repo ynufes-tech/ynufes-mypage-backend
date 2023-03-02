@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"ynufes-mypage-backend/pkg/identity"
-	"ynufes-mypage-backend/svc/pkg/domain/model/event"
+	"ynufes-mypage-backend/svc/pkg/domain/model/id"
 	"ynufes-mypage-backend/svc/pkg/domain/model/util"
 )
 
@@ -29,7 +29,7 @@ const (
 )
 
 func NewCheckBoxQuestion(
-	id ID, text string, eventID event.ID, options []CheckBoxOption, optionsOrder []CheckBoxOptionID,
+	id id.QuestionID, text string, eventID id.EventID, options []CheckBoxOption, optionsOrder []CheckBoxOptionID,
 ) *CheckBoxQuestion {
 	return &CheckBoxQuestion{
 		Basic:        NewBasic(id, text, eventID, TypeCheckBox),

@@ -20,41 +20,41 @@ func NewOrg(c *firestore.Client) Org {
 	}
 }
 
-func (o Org) Create(ctx context.Context, org org.Org) error {
-	if !org.ID.HasValue() {
+func (w Org) Create(ctx context.Context, o org.Org) error {
+	if !o.ID.HasValue() {
 		return exception.ErrIDNotAssigned
 	}
-	usersE := make([]int64, len(org.Users))
-	for i := range org.Users {
-		usersE[i] = org.Users[i].GetValue()
+	usersE := make([]int64, len(o.Users))
+	for i := range o.Users {
+		usersE[i] = o.Users[i].GetValue()
 	}
 	e := entity.Org{
-		EventID:   org.Event.ID.GetValue(),
-		EventName: org.Event.Name,
-		Name:      org.Name,
+		EventID:   o.Event.ID.GetValue(),
+		EventName: o.Event.Name,
+		Name:      o.Name,
 		Users:     usersE,
-		IsOpen:    org.IsOpen,
+		IsOpen:    o.IsOpen,
 	}
-	if _, err := o.collection.Doc(org.ID.ExportID()).Create(ctx, e); err != nil {
+	if _, err := w.collection.Doc(o.ID.ExportID()).Create(ctx, e); err != nil {
 		log.Printf("Failed to create org: %v", err)
 		return fmt.Errorf("failed to create org: %w", err)
 	}
 	return nil
 }
 
-func (o Org) Set(ctx context.Context, org org.Org) error {
-	usersE := make([]int64, len(org.Users))
+func (w Org) Set(ctx context.Context, o org.Org) error {
+	usersE := make([]int64, len(o.Users))
 	e := entity.Org{
-		EventID:   org.Event.ID.GetValue(),
-		EventName: org.Event.Name,
-		Name:      org.Name,
+		EventID:   o.Event.ID.GetValue(),
+		EventName: o.Event.Name,
+		Name:      o.Name,
 		Users:     usersE,
-		IsOpen:    org.IsOpen,
+		IsOpen:    o.IsOpen,
 	}
-	for i := range org.Users {
-		usersE[i] = org.Users[i].GetValue()
+	for i := range o.Users {
+		usersE[i] = o.Users[i].GetValue()
 	}
-	_, err := o.collection.Doc(org.ID.ExportID()).Set(ctx, e)
+	_, err := w.collection.Doc(o.ID.ExportID()).Set(ctx, e)
 	if err != nil {
 		log.Printf("Failed to update org: %v", err)
 		return fmt.Errorf("failed to update org: %w", err)
@@ -62,12 +62,12 @@ func (o Org) Set(ctx context.Context, org org.Org) error {
 	return nil
 }
 
-func (o Org) UpdateUsers(ctx context.Context, org org.Org) error {
-	usersE := make([]int64, len(org.Users))
-	for i := range org.Users {
-		usersE[i] = org.Users[i].GetValue()
+func (w Org) UpdateUsers(ctx context.Context, o org.Org) error {
+	usersE := make([]int64, len(o.Users))
+	for i := range o.Users {
+		usersE[i] = o.Users[i].GetValue()
 	}
-	_, err := o.collection.Doc(org.ID.ExportID()).Update(ctx,
+	_, err := w.collection.Doc(o.ID.ExportID()).Update(ctx,
 		[]firestore.Update{
 			{Path: "user_ids", Value: usersE},
 		})
@@ -78,10 +78,10 @@ func (o Org) UpdateUsers(ctx context.Context, org org.Org) error {
 	return nil
 }
 
-func (o Org) UpdateIsOpen(ctx context.Context, org org.Org) error {
-	_, err := o.collection.Doc(org.ID.ExportID()).Update(ctx,
+func (w Org) UpdateIsOpen(ctx context.Context, o org.Org) error {
+	_, err := w.collection.Doc(o.ID.ExportID()).Update(ctx,
 		[]firestore.Update{
-			{Path: "is_open", Value: org.IsOpen},
+			{Path: "is_open", Value: o.IsOpen},
 		})
 	if err != nil {
 		log.Printf("Failed to update org is_open: %v", err)

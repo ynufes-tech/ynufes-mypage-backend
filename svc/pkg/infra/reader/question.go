@@ -3,8 +3,7 @@ package reader
 import (
 	"cloud.google.com/go/firestore"
 	"context"
-	"ynufes-mypage-backend/svc/pkg/domain/model/event"
-	"ynufes-mypage-backend/svc/pkg/domain/model/form"
+	"ynufes-mypage-backend/svc/pkg/domain/model/id"
 	"ynufes-mypage-backend/svc/pkg/domain/model/question"
 	entity "ynufes-mypage-backend/svc/pkg/infra/entity/question"
 )
@@ -19,7 +18,7 @@ func NewQuestion(c *firestore.Client) Question {
 	}
 }
 
-func (q Question) GetByID(ctx context.Context, id question.ID) (*question.Question, error) {
+func (q Question) GetByID(ctx context.Context, id id.QuestionID) (*question.Question, error) {
 	var questionEntity entity.Question
 	qid := id.ExportID()
 	snap, err := q.collection.Doc(qid).Get(ctx)
@@ -27,7 +26,7 @@ func (q Question) GetByID(ctx context.Context, id question.ID) (*question.Questi
 		return nil, err
 	}
 	err = snap.DataTo(&questionEntity)
-	questionEntity.ID = qid
+	questionEntity.ID = id
 	model, err := questionEntity.ToModel()
 	if err != nil {
 		return nil, err
@@ -35,7 +34,7 @@ func (q Question) GetByID(ctx context.Context, id question.ID) (*question.Questi
 	return &model, nil
 }
 
-func (q Question) ListByEventID(ctx context.Context, id event.ID) ([]question.Question, error) {
+func (q Question) ListByEventID(ctx context.Context, id id.EventID) ([]question.Question, error) {
 	var questions []question.Question
 	iter := q.collection.Where("event_id", "==", id.GetValue()).Documents(ctx)
 	for {
@@ -45,7 +44,7 @@ func (q Question) ListByEventID(ctx context.Context, id event.ID) ([]question.Qu
 			break
 		}
 		err = doc.DataTo(&questionEntity)
-		questionEntity.ID = doc.Ref.ID
+		questionEntity.ID = id
 		model, err := questionEntity.ToModel()
 		if err != nil {
 			return nil, err
@@ -55,7 +54,7 @@ func (q Question) ListByEventID(ctx context.Context, id event.ID) ([]question.Qu
 	return questions, nil
 }
 
-func (q Question) ListByFormID(ctx context.Context, id form.ID) ([]question.Question, error) {
+func (q Question) ListByFormID(ctx context.Context, id id.FormID) ([]question.Question, error) {
 	var questions []question.Question
 	iter := q.collection.Where("form_id", "==", id.GetValue()).Documents(ctx)
 	for {
@@ -65,7 +64,7 @@ func (q Question) ListByFormID(ctx context.Context, id form.ID) ([]question.Ques
 			break
 		}
 		err = doc.DataTo(&questionEntity)
-		questionEntity.ID = doc.Ref.ID
+		questionEntity.ID = id
 		model, err := questionEntity.ToModel()
 		if err != nil {
 			return nil, err

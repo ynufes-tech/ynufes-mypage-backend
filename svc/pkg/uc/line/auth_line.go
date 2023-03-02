@@ -8,6 +8,7 @@ import (
 	"ynufes-mypage-backend/pkg/identity"
 	linePkg "ynufes-mypage-backend/pkg/line"
 	"ynufes-mypage-backend/svc/pkg/domain/command"
+	"ynufes-mypage-backend/svc/pkg/domain/model/id"
 	"ynufes-mypage-backend/svc/pkg/domain/model/user"
 	"ynufes-mypage-backend/svc/pkg/domain/query"
 	"ynufes-mypage-backend/svc/pkg/domain/service/line"
@@ -82,7 +83,7 @@ func (uc AuthUseCase) Do(ipt AuthInput) (*AuthOutput, error) {
 	if err != nil {
 		// if error is "user not found", Create User and redirect to basic info form
 		// Otherwise, respond with error
-		newID := user.ID(identity.IssueID())
+		newID := id.UserID(identity.IssueID())
 		newUser := user.User{
 			ID:     newID,
 			Status: user.StatusNew,

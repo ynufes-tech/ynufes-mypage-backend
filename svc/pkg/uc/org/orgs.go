@@ -3,8 +3,8 @@ package org
 import (
 	"context"
 	"ynufes-mypage-backend/svc/pkg/domain/command"
+	"ynufes-mypage-backend/svc/pkg/domain/model/id"
 	"ynufes-mypage-backend/svc/pkg/domain/model/org"
-	"ynufes-mypage-backend/svc/pkg/domain/model/user"
 	"ynufes-mypage-backend/svc/pkg/domain/query"
 	"ynufes-mypage-backend/svc/pkg/registry"
 )
@@ -16,7 +16,7 @@ type OrgsUseCase struct {
 
 type OrgsInput struct {
 	Ctx    context.Context
-	UserID user.ID
+	UserID id.UserID
 }
 
 type OrgsOutput struct {

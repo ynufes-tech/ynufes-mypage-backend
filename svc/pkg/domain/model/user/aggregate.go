@@ -1,17 +1,18 @@
 package user
 
-import "ynufes-mypage-backend/svc/pkg/domain/model/util"
+import (
+	"ynufes-mypage-backend/svc/pkg/domain/model/id"
+)
 
 type (
 	User struct {
-		ID     ID
+		ID     id.UserID
 		Status Status
 		Detail Detail
 		Line   Line
 		Admin  Admin
 		Agent  Agent
 	}
-	ID     util.ID
 	Status int
 )
 

@@ -3,8 +3,8 @@ package reader
 import (
 	"cloud.google.com/go/firestore"
 	"context"
+	"ynufes-mypage-backend/svc/pkg/domain/model/id"
 	"ynufes-mypage-backend/svc/pkg/domain/model/org"
-	"ynufes-mypage-backend/svc/pkg/domain/model/user"
 	entity "ynufes-mypage-backend/svc/pkg/infra/entity/org"
 )
 
@@ -18,7 +18,7 @@ func NewOrg(c *firestore.Client) Org {
 	}
 }
 
-func (o Org) GetByID(ctx context.Context, id org.ID) (*org.Org, error) {
+func (o Org) GetByID(ctx context.Context, id id.OrgID) (*org.Org, error) {
 	var orgEntity entity.Org
 	oid := id.ExportID()
 	snap, err := o.collection.Doc(oid).Get(ctx)
@@ -26,7 +26,7 @@ func (o Org) GetByID(ctx context.Context, id org.ID) (*org.Org, error) {
 		return nil, err
 	}
 	err = snap.DataTo(&orgEntity)
-	orgEntity.ID = oid
+	orgEntity.ID = id
 	model, err := orgEntity.ToModel()
 	if err != nil {
 		return nil, err
@@ -34,7 +34,7 @@ func (o Org) GetByID(ctx context.Context, id org.ID) (*org.Org, error) {
 	return model, nil
 }
 
-func (o Org) ListByGrantedUserID(ctx context.Context, id user.ID) ([]org.Org, error) {
+func (o Org) ListByGrantedUserID(ctx context.Context, id id.UserID) ([]org.Org, error) {
 	var orgs []org.Org
 	uid := id.GetValue()
 	iter := o.collection.Where("user_ids", "array-contains", uid).Documents(ctx)
@@ -48,7 +48,7 @@ func (o Org) ListByGrantedUserID(ctx context.Context, id user.ID) ([]org.Org, er
 		if err != nil {
 			return nil, err
 		}
-		orgEntity.ID = id.ExportID()
+		orgEntity.ID = id
 		model, err := orgEntity.ToModel()
 		if err != nil {
 			return nil, err

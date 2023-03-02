@@ -2,33 +2,29 @@ package form
 
 import (
 	"time"
-	"ynufes-mypage-backend/svc/pkg/domain/model/event"
-	"ynufes-mypage-backend/svc/pkg/domain/model/section"
+	"ynufes-mypage-backend/svc/pkg/domain/model/id"
 	"ynufes-mypage-backend/svc/pkg/domain/model/user"
-	"ynufes-mypage-backend/svc/pkg/domain/model/util"
 )
 
 type (
 	Form struct {
-		ID          ID
-		EventID     event.ID
+		ID          id.FormID
+		EventID     id.EventID
 		Title       string
 		Summary     string
 		Description string
 		Roles       []user.RoleID
 		Deadline    time.Time
 		IsOpen      bool
-		Sections    []section.ID
+		Sections    []id.SectionID
 	}
-
-	ID util.ID
 )
 
 func NewForm(
-	id ID,
-	eventID event.ID,
+	id id.FormID,
+	eventID id.EventID,
 	title, summary, description string,
-	sectionIDs []section.ID,
+	sectionIDs []id.SectionID,
 	roles []user.RoleID,
 	deadline time.Time,
 	isOpen bool,

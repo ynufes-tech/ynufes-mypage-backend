@@ -5,6 +5,7 @@ import (
 	"context"
 	"log"
 	"ynufes-mypage-backend/pkg/identity"
+	"ynufes-mypage-backend/svc/pkg/domain/model/id"
 	"ynufes-mypage-backend/svc/pkg/domain/model/user"
 	entity "ynufes-mypage-backend/svc/pkg/infra/entity/user"
 )
@@ -21,7 +22,7 @@ func NewUser(c *firestore.Client) User {
 	}
 }
 
-func (u User) GetByID(ctx context.Context, id user.ID) (model *user.User, err error) {
+func (u User) GetByID(ctx context.Context, id id.UserID) (model *user.User, err error) {
 	log.Printf("GET USER: %v", id)
 	var userEntity entity.User
 	snap, err := u.collection.Doc(id.ExportID()).Get(ctx)

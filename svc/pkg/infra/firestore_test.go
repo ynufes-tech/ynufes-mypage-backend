@@ -19,7 +19,7 @@ var client *firestore.Client
 //	assert.IsEqual(err, nil)
 //
 //	r := reader.NewUser(client, )
-//	u, err := r.GetByID(context.Background(), user.ID(1234))
+//	u, err := r.GetByID(context.Background(), id.UserID(1234))
 //	if err != nil {
 //		t.Fatal(err)
 //	}

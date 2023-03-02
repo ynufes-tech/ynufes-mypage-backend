@@ -1,12 +1,15 @@
 package entity
 
-import "ynufes-mypage-backend/svc/pkg/domain/model/event"
+import (
+	"ynufes-mypage-backend/svc/pkg/domain/model/event"
+	"ynufes-mypage-backend/svc/pkg/domain/model/id"
+)
 
 const EventCollectionName = "Events"
 
 type Event struct {
-	ID   event.ID `json:"-"`
-	Name string   `json:"name"`
+	ID   id.EventID `json:"-"`
+	Name string     `json:"name"`
 }
 
 func (e Event) ToModel() (*event.Event, error) {

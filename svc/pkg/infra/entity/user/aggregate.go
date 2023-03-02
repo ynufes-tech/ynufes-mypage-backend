@@ -3,14 +3,15 @@ package entity
 import (
 	"time"
 	"ynufes-mypage-backend/pkg/identity"
+	"ynufes-mypage-backend/svc/pkg/domain/model/id"
 	"ynufes-mypage-backend/svc/pkg/domain/model/user"
 )
 
 const UserCollectionName = "Users"
 
 type User struct {
-	ID     user.ID `json:"-"`
-	Status int     `json:"status"`
+	ID     id.UserID `json:"-"`
+	Status int       `json:"status"`
 	UserDetail
 	Line
 	Admin

@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"ynufes-mypage-backend/svc/pkg/domain/model/event"
+	"ynufes-mypage-backend/svc/pkg/domain/model/id"
 	entity "ynufes-mypage-backend/svc/pkg/infra/entity/event"
 )
 
@@ -18,7 +19,7 @@ func NewEvent(c *firestore.Client) Event {
 	}
 }
 
-func (e Event) GetByID(ctx context.Context, id event.ID) (model *event.Event, err error) {
+func (e Event) GetByID(ctx context.Context, id id.EventID) (model *event.Event, err error) {
 	var eventEntity entity.Event
 	snap, err := e.collection.Doc(id.ExportID()).Get(ctx)
 	if err != nil {

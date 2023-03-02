@@ -1,17 +1,15 @@
 package question
 
-import (
-	"ynufes-mypage-backend/svc/pkg/domain/model/event"
-)
+import "ynufes-mypage-backend/svc/pkg/domain/model/id"
 
 type Basic struct {
-	ID      ID
+	ID      id.QuestionID
 	Text    string
-	EventID event.ID
+	EventID id.EventID
 	qType   Type
 }
 
-func NewBasic(id ID, text string, eventID event.ID, qType Type) Basic {
+func NewBasic(id id.QuestionID, text string, eventID id.EventID, qType Type) Basic {
 	return Basic{
 		ID:      id,
 		Text:    text,
@@ -20,7 +18,7 @@ func NewBasic(id ID, text string, eventID event.ID, qType Type) Basic {
 	}
 }
 
-func (b Basic) GetID() ID {
+func (b Basic) GetID() id.QuestionID {
 	return b.ID
 }
 
@@ -28,7 +26,7 @@ func (b Basic) GetText() string {
 	return b.Text
 }
 
-func (b Basic) GetEventID() event.ID {
+func (b Basic) GetEventID() id.EventID {
 	return b.EventID
 }
 

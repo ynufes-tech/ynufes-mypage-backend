@@ -4,7 +4,7 @@ import (
 	"cloud.google.com/go/firestore"
 	"context"
 	"fmt"
-	"ynufes-mypage-backend/svc/pkg/domain/model/form"
+	"ynufes-mypage-backend/svc/pkg/domain/model/id"
 	"ynufes-mypage-backend/svc/pkg/domain/model/question"
 	"ynufes-mypage-backend/svc/pkg/exception"
 	entity "ynufes-mypage-backend/svc/pkg/infra/entity/question"
@@ -22,12 +22,12 @@ func NewQuestion(client *firestore.Client) Question {
 	}
 }
 
-func (w Question) Create(ctx context.Context, formID form.ID, q question.Question) error {
+func (w Question) Create(ctx context.Context, formID id.FormID, q question.Question) error {
 	if !q.GetID().HasValue() {
 		return exception.ErrIDNotAssigned
 	}
 	e := entity.NewQuestion(
-		q.GetID().ExportID(),
+		q.GetID(),
 		(q.GetEventID()).GetValue(),
 		formID.GetValue(),
 		q.GetText(),
@@ -42,7 +42,7 @@ func (w Question) Create(ctx context.Context, formID form.ID, q question.Questio
 	return nil
 }
 
-func (w Question) UpdateCustoms(ctx context.Context, id question.ID, customs map[string]interface{}) error {
+func (w Question) UpdateCustoms(ctx context.Context, id id.QuestionID, customs map[string]interface{}) error {
 	_, err := w.collection.Doc(id.ExportID()).
 		Update(ctx,
 			[]firestore.Update{
@@ -57,9 +57,9 @@ func (w Question) UpdateCustoms(ctx context.Context, id question.ID, customs map
 	return nil
 }
 
-func (w Question) Set(ctx context.Context, formID form.ID, q question.Question) error {
+func (w Question) Set(ctx context.Context, formID id.FormID, q question.Question) error {
 	e := entity.NewQuestion(
-		q.GetID().ExportID(),
+		q.GetID(),
 		(q.GetEventID()).GetValue(),
 		formID.GetValue(),
 		q.GetText(),

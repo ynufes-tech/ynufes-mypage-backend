@@ -1,18 +1,16 @@
 package response
 
 import (
-	"ynufes-mypage-backend/svc/pkg/domain/model/form"
-	"ynufes-mypage-backend/svc/pkg/domain/model/org"
-	"ynufes-mypage-backend/svc/pkg/domain/model/user"
+	"ynufes-mypage-backend/svc/pkg/domain/model/id"
 	"ynufes-mypage-backend/svc/pkg/domain/model/util"
 )
 
 type (
 	Response struct {
 		ID       ID
-		OrgID    org.ID
-		AuthorID user.ID
-		FormID   form.ID
+		OrgID    id.OrgID
+		AuthorID id.UserID
+		FormID   id.FormID
 		Data     [][]string
 	}
 	ID util.ID

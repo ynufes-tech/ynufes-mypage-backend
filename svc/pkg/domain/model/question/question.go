@@ -2,25 +2,23 @@ package question
 
 import (
 	"errors"
-	"ynufes-mypage-backend/svc/pkg/domain/model/event"
-	"ynufes-mypage-backend/svc/pkg/domain/model/util"
+	"ynufes-mypage-backend/svc/pkg/domain/model/id"
 )
 
 type (
-	ID       util.ID
 	Type     int
 	Question interface {
 		Export() StandardQuestion
 		GetType() Type
-		GetID() ID
+		GetID() id.QuestionID
 		GetText() string
-		GetEventID() event.ID
+		GetEventID() id.EventID
 	}
 
 	StandardQuestion struct {
-		ID      ID
+		ID      id.QuestionID
 		Text    string
-		EventID event.ID
+		EventID id.EventID
 		Type    Type
 		Customs map[string]interface{}
 	}
@@ -32,8 +30,8 @@ const (
 	TypeFile     Type = 3
 )
 
-func NewStandardQuestion(t Type, id ID,
-	eventID event.ID, text string, customs map[string]interface{}) StandardQuestion {
+func NewStandardQuestion(t Type, id id.QuestionID,
+	eventID id.EventID, text string, customs map[string]interface{}) StandardQuestion {
 	return StandardQuestion{
 		ID:      id,
 		Text:    text,
