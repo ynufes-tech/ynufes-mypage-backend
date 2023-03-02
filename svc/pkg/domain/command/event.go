@@ -8,5 +8,4 @@ import (
 type Event interface {
 	Create(context.Context, *event.Event) error
 	UpdateName(context.Context, *event.Event) error
-	Delete(context.Context, event.Event) error
 }

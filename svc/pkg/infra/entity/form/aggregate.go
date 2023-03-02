@@ -8,7 +8,7 @@ import (
 	"ynufes-mypage-backend/svc/pkg/domain/model/user"
 )
 
-const FormCollectionName = "Forms"
+const FormRootName = "Forms"
 
 type (
 	Form struct {

@@ -5,7 +5,7 @@ import (
 	"ynufes-mypage-backend/svc/pkg/domain/model/id"
 )
 
-const EventCollectionName = "Events"
+const EventRootName = "Events"
 
 type Event struct {
 	ID   id.EventID `json:"-"`

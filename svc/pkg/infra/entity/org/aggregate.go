@@ -7,7 +7,7 @@ import (
 	"ynufes-mypage-backend/svc/pkg/domain/model/org"
 )
 
-const OrgCollectionName = "Orgs"
+const OrgRootName = "Orgs"
 
 type Org struct {
 	ID        id.OrgID `json:"-"`

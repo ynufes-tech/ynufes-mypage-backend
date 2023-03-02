@@ -6,7 +6,7 @@ import (
 	"ynufes-mypage-backend/svc/pkg/domain/model/question"
 )
 
-const QuestionCollectionName = "Questions"
+const QuestionRootName = "Questions"
 
 type Question struct {
 	ID      id.QuestionID          `json:"-"`

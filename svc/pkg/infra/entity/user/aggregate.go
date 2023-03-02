@@ -7,7 +7,7 @@ import (
 	"ynufes-mypage-backend/svc/pkg/domain/model/user"
 )
 
-const UserCollectionName = "Users"
+const UserRootName = "Users"
 
 type User struct {
 	ID     id.UserID `json:"-"`

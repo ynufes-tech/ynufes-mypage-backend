@@ -6,7 +6,7 @@ import (
 	"ynufes-mypage-backend/svc/pkg/domain/model/response"
 )
 
-const ResponseCollectionName = "Responses"
+const ResponseRootName = "Responses"
 
 type (
 	Response struct {
