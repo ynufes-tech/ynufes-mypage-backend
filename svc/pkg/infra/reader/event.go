@@ -1,36 +1,36 @@
 package reader
 
 import (
-	"cloud.google.com/go/firestore"
 	"context"
+	"firebase.google.com/go/v4/db"
 	"fmt"
+	"ynufes-mypage-backend/pkg/firebase"
 	"ynufes-mypage-backend/svc/pkg/domain/model/event"
 	"ynufes-mypage-backend/svc/pkg/domain/model/id"
+	"ynufes-mypage-backend/svc/pkg/exception"
 	entity "ynufes-mypage-backend/svc/pkg/infra/entity/event"
 )
 
 type Event struct {
-	collection *firestore.CollectionRef
+	ref *db.Ref
 }
 
-func NewEvent(c *firestore.Client) Event {
+func NewEvent(c *firebase.Firebase) Event {
 	return Event{
-		collection: c.Collection(entity.EventCollectionName),
+		ref: c.Client(entity.EventRootName),
 	}
 }
 
-func (e Event) GetByID(ctx context.Context, id id.EventID) (model *event.Event, err error) {
+func (e Event) GetByID(ctx context.Context, id id.EventID) (*event.Event, error) {
+	if !id.HasValue() {
+		return nil, exception.ErrIDNotAssigned
+	}
 	var eventEntity entity.Event
-	snap, err := e.collection.Doc(id.ExportID()).Get(ctx)
-	if err != nil {
+	if err := e.ref.Child(id.ExportID()).Get(ctx, &eventEntity); err != nil {
 		return nil, fmt.Errorf("failed to get event doc: %w", err)
 	}
-	err = snap.DataTo(&eventEntity)
-	if err != nil {
-		return nil, fmt.Errorf("failed to decode event doc into entity: %w", err)
-	}
 	eventEntity.ID = id
-	model, err = eventEntity.ToModel()
+	model, err := eventEntity.ToModel()
 	if err != nil {
 		return nil, fmt.Errorf("failed to convert event entity to model: %w", err)
 	}
