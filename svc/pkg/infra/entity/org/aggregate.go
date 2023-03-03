@@ -10,18 +10,25 @@ import (
 const OrgRootName = "Orgs"
 
 type Org struct {
-	ID        id.OrgID `json:"-"`
-	EventID   int64    `json:"event_id"`
-	EventName string   `json:"event_name"`
-	Name      string   `json:"name"`
-	Users     []int64  `json:"user_ids"`
-	IsOpen    bool     `json:"is_open"`
+	ID        id.OrgID        `json:"-"`
+	EventID   int64           `json:"event_id"`
+	EventName string          `json:"event_name"`
+	Name      string          `json:"name"`
+	Users     map[string]bool `json:"user_ids"`
+	IsOpen    bool            `json:"is_open"`
 }
 
 func (o Org) ToModel() (*org.Org, error) {
-	var users []id.UserID
-	for i := range o.Users {
-		users = append(users, identity.NewID(o.Users[i]))
+	users := make([]id.UserID, 0, len(o.Users))
+	for k, v := range o.Users {
+		if !v {
+			continue
+		}
+		u, err := identity.ImportID(k)
+		if err != nil {
+			return nil, err
+		}
+		users = append(users, u)
 	}
 	return &org.Org{
 		ID: o.ID,

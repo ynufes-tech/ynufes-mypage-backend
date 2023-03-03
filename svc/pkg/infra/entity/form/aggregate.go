@@ -12,22 +12,22 @@ const FormRootName = "Forms"
 
 type (
 	Form struct {
-		ID          id.FormID `json:"-"`
-		EventID     int64     `json:"event_id"`
-		Title       string    `json:"title"`
-		Summary     string    `json:"summary"`
-		Description string    `json:"description"`
-		Roles       []int64   `json:"roles"`
-		Deadline    int64     `json:"deadline"`
-		IsOpen      bool      `json:"is_open"`
-		Sections    []int64   `json:"section"`
+		ID          id.FormID       `json:"-"`
+		EventID     int64           `json:"event_id"`
+		Title       string          `json:"title"`
+		Summary     string          `json:"summary"`
+		Description string          `json:"description"`
+		Sections    map[string]bool `json:"section"`
+		Roles       map[string]bool `json:"roles"`
+		Deadline    int64           `json:"deadline"`
+		IsOpen      bool            `json:"is_open"`
 	}
 )
 
 func NewForm(
 	id id.FormID, eventID int64,
 	title, summary, description string,
-	sections, roles []int64,
+	sections, roles map[string]bool,
 	deadline int64,
 	isOpen bool,
 ) Form {
@@ -46,13 +46,29 @@ func NewForm(
 
 func (f Form) ToModel() (*form.Form, error) {
 	eID := identity.NewID(f.EventID)
-	roles := make([]user.RoleID, len(f.Roles))
-	for i, r := range f.Roles {
-		roles[i] = identity.NewID(r)
+
+	sections := make([]id.SectionID, 0, len(f.Sections))
+	for k, v := range f.Sections {
+		if !v {
+			continue
+		}
+		tid, err := identity.ImportID(k)
+		if err != nil {
+			return nil, err
+		}
+		sections = append(sections, tid)
 	}
-	sections := make([]id.SectionID, len(f.Sections))
-	for i := range sections {
-		sections[i] = identity.NewID(f.Sections[i])
+
+	roles := make([]user.RoleID, 0, len(f.Roles))
+	for k, v := range f.Roles {
+		if !v {
+			continue
+		}
+		tid, err := identity.ImportID(k)
+		if err != nil {
+			return nil, err
+		}
+		roles = append(roles, tid)
 	}
 
 	deadline := time.UnixMilli(f.Deadline)
