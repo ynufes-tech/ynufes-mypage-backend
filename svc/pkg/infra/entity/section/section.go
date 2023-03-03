@@ -1,6 +1,7 @@
 package entity
 
 import (
+	"sort"
 	"ynufes-mypage-backend/pkg/identity"
 	"ynufes-mypage-backend/svc/pkg/domain/model/id"
 	"ynufes-mypage-backend/svc/pkg/domain/model/section"
@@ -8,8 +9,13 @@ import (
 )
 
 type Section struct {
-	ID        int64   `json:"id"`
-	Questions []int64 `json:"questions"`
+	ID int64 `json:"id"`
+
+	// Questions map[QID]order
+	// One of the idea to manage order is to apply fractional indexing,
+	// although implementing here may make data structure more complicated,
+	// decided not to implement.
+	Questions map[string]int `json:"questions"`
 
 	// ConditionQuestion a question which determines next section based on its answer
 	// Only some of the questions can be condition questions. (e.g. radio, checkbox)
@@ -22,7 +28,7 @@ type Section struct {
 
 func NewSection(
 	id int64,
-	qs []int64,
+	qs map[string]int,
 	cq int64,
 	cc map[string]int64,
 ) Section {
@@ -35,9 +41,9 @@ func NewSection(
 }
 
 func (s Section) ToModel() (*section.Section, error) {
-	qs := make([]id.QuestionID, len(s.Questions))
-	for i := range s.Questions {
-		qs[i] = identity.NewID(s.Questions[i])
+	qs, err := sortQuestions(s.Questions)
+	if err != nil {
+		return nil, err
 	}
 
 	conditionCustoms := make(map[util.ID]id.SectionID, len(s.ConditionCustoms))
@@ -56,4 +62,51 @@ func (s Section) ToModel() (*section.Section, error) {
 		conditionCustoms,
 	)
 	return &sec, nil
+}
+
+type question struct {
+	order int
+	id    id.QuestionID
+}
+
+type questions []question
+
+func sortQuestions(qs map[string]int) ([]id.QuestionID, error) {
+	q, err := newQuestions(qs)
+	if err != nil {
+		return nil, err
+	}
+	sort.Sort(q)
+	ids := make([]id.QuestionID, len(q))
+	for i := range q {
+		ids[i] = q[i].id
+	}
+	return ids, nil
+}
+
+func newQuestions(qs map[string]int) (questions, error) {
+	q := make(questions, 0, len(qs))
+	for k, v := range qs {
+		tid, err := identity.ImportID(k)
+		if err != nil {
+			return nil, err
+		}
+		q = append(q, question{
+			order: v,
+			id:    tid,
+		})
+	}
+	return q, nil
+}
+
+func (q questions) Len() int {
+	return len(q)
+}
+
+func (q questions) Less(i, j int) bool {
+	return q[i].order < q[j].order
+}
+
+func (q questions) Swap(i, j int) {
+	q[i], q[j] = q[j], q[i]
 }
