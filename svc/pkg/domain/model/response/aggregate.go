@@ -11,7 +11,7 @@ type (
 		OrgID    id.OrgID
 		AuthorID id.UserID
 		FormID   id.FormID
-		Data     [][]string
+		Data     map[string]interface{}
 	}
 	ID util.ID
 )

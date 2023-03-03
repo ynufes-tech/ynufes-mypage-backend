@@ -10,11 +10,11 @@ const ResponseRootName = "Responses"
 
 type (
 	Response struct {
-		ID       id.UserID  `json:"-"`
-		OrgID    int64      `json:"org_id"`
-		AuthorID int64      `json:"author_id"`
-		FormID   int64      `json:"form_id"`
-		Data     [][]string `json:"data"`
+		ID       id.UserID              `json:"-"`
+		OrgID    int64                  `json:"org_id"`
+		AuthorID int64                  `json:"author_id"`
+		FormID   int64                  `json:"form_id"`
+		Data     map[string]interface{} `json:"data"`
 	}
 )
 
