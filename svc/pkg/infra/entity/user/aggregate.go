@@ -10,11 +10,11 @@ import (
 const UserRootName = "Users"
 
 type User struct {
-	ID id.UserID `json:"-"`
-	UserDetail
-	Line
-	Admin
-	Agent
+	ID         id.UserID `json:"-"`
+	UserDetail `json:"detail"`
+	Line       `json:"line"`
+	Admin      `json:"admin"`
+	Agent      `json:"agent"`
 }
 
 func (u User) ToModel() (*user.User, error) {

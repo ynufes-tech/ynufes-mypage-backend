@@ -1,9 +1,9 @@
 package entity
 
 type Line struct {
-	LineServiceID         string `json:"line-id"`
-	LineProfileURL        string `json:"line-profile_url"`
-	LineDisplayName       string `json:"line-display_name"`
-	EncryptedAccessToken  string `json:"line-access_token"`
-	EncryptedRefreshToken string `json:"line-refresh_token"`
+	LineServiceID         string `json:"id"`
+	LineProfileURL        string `json:"profile_url"`
+	LineDisplayName       string `json:"display_name"`
+	EncryptedAccessToken  string `json:"access_token"`
+	EncryptedRefreshToken string `json:"refresh_token"`
 }

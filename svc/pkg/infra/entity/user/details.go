@@ -5,13 +5,13 @@ type (
 	// all fields have omitempty tag
 	// in order to easily handle incomplete request from frontend
 	UserDetail struct {
-		NameFirst     string `json:"detail-name_first,omitempty"`
-		NameFirstKana string `json:"detail-name_first_kana,omitempty"`
-		NameLast      string `json:"detail-name_last,omitempty"`
-		NameLastKana  string `json:"detail-name_last_kana,omitempty"`
-		Gender        int    `json:"detail-gender,omitempty"`
-		StudentID     string `json:"detail-student_id,omitempty"`
-		Email         string `json:"detail-email,omitempty"`
-		Type          int    `json:"detail-type,omitempty"`
+		NameFirst     string `json:"name_first,omitempty"`
+		NameFirstKana string `json:"name_first_kana,omitempty"`
+		NameLast      string `json:"name_last,omitempty"`
+		NameLastKana  string `json:"name_last_kana,omitempty"`
+		Gender        int    `json:"gender,omitempty"`
+		StudentID     string `json:"student_id,omitempty"`
+		Email         string `json:"email,omitempty"`
+		Type          int    `json:"type,omitempty"`
 	}
 )

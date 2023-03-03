@@ -2,7 +2,7 @@ package entity
 
 type (
 	Agent struct {
-		Roles []Role `json:"agent-roles"`
+		Roles []Role `json:"roles"`
 	}
 	Role struct {
 		ID          int64 `json:"id"`
