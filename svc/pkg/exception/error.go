@@ -8,4 +8,5 @@ var (
 	ErrIDAlreadyAssigned = errors.New("ID ALREADY ASSIGNED")
 	ErrIDNotAssigned     = errors.New("ID NOT ASSIGNED")
 	ErrInvalidRoleLevel  = errors.New("INVALID ROLE LEVEL")
+	ErrNotFound          = errors.New("NOT FOUND")
 )
