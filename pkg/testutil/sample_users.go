@@ -9,8 +9,7 @@ import (
 func Users() []user.User {
 	return []user.User{
 		{
-			ID:     id.UserID(identity.NewID(1234)),
-			Status: user.StatusNew,
+			ID: id.UserID(identity.NewID(1234)),
 			Detail: user.Detail{
 				Name: user.Name{
 					FirstName:     "詩恩",
@@ -30,8 +29,7 @@ func Users() []user.User {
 			},
 		},
 		{
-			ID:     id.UserID(identity.NewID(12344)),
-			Status: user.StatusRegistered,
+			ID: id.UserID(identity.NewID(12344)),
 			Detail: user.Detail{
 				Name: user.Name{
 					FirstName:     "友哉",

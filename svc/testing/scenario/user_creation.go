@@ -40,9 +40,8 @@ func TestUserCreation(t *testing.T, r *gin.Engine) {
 	infoOut1.StrictValidate(t, user.InfoResponse{
 		NameFirst:       "",
 		NameLast:        "",
-		Type:            int(userModel.StatusRegistered),
+		Type:            int(userModel.TypeNormal),
 		ProfileImageURL: ipt1.PictureURL,
-		Status:          int(userModel.StatusNew),
 	})
 
 	// 3. Create a new user with same LineServiceID
@@ -68,9 +67,8 @@ func TestUserCreation(t *testing.T, r *gin.Engine) {
 	infoOut2.StrictValidate(t, user.InfoResponse{
 		NameFirst:       "",
 		NameLast:        "",
-		Type:            int(userModel.StatusRegistered),
+		Type:            int(userModel.TypeNormal),
 		ProfileImageURL: ipt2.PictureURL,
-		Status:          int(userModel.StatusNew),
 	})
 
 	// 5. Create a new user with different LineServiceID
@@ -96,8 +94,7 @@ func TestUserCreation(t *testing.T, r *gin.Engine) {
 	infoOut3.StrictValidate(t, user.InfoResponse{
 		NameFirst:       "",
 		NameLast:        "",
-		Type:            int(userModel.StatusRegistered),
+		Type:            int(userModel.TypeNormal),
 		ProfileImageURL: ipt3.PictureURL,
-		Status:          int(userModel.StatusNew),
 	})
 }

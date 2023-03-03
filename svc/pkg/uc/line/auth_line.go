@@ -85,8 +85,7 @@ func (uc AuthUseCase) Do(ipt AuthInput) (*AuthOutput, error) {
 		// Otherwise, respond with error
 		newID := id.UserID(identity.IssueID())
 		newUser := user.User{
-			ID:     newID,
-			Status: user.StatusNew,
+			ID: newID,
 			Line: user.Line{
 				LineServiceID:         lineServiceID,
 				LineProfilePictureURL: user.LineProfilePictureURL(profile.PictureURL),

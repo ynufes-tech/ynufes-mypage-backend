@@ -28,7 +28,6 @@ func (uh User) InfoHandler() gin.HandlerFunc {
 			NameLast:        u.Detail.Name.LastName,
 			Type:            int(u.Detail.Type),
 			ProfileImageURL: string(u.Line.LineProfilePictureURL),
-			Status:          int(u.Status),
 		}
 		j, err := json.Marshal(output)
 		if err != nil {
