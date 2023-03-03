@@ -30,9 +30,9 @@ func (w Org) Create(ctx context.Context, o *org.Org) error {
 		return exception.ErrIDAlreadyAssigned
 	}
 	newID := identity.IssueID()
-	usersE := make([]int64, len(o.Users))
+	usersE := make(map[string]bool, len(o.Users))
 	for i := range o.Users {
-		usersE[i] = o.Users[i].GetValue()
+		usersE[o.Users[i].ExportID()] = true
 	}
 	e := entity.Org{
 		EventID:   o.Event.ID.GetValue(),
@@ -54,9 +54,9 @@ func (w Org) Set(ctx context.Context, o org.Org) error {
 	if !o.ID.HasValue() {
 		return exception.ErrIDNotAssigned
 	}
-	usersE := make([]int64, len(o.Users))
+	usersE := make(map[string]bool, len(o.Users))
 	for i := range o.Users {
-		usersE[i] = o.Users[i].GetValue()
+		usersE[o.Users[i].ExportID()] = true
 	}
 	e := entity.Org{
 		EventID:   o.Event.ID.GetValue(),

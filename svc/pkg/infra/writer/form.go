@@ -25,14 +25,14 @@ func (f Form) Create(ctx context.Context, target *form.Form) error {
 		return exception.ErrIDAlreadyAssigned
 	}
 	tid := identity.IssueID()
-	sections := make([]int64, len(target.Sections))
+	sections := make(map[string]bool, len(target.Sections))
 	for i := range target.Sections {
-		sections[i] = target.Sections[i].GetValue()
+		sections[target.Sections[i].ExportID()] = true
 	}
 
-	var roles = make([]int64, len(target.Roles))
+	var roles = make(map[string]bool, len(target.Roles))
 	for i := 0; i < len(target.Roles); i++ {
-		roles[i] = target.Roles[i].GetValue()
+		roles[target.Roles[i].ExportID()] = true
 	}
 	e := entity.NewForm(
 		tid,
@@ -57,14 +57,14 @@ func (f Form) Set(ctx context.Context, target form.Form) error {
 	if !target.ID.HasValue() {
 		return exception.ErrIDNotAssigned
 	}
-	sections := make([]int64, len(target.Sections))
+	sections := make(map[string]bool, len(target.Sections))
 	for i := range target.Sections {
-		sections[i] = target.Sections[i].GetValue()
+		sections[target.Sections[i].ExportID()] = true
 	}
 
-	var roles = make([]int64, len(target.Roles))
+	var roles = make(map[string]bool, len(target.Roles))
 	for i := 0; i < len(target.Roles); i++ {
-		roles[i] = target.Roles[i].GetValue()
+		roles[target.Roles[i].ExportID()] = true
 	}
 	e := entity.NewForm(
 		target.ID,
