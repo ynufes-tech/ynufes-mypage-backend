@@ -59,7 +59,7 @@ func (uc RegisterUseCase) Do(ipt RegisterInput) (*RegisterOutput, error) {
 		}, nil
 	}
 	o.Users = append(o.Users, ipt.UserID)
-	if err := uc.orgC.UpdateUsers(ipt.Ctx, *o); err != nil {
+	if err := uc.orgC.UpdateUsers(ipt.Ctx, o.ID, o.Users); err != nil {
 		return nil, err
 	}
 	return &RegisterOutput{

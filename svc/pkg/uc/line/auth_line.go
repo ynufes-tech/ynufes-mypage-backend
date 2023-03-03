@@ -5,10 +5,8 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"log"
-	"ynufes-mypage-backend/pkg/identity"
 	linePkg "ynufes-mypage-backend/pkg/line"
 	"ynufes-mypage-backend/svc/pkg/domain/command"
-	"ynufes-mypage-backend/svc/pkg/domain/model/id"
 	"ynufes-mypage-backend/svc/pkg/domain/model/user"
 	"ynufes-mypage-backend/svc/pkg/domain/query"
 	"ynufes-mypage-backend/svc/pkg/domain/service/line"
@@ -83,9 +81,7 @@ func (uc AuthUseCase) Do(ipt AuthInput) (*AuthOutput, error) {
 	if err != nil {
 		// if error is "user not found", Create User and redirect to basic info form
 		// Otherwise, respond with error
-		newID := id.UserID(identity.IssueID())
 		newUser := user.User{
-			ID: newID,
 			Line: user.Line{
 				LineServiceID:         lineServiceID,
 				LineProfilePictureURL: user.LineProfilePictureURL(profile.PictureURL),
@@ -101,7 +97,7 @@ func (uc AuthUseCase) Do(ipt AuthInput) (*AuthOutput, error) {
 				Type:      user.TypeNormal,
 			},
 		}
-		if err = uc.userC.Create(ipt.Ctx, newUser); err != nil {
+		if err = uc.userC.Create(ipt.Ctx, &newUser); err != nil {
 			log.Printf("failed to create user: %v", err)
 			return nil, err
 		}
@@ -117,7 +113,7 @@ func (uc AuthUseCase) Do(ipt AuthInput) (*AuthOutput, error) {
 		EncryptedAccessToken:  aToken,
 		EncryptedRefreshToken: rToken,
 	}
-	if err := uc.userC.UpdateLine(ipt.Ctx, u, update); err != nil {
+	if err := uc.userC.SetLine(ipt.Ctx, u.ID, update); err != nil {
 		return nil, fmt.Errorf("failed to update line info: %v", err)
 	}
 	return &AuthOutput{

@@ -2,7 +2,6 @@ package event
 
 import (
 	"context"
-	"ynufes-mypage-backend/pkg/identity"
 	"ynufes-mypage-backend/svc/pkg/domain/command"
 	"ynufes-mypage-backend/svc/pkg/domain/model/event"
 	"ynufes-mypage-backend/svc/pkg/registry"
@@ -30,9 +29,8 @@ func NewCreate(rgst registry.Registry) *CreateUseCase {
 func (c CreateUseCase) Do(ipt CreateInput) (*CreateOutput, error) {
 	e := event.Event{
 		Name: ipt.EventName,
-		ID:   identity.IssueID(),
 	}
-	if err := c.eventC.Create(ipt.Ctx, e); err != nil {
+	if err := c.eventC.Create(ipt.Ctx, &e); err != nil {
 		return nil, err
 	}
 	return &CreateOutput{
