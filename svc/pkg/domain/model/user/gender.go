@@ -19,6 +19,8 @@ func NewGender(gender int) (Gender, error) {
 		return GenderWoman, nil
 	case GenderNotSpecified:
 		return GenderNotSpecified, nil
+	case GenderUnknown:
+		return GenderUnknown, nil
 	default:
 		return -1, errors.New("GENDER VALUE IS INVALID")
 	}

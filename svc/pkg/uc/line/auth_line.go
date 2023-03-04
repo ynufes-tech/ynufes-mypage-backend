@@ -92,7 +92,7 @@ func (uc AuthUseCase) Do(ipt AuthInput) (*AuthOutput, error) {
 			Detail: user.Detail{
 				Name:      user.Name{},
 				Email:     "",
-				Gender:    user.GenderNotSpecified,
+				Gender:    user.GenderUnknown,
 				StudentID: "",
 				Type:      user.TypeNormal,
 			},
