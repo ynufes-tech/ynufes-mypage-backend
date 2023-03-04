@@ -28,14 +28,14 @@ func NewEvent(f *firebase.Firebase) Event {
 }
 
 func (eve Event) Create(ctx context.Context, model *event.Event) error {
-	if model.ID.HasValue() {
+	if model.ID != nil && model.ID.HasValue() {
 		return exception.ErrIDAlreadyAssigned
 	}
 	newID := identity.IssueID()
 	e := entity.Event{
 		Name: model.Name,
 	}
-	err := eve.eventRef.Child(model.ID.ExportID()).Set(ctx, e)
+	err := eve.eventRef.Child(newID.ExportID()).Set(ctx, e)
 	if err != nil {
 		return err
 	}

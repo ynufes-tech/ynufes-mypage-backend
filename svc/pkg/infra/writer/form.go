@@ -21,7 +21,7 @@ func NewForm(f *firebase.Firebase) *Form {
 }
 
 func (f Form) Create(ctx context.Context, target *form.Form) error {
-	if target.ID.HasValue() {
+	if target.ID != nil && target.ID.HasValue() {
 		return exception.ErrIDAlreadyAssigned
 	}
 	tid := identity.IssueID()

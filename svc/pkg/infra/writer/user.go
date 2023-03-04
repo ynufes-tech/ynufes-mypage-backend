@@ -25,7 +25,7 @@ func NewUser(f *firebase.Firebase) User {
 
 // Create Note that new user will be created with no roles or authority.
 func (u User) Create(ctx context.Context, model *user.User) error {
-	if model.ID.HasValue() {
+	if model.ID != nil && model.ID.HasValue() {
 		return exception.ErrIDAlreadyAssigned
 	}
 	tid := identity.IssueID()
@@ -56,8 +56,7 @@ func (u User) Create(ctx context.Context, model *user.User) error {
 			Roles: []entity.Role{},
 		},
 	}
-	//NOTE: Create fails if the document already exists
-	err := u.ref.Child(model.ID.ExportID()).
+	err := u.ref.Child(tid.ExportID()).
 		Set(ctx, e)
 	if err != nil {
 		return err

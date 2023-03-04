@@ -43,7 +43,7 @@ func (b Basic) GetType() Type {
 }
 
 func (b *Basic) AssignID(id id.QuestionID) error {
-	if b.ID.HasValue() {
+	if b.ID != nil && b.ID.HasValue() {
 		return exception.ErrIDAlreadyAssigned
 	}
 	b.ID = id

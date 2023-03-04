@@ -26,7 +26,7 @@ func NewOrg(f *firebase.Firebase) Org {
 // Create new ID will be generated and assigned,
 // do not assign ID to the argument.
 func (w Org) Create(ctx context.Context, o *org.Org) error {
-	if o.ID.HasValue() {
+	if o.ID != nil && o.ID.HasValue() {
 		return exception.ErrIDAlreadyAssigned
 	}
 	newID := identity.IssueID()
@@ -41,7 +41,7 @@ func (w Org) Create(ctx context.Context, o *org.Org) error {
 		Users:     usersE,
 		IsOpen:    o.IsOpen,
 	}
-	if err := w.ref.Child(o.ID.ExportID()).
+	if err := w.ref.Child(newID.ExportID()).
 		Set(ctx, e); err != nil {
 		log.Printf("Failed to create org: %v", err)
 		return fmt.Errorf("failed to create org: %w", err)
