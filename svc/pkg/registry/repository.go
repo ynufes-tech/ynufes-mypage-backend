@@ -8,6 +8,8 @@ import (
 	"ynufes-mypage-backend/svc/pkg/infra/writer"
 )
 
+var repo Repository
+
 type Repository struct {
 	fb *firebase.Firebase
 }
