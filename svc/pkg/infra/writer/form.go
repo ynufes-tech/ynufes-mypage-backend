@@ -54,7 +54,7 @@ func (f Form) Create(ctx context.Context, target *form.Form) error {
 }
 
 func (f Form) Set(ctx context.Context, target form.Form) error {
-	if !target.ID.HasValue() {
+	if target.ID == nil || !target.ID.HasValue() {
 		return exception.ErrIDNotAssigned
 	}
 	sections := make(map[string]bool, len(target.Sections))

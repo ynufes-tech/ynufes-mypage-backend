@@ -66,7 +66,7 @@ func (u User) Create(ctx context.Context, model *user.User) error {
 }
 
 func (u User) Set(ctx context.Context, model user.User) error {
-	if !model.ID.HasValue() {
+	if model.ID == nil || !model.ID.HasValue() {
 		return exception.ErrIDNotAssigned
 	}
 	var t int64
@@ -157,7 +157,7 @@ func (u User) UpdateUserDetail(ctx context.Context, tID id.UserID, detail user.D
 }
 
 func (u User) SetAgent(ctx context.Context, tID id.UserID, newAgent user.Agent) error {
-	if !tID.HasValue() {
+	if tID == nil || !tID.HasValue() {
 		return exception.ErrIDNotAssigned
 	}
 	rs := make([]entity.Role, len(newAgent.Roles))
@@ -186,7 +186,7 @@ func (u User) SetAgent(ctx context.Context, tID id.UserID, newAgent user.Agent) 
 }
 
 func (u User) SetAdmin(ctx context.Context, tID id.UserID, admin user.Admin) error {
-	if !tID.HasValue() {
+	if tID == nil || !tID.HasValue() {
 		return exception.ErrIDNotAssigned
 	}
 	if err := u.ref.Child(tID.ExportID()).

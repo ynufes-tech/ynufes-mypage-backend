@@ -15,5 +15,5 @@ type (
 )
 
 func (u User) IsValid() bool {
-	return u.ID.HasValue() && u.Line.LineServiceID != ""
+	return u.ID != nil && u.ID.HasValue() && u.Line.LineServiceID != ""
 }

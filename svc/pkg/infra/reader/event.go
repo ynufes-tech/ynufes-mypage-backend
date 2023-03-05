@@ -22,7 +22,7 @@ func NewEvent(c *firebase.Firebase) Event {
 }
 
 func (e Event) GetByID(ctx context.Context, id id.EventID) (*event.Event, error) {
-	if !id.HasValue() {
+	if id == nil || !id.HasValue() {
 		return nil, exception.ErrIDNotAssigned
 	}
 	var eventEntity entity.Event
