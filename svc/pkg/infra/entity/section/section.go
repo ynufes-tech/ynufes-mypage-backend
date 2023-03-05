@@ -8,8 +8,10 @@ import (
 	"ynufes-mypage-backend/svc/pkg/domain/model/util"
 )
 
+const SectionRootName = "Sections"
+
 type Section struct {
-	ID int64 `json:"id"`
+	ID string `json:"-"`
 
 	// Questions map[QID]order
 	// One of the idea to manage order is to apply fractional indexing,
@@ -20,23 +22,23 @@ type Section struct {
 	// ConditionQuestion a question which determines next section based on its answer
 	// Only some of the questions can be condition questions. (e.g. radio, checkbox)
 	// If !ConditionQuestion.HasValue(), then proceed to next section
-	ConditionQuestion int64 `json:"c_question"`
+	ConditionQuestion string `json:"c_question"`
 
 	// ConditionCustoms map[OptionID]NextSectionID
-	ConditionCustoms map[string]int64 `json:"c_customs"`
+	ConditionCustoms map[string]string `json:"c_customs"`
 }
 
 func NewSection(
-	id int64,
-	qs map[string]int,
-	cq int64,
-	cc map[string]int64,
+	sectionID string,
+	questions map[string]int,
+	conditionQID string,
+	conditionCustoms map[string]string,
 ) Section {
 	return Section{
-		ID:                id,
-		Questions:         qs,
-		ConditionQuestion: cq,
-		ConditionCustoms:  cc,
+		ID:                sectionID,
+		Questions:         questions,
+		ConditionQuestion: conditionQID,
+		ConditionCustoms:  conditionCustoms,
 	}
 }
 
@@ -52,13 +54,27 @@ func (s Section) ToModel() (*section.Section, error) {
 		if err != nil {
 			return nil, err
 		}
-		conditionCustoms[i] = identity.NewID(v)
+		nextS, err := identity.ImportID(v)
+		if err != nil {
+			return nil, err
+		}
+		conditionCustoms[i] = nextS
+	}
+
+	sid, err := identity.ImportID(s.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	cid, err := identity.ImportID(s.ConditionQuestion)
+	if err != nil {
+		return nil, err
 	}
 
 	sec := section.NewSection(
-		identity.NewID(s.ID),
+		sid,
 		qs,
-		identity.NewID(s.ConditionQuestion),
+		cid,
 		conditionCustoms,
 	)
 	return &sec, nil
