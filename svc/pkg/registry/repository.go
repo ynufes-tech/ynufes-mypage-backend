@@ -69,3 +69,11 @@ func (repo Repository) NewRelationQuery() query.Relation {
 func (repo Repository) NewRelationCommand() command.Relation {
 	return writer.NewRelation(repo.fb)
 }
+
+func (repo Repository) NewSectionCommand() command.Section {
+	return writer.NewSection(repo.fb)
+}
+
+func (repo Repository) NewSectionQuery() query.Section {
+	return reader.NewSection(repo.fb)
+}
