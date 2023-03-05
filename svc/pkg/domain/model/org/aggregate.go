@@ -10,16 +10,6 @@ type (
 		ID     id.OrgID
 		Event  event.Event
 		Name   string
-		Users  []id.UserID
 		IsOpen bool
 	}
 )
-
-func (o Org) IsGranted(userID id.UserID) bool {
-	for _, u := range o.Users {
-		if u == userID {
-			return true
-		}
-	}
-	return false
-}
