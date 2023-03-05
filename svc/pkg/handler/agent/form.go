@@ -1,10 +1,12 @@
 package agent
 
 import (
+	"errors"
 	"github.com/gin-gonic/gin"
 	"time"
 	"ynufes-mypage-backend/pkg/identity"
 	"ynufes-mypage-backend/svc/pkg/domain/model/user"
+	"ynufes-mypage-backend/svc/pkg/exception"
 	"ynufes-mypage-backend/svc/pkg/handler/util"
 	"ynufes-mypage-backend/svc/pkg/registry"
 	"ynufes-mypage-backend/svc/pkg/schema/agent"
@@ -61,6 +63,12 @@ func (h Form) CreateHandler() gin.HandlerFunc {
 		}
 		opt, err := h.createUC.Do(ipt)
 		if err != nil {
+			if errors.Is(err, exception.ErrNotFound) {
+				c.AbortWithStatusJSON(404, gin.H{
+					"error": "event not found",
+				})
+				return
+			}
 			c.AbortWithStatusJSON(500,
 				gin.H{"error": "failed to create form"})
 			_ = c.Error(err)
