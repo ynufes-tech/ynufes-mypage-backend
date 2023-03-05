@@ -35,10 +35,9 @@ func (w Org) Create(ctx context.Context, o *org.Org) error {
 		usersE[o.Users[i].ExportID()] = true
 	}
 	e := entity.Org{
-		EventID:   o.Event.ID.GetValue(),
+		EventID:   o.Event.ID.ExportID(),
 		EventName: o.Event.Name,
 		Name:      o.Name,
-		Users:     usersE,
 		IsOpen:    o.IsOpen,
 	}
 	if err := w.ref.Child(newID.ExportID()).
@@ -59,10 +58,9 @@ func (w Org) Set(ctx context.Context, o org.Org) error {
 		usersE[o.Users[i].ExportID()] = true
 	}
 	e := entity.Org{
-		EventID:   o.Event.ID.GetValue(),
+		EventID:   o.Event.ID.ExportID(),
 		EventName: o.Event.Name,
 		Name:      o.Name,
-		Users:     usersE,
 		IsOpen:    o.IsOpen,
 	}
 	if err := w.ref.Child(o.ID.ExportID()).

@@ -13,7 +13,7 @@ const FormRootName = "Forms"
 type (
 	Form struct {
 		ID          id.FormID       `json:"-"`
-		EventID     int64           `json:"event_id"`
+		EventID     string          `json:"event_id"`
 		Title       string          `json:"title"`
 		Summary     string          `json:"summary"`
 		Description string          `json:"description"`
@@ -25,7 +25,7 @@ type (
 )
 
 func NewForm(
-	id id.FormID, eventID int64,
+	id id.FormID, eventID string,
 	title, summary, description string,
 	sections, roles map[string]bool,
 	deadline int64,
@@ -45,7 +45,11 @@ func NewForm(
 }
 
 func (f Form) ToModel() (*form.Form, error) {
-	eID := identity.NewID(f.EventID)
+	eID, err := identity.ImportID(f.EventID)
+
+	if err != nil {
+		return nil, err
+	}
 
 	sections := make([]id.SectionID, 0, len(f.Sections))
 	for k, v := range f.Sections {

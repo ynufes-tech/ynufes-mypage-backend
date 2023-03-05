@@ -36,7 +36,7 @@ func (f Form) Create(ctx context.Context, target *form.Form) error {
 	}
 	e := entity.NewForm(
 		tid,
-		target.EventID.GetValue(),
+		target.EventID.ExportID(),
 		target.Title,
 		target.Summary,
 		target.Description,
@@ -68,7 +68,7 @@ func (f Form) Set(ctx context.Context, target form.Form) error {
 	}
 	e := entity.NewForm(
 		target.ID,
-		target.EventID.GetValue(),
+		target.EventID.ExportID(),
 		target.Title,
 		target.Summary,
 		target.Description,
