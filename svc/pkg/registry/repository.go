@@ -16,9 +16,10 @@ type Repository struct {
 
 func NewRepository() (Repository, error) {
 	fb := firebase.New()
-	return Repository{
+	repo = Repository{
 		fb: &fb,
-	}, nil
+	}
+	return repo, nil
 }
 
 func (repo Repository) NewUserQuery() query.User {
