@@ -2,6 +2,7 @@ package org
 
 import (
 	"context"
+	"fmt"
 	"ynufes-mypage-backend/svc/pkg/domain/command"
 	"ynufes-mypage-backend/svc/pkg/domain/model/id"
 	"ynufes-mypage-backend/svc/pkg/domain/model/org"
@@ -35,7 +36,7 @@ func NewCreateOrg(rgst registry.Registry) CreateOrgUseCase {
 func (uc CreateOrgUseCase) Do(ipt CreateOrgInput) (*CreateOrgOutput, error) {
 	e, err := uc.eventQ.GetByID(ipt.Ctx, ipt.EventID)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to get event in CreateOrgUC: %w", err)
 	}
 	o := org.Org{
 		Event:  *e,

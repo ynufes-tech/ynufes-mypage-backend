@@ -3,7 +3,6 @@ package line
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"github.com/go-resty/resty/v2"
 	"io"
 	"log"
@@ -91,13 +90,11 @@ func (v AuthVerifier) RequestAccessToken(code string, state string) (*AccessToke
 		}).
 		SetHeader("Content-Type", "application/x-www-form-urlencoded").
 		SetResult(&credential)
-	fmt.Println(req)
-	resp, err := req.Post(accessTokenEndpoint)
+	_, err := req.Post(accessTokenEndpoint)
 	if err != nil {
 		log.Printf("Failed to request access token... %v", err)
 		return nil, err
 	}
-	fmt.Println(resp)
 	return credential, nil
 }
 
