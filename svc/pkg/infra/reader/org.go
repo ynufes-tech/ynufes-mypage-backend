@@ -31,29 +31,3 @@ func (o Org) GetByID(ctx context.Context, id id.OrgID) (*org.Org, error) {
 	}
 	return model, nil
 }
-
-func (o Org) ListByGrantedUserID(ctx context.Context, id id.UserID) ([]org.Org, error) {
-	hits, err := o.ref.OrderByChild("user_ids/" + id.ExportID()).
-		EqualTo(true).GetOrdered(ctx)
-	if err != nil {
-		return nil, err
-	}
-	orgs := make([]org.Org, len(hits))
-	for i := range hits {
-		var orgEntity entity.Org
-		if err := hits[i].Unmarshal(&orgEntity); err != nil {
-			return nil, err
-		}
-		oid, err := identity.ImportID(hits[i].Key())
-		if err != nil {
-			return nil, err
-		}
-		orgEntity.ID = oid
-		model, err := orgEntity.ToModel()
-		if err != nil {
-			return nil, err
-		}
-		orgs[i] = *model
-	}
-	return orgs, nil
-}
