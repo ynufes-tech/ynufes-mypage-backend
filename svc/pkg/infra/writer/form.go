@@ -45,7 +45,7 @@ func (f Form) Create(ctx context.Context, target *form.Form) error {
 		target.Deadline.UnixMilli(),
 		target.IsOpen,
 	)
-	err := f.ref.Child(target.ID.ExportID()).Set(ctx, e)
+	err := f.ref.Child(tid.ExportID()).Set(ctx, e)
 	if err != nil {
 		return err
 	}
