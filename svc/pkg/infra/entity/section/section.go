@@ -1,7 +1,6 @@
 package entity
 
 import (
-	"sort"
 	"ynufes-mypage-backend/pkg/identity"
 	"ynufes-mypage-backend/svc/pkg/domain/model/id"
 	"ynufes-mypage-backend/svc/pkg/domain/model/section"
@@ -81,51 +80,4 @@ func (s Section) ToModel() (*section.Section, error) {
 		conditionCustoms,
 	)
 	return &sec, nil
-}
-
-type question struct {
-	order int
-	id    id.QuestionID
-}
-
-type questions []question
-
-func sortQuestions(qs map[string]int) ([]id.QuestionID, error) {
-	q, err := newQuestions(qs)
-	if err != nil {
-		return nil, err
-	}
-	sort.Sort(q)
-	ids := make([]id.QuestionID, len(q))
-	for i := range q {
-		ids[i] = q[i].id
-	}
-	return ids, nil
-}
-
-func newQuestions(qs map[string]int) (questions, error) {
-	q := make(questions, 0, len(qs))
-	for k, v := range qs {
-		tid, err := identity.ImportID(k)
-		if err != nil {
-			return nil, err
-		}
-		q = append(q, question{
-			order: v,
-			id:    tid,
-		})
-	}
-	return q, nil
-}
-
-func (q questions) Len() int {
-	return len(q)
-}
-
-func (q questions) Less(i, j int) bool {
-	return q[i].order < q[j].order
-}
-
-func (q questions) Swap(i, j int) {
-	q[i], q[j] = q[j], q[i]
 }
