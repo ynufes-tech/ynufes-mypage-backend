@@ -43,7 +43,6 @@ func (u User) GetByID(ctx context.Context, id id.UserID) (*user.User, error) {
 		return nil, fmt.Errorf("failed to unmarshal user entity: %w", err)
 	}
 	userEntity.ID = id
-	fmt.Printf("userEntity: %+v\n", userEntity)
 	model, err := userEntity.ToModel()
 	if err != nil {
 		return nil, fmt.Errorf("failed to convert user entity to model: %w", err)

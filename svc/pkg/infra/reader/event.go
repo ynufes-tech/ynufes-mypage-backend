@@ -27,7 +27,7 @@ func (e Event) GetByID(ctx context.Context, id id.EventID) (*event.Event, error)
 	}
 	var eventEntity entity.Event
 
-	r, err := e.ref.OrderByKey().EqualTo(id.GetValue()).
+	r, err := e.ref.OrderByKey().EqualTo(id.ExportID()).
 		GetOrdered(ctx)
 	if err != nil {
 		return nil, err

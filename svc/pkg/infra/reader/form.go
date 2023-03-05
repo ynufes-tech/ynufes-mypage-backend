@@ -26,7 +26,7 @@ func (f Form) GetByID(ctx context.Context, id id.FormID) (*form.Form, error) {
 		return nil, exception.ErrIDNotAssigned
 	}
 	var e entity.Form
-	r, err := f.ref.OrderByKey().EqualTo(id.GetValue()).
+	r, err := f.ref.OrderByKey().EqualTo(id.ExportID()).
 		GetOrdered(ctx)
 	if err != nil {
 		return nil, err

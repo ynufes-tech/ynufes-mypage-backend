@@ -47,7 +47,7 @@ func (q Question) GetByID(ctx context.Context, id id.QuestionID) (*question.Ques
 
 func (q Question) ListByEventID(ctx context.Context, id id.EventID) ([]question.Question, error) {
 	var questions []question.Question
-	results, err := q.ref.OrderByChild("event_id").EqualTo(id.GetValue()).
+	results, err := q.ref.OrderByChild("event_id").EqualTo(id.ExportID()).
 		GetOrdered(ctx)
 	if err != nil {
 		return nil, err
@@ -70,7 +70,7 @@ func (q Question) ListByEventID(ctx context.Context, id id.EventID) ([]question.
 
 func (q Question) ListByFormID(ctx context.Context, id id.FormID) ([]question.Question, error) {
 	var questions []question.Question
-	results, err := q.ref.OrderByChild("form_id").EqualTo(id.GetValue()).
+	results, err := q.ref.OrderByChild("form_id").EqualTo(id.ExportID()).
 		GetOrdered(ctx)
 	if err != nil {
 		return nil, err
