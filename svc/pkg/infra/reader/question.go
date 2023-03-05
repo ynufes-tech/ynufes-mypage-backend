@@ -3,9 +3,11 @@ package reader
 import (
 	"context"
 	"firebase.google.com/go/v4/db"
+	"fmt"
 	"ynufes-mypage-backend/pkg/firebase"
 	"ynufes-mypage-backend/svc/pkg/domain/model/id"
 	"ynufes-mypage-backend/svc/pkg/domain/model/question"
+	"ynufes-mypage-backend/svc/pkg/exception"
 	entity "ynufes-mypage-backend/svc/pkg/infra/entity/question"
 )
 
@@ -21,8 +23,19 @@ func NewQuestion(f *firebase.Firebase) Question {
 
 func (q Question) GetByID(ctx context.Context, id id.QuestionID) (*question.Question, error) {
 	var questionEntity entity.Question
-	if err := q.ref.Child(id.ExportID()).Get(ctx, &questionEntity); err != nil {
+	r, err := q.ref.OrderByKey().
+		EqualTo(id.ExportID()).GetOrdered(ctx)
+	if err != nil {
 		return nil, err
+	}
+	if len(r) == 0 {
+		return nil, exception.ErrNotFound
+	}
+	if len(r) > 1 {
+		fmt.Printf("multiple question found with id: %s\n", id)
+	}
+	if err := r[0].Unmarshal(&questionEntity); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal question entity: %w", err)
 	}
 	questionEntity.ID = id
 	model, err := questionEntity.ToModel()

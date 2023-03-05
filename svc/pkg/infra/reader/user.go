@@ -28,15 +28,25 @@ func (u User) GetByID(ctx context.Context, id id.UserID) (*user.User, error) {
 	if !id.HasValue() {
 		return nil, exception.ErrIDNotAssigned
 	}
-	var userEntity entity.User
-	err := u.ref.Child(id.ExportID()).Get(ctx, &userEntity)
+	r, err := u.ref.OrderByKey().EqualTo(id.ExportID()).GetOrdered(ctx)
 	if err != nil {
 		return nil, err
 	}
+	if len(r) == 0 {
+		return nil, exception.ErrNotFound
+	}
+	if len(r) > 1 {
+		fmt.Printf("multiple user found with id: %s", id)
+	}
+	var userEntity entity.User
+	if err := r[0].Unmarshal(&userEntity); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal user entity: %w", err)
+	}
 	userEntity.ID = id
+	fmt.Printf("userEntity: %+v\n", userEntity)
 	model, err := userEntity.ToModel()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to convert user entity to model: %w", err)
 	}
 	return model, nil
 }

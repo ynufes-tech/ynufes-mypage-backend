@@ -3,10 +3,11 @@ package reader
 import (
 	"context"
 	"firebase.google.com/go/v4/db"
+	"fmt"
 	"ynufes-mypage-backend/pkg/firebase"
-	"ynufes-mypage-backend/pkg/identity"
 	"ynufes-mypage-backend/svc/pkg/domain/model/id"
 	"ynufes-mypage-backend/svc/pkg/domain/model/org"
+	"ynufes-mypage-backend/svc/pkg/exception"
 	entity "ynufes-mypage-backend/svc/pkg/infra/entity/org"
 )
 
@@ -20,14 +21,26 @@ func NewOrg(f *firebase.Firebase) Org {
 	}
 }
 
-func (o Org) GetByID(ctx context.Context, id id.OrgID) (*org.Org, error) {
+func (o Org) GetByID(ctx context.Context, oid id.OrgID) (*org.Org, error) {
 	var orgEntity entity.Org
-	oid := id.ExportID()
-	err := o.ref.Child(oid).Get(ctx, &orgEntity)
-	orgEntity.ID = id
-	model, err := orgEntity.ToModel()
+	r, err := o.ref.OrderByKey().
+		EqualTo(oid.ExportID()).GetOrdered(ctx)
 	if err != nil {
 		return nil, err
 	}
-	return model, nil
+	if len(r) == 0 {
+		return nil, exception.ErrNotFound
+	}
+	if len(r) > 1 {
+		fmt.Printf("multiple org found with id: %s\n", oid)
+	}
+	if err := r[0].Unmarshal(&orgEntity); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal org entity: %w", err)
+	}
+	orgEntity.ID = oid
+	m, err := orgEntity.ToModel()
+	if err != nil {
+		return nil, err
+	}
+	return m, nil
 }

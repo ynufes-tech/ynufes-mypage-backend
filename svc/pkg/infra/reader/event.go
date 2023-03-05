@@ -26,8 +26,20 @@ func (e Event) GetByID(ctx context.Context, id id.EventID) (*event.Event, error)
 		return nil, exception.ErrIDNotAssigned
 	}
 	var eventEntity entity.Event
-	if err := e.ref.Child(id.ExportID()).Get(ctx, &eventEntity); err != nil {
-		return nil, fmt.Errorf("failed to get event doc: %w", err)
+
+	r, err := e.ref.OrderByKey().EqualTo(id.GetValue()).
+		GetOrdered(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if len(r) == 0 {
+		return nil, exception.ErrNotFound
+	}
+	if len(r) > 1 {
+		fmt.Printf("multiple event found with id: %s", id)
+	}
+	if err := r[0].Unmarshal(&eventEntity); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal event entity: %w", err)
 	}
 	eventEntity.ID = id
 	model, err := eventEntity.ToModel()

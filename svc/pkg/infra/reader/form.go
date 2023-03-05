@@ -26,9 +26,19 @@ func (f Form) GetByID(ctx context.Context, id id.FormID) (*form.Form, error) {
 		return nil, exception.ErrIDNotAssigned
 	}
 	var e entity.Form
-	if err := f.ref.Child(id.ExportID()).
-		Get(ctx, &e); err != nil {
+	r, err := f.ref.OrderByKey().EqualTo(id.GetValue()).
+		GetOrdered(ctx)
+	if err != nil {
 		return nil, err
+	}
+	if len(r) == 0 {
+		return nil, exception.ErrNotFound
+	}
+	if len(r) > 1 {
+		fmt.Printf("multiple form found with id: %s", id)
+	}
+	if err := r[0].Unmarshal(&e); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal form entity: %w", err)
 	}
 	e.ID = id
 	m, err := e.ToModel()
@@ -47,6 +57,7 @@ func (f Form) ListByEventID(ctx context.Context, eventID id.EventID) ([]form.For
 	if err != nil {
 		return nil, err
 	}
+
 	forms := make([]form.Form, len(results))
 	for i, r := range results {
 		var e entity.Form
