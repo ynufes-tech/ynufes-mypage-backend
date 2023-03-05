@@ -10,4 +10,5 @@ var (
 	ErrInvalidRoleLevel  = errors.New("INVALID ROLE LEVEL")
 	ErrNotFound          = errors.New("NOT FOUND")
 	ErrUnauthorized      = errors.New("UNAUTHORIZED")
+	ErrNotAvailable      = errors.New("FORM NOT OPEN")
 )
