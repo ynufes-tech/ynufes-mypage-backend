@@ -9,4 +9,5 @@ var (
 	ErrIDNotAssigned     = errors.New("ID NOT ASSIGNED")
 	ErrInvalidRoleLevel  = errors.New("INVALID ROLE LEVEL")
 	ErrNotFound          = errors.New("NOT FOUND")
+	ErrUnauthorized      = errors.New("UNAUTHORIZED")
 )
