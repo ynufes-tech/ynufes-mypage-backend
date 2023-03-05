@@ -5,6 +5,7 @@ import (
 	"firebase.google.com/go/v4/db"
 	"fmt"
 	"ynufes-mypage-backend/pkg/firebase"
+	"ynufes-mypage-backend/pkg/identity"
 	"ynufes-mypage-backend/svc/pkg/domain/model/form"
 	"ynufes-mypage-backend/svc/pkg/domain/model/id"
 	"ynufes-mypage-backend/svc/pkg/exception"
@@ -52,7 +53,7 @@ func (f Form) ListByEventID(ctx context.Context, eventID id.EventID) ([]form.For
 	if !eventID.HasValue() {
 		return nil, exception.ErrIDNotAssigned
 	}
-	results, err := f.ref.OrderByChild("event_id").EqualTo(eventID.GetValue()).
+	results, err := f.ref.OrderByChild("event_id").EqualTo(eventID.ExportID()).
 		GetOrdered(ctx)
 	if err != nil {
 		return nil, err
@@ -64,6 +65,11 @@ func (f Form) ListByEventID(ctx context.Context, eventID id.EventID) ([]form.For
 		if err := r.Unmarshal(&e); err != nil {
 			return nil, err
 		}
+		fid, err := identity.ImportID(r.Key())
+		if err != nil {
+			return nil, err
+		}
+		e.ID = fid
 		m, err := e.ToModel()
 		if err != nil {
 			return nil, fmt.Errorf("failed to convert entity to model in ListByEventID: %w", err)
