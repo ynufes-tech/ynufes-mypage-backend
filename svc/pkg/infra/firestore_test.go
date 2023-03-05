@@ -2,9 +2,7 @@ package infra
 
 import (
 	"cloud.google.com/go/firestore"
-	"context"
 	"testing"
-	"ynufes-mypage-backend/pkg/testutil"
 )
 
 var client *firestore.Client
@@ -27,10 +25,10 @@ var client *firestore.Client
 //}
 
 func TestMain(m *testing.M) {
-	c, killer := testutil.NewFirestoreTestClient(context.Background())
-	client = c
-	if killer != nil {
-		defer killer()
-	}
-	m.Run()
+	//c, killer := testutil.NewFirestoreTestClient(context.Background())
+	//client = c
+	//if killer != nil {
+	//	defer killer()
+	//}
+	//m.Run()
 }
