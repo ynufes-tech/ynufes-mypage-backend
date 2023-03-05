@@ -1,11 +1,14 @@
 package org
 
 import (
+	"errors"
 	"github.com/gin-gonic/gin"
+	"log"
 	"time"
 	"ynufes-mypage-backend/pkg/identity"
 	"ynufes-mypage-backend/svc/pkg/domain/model/form"
 	"ynufes-mypage-backend/svc/pkg/domain/model/user"
+	"ynufes-mypage-backend/svc/pkg/exception"
 	"ynufes-mypage-backend/svc/pkg/handler/util"
 	"ynufes-mypage-backend/svc/pkg/registry"
 	schemaForm "ynufes-mypage-backend/svc/pkg/schema/form"
@@ -37,6 +40,7 @@ func (o Org) OrgsHandler() gin.HandlerFunc {
 		opt, err := o.orgsUC.Do(ipt)
 		if err != nil {
 			context.JSON(500, gin.H{"error": err.Error()})
+			log.Printf("error in OrgHandler: %v", err)
 			return
 		}
 		orgs := make([]schemaOrg.Org, len(opt.Orgs))
@@ -75,6 +79,11 @@ func (o Org) OrgRegisterHandler() gin.HandlerFunc {
 		}
 		opt, err := o.registerUC.Do(ipt)
 		if err != nil {
+			if errors.Is(err, exception.ErrNotFound) {
+				ctx.AbortWithStatusJSON(404, gin.H{"error": "org not found"})
+				return
+			}
+			log.Printf("error in OrgRegisterHandler: %v\n", err)
 			_ = ctx.AbortWithError(500, err)
 			return
 		}
@@ -106,6 +115,11 @@ func (o Org) OrgHandler() gin.HandlerFunc {
 		}
 		opt, err := o.orgUC.Do(ipt)
 		if err != nil {
+			if errors.Is(err, exception.ErrNotFound) {
+				ctx.AbortWithStatusJSON(404, gin.H{"error": "org not found"})
+				return
+			}
+			log.Printf("error in OrgHandler: %v\n", err)
 			_ = ctx.AbortWithError(500, err)
 			return
 		}
