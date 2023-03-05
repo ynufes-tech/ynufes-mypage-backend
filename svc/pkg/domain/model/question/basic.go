@@ -6,11 +6,12 @@ import (
 )
 
 type Basic struct {
-	ID      id.QuestionID
-	Text    string
-	EventID id.EventID
-	FormID  id.FormID
-	qType   Type
+	ID        id.QuestionID
+	Text      string
+	EventID   id.EventID
+	FormID    id.FormID
+	SectionID id.SectionID
+	qType     Type
 }
 
 func NewBasic(id id.QuestionID, text string, eventID id.EventID, qType Type) Basic {

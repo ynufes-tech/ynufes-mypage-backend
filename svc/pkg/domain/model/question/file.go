@@ -90,5 +90,5 @@ func (q FileQuestion) Export() StandardQuestion {
 	if q.Constraint != nil {
 		customs[FileConstraintsCustomsField] = q.Constraint.Export().Customs
 	}
-	return NewStandardQuestion(TypeFile, q.ID, q.EventID, q.FormID, q.Text, customs)
+	return NewStandardQuestion(TypeFile, q.ID, q.EventID, q.FormID, q.SectionID, q.Text, customs)
 }

@@ -18,12 +18,13 @@ type (
 	}
 
 	StandardQuestion struct {
-		ID      id.QuestionID
-		Text    string
-		EventID id.EventID
-		FormID  id.FormID
-		Type    Type
-		Customs map[string]interface{}
+		ID        id.QuestionID
+		Text      string
+		EventID   id.EventID
+		FormID    id.FormID
+		SectionID id.SectionID
+		Type      Type
+		Customs   map[string]interface{}
 	}
 )
 
@@ -34,15 +35,16 @@ const (
 )
 
 func NewStandardQuestion(t Type, id id.QuestionID,
-	eventID id.EventID, formID id.FormID,
+	eventID id.EventID, formID id.FormID, sectionID id.SectionID,
 	text string, customs map[string]interface{}) StandardQuestion {
 	return StandardQuestion{
-		ID:      id,
-		Text:    text,
-		EventID: eventID,
-		FormID:  formID,
-		Type:    t,
-		Customs: customs,
+		ID:        id,
+		Text:      text,
+		EventID:   eventID,
+		FormID:    formID,
+		SectionID: sectionID,
+		Type:      t,
+		Customs:   customs,
 	}
 }
 

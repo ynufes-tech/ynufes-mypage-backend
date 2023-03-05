@@ -91,5 +91,5 @@ func (q RadioButtonsQuestion) Export() StandardQuestion {
 	customs[RadioButtonOptionsField] = options
 	customs[RadioButtonOptionsOrderField] = optionsOrder
 
-	return NewStandardQuestion(TypeRadio, q.ID, q.EventID, q.FormID, q.Text, customs)
+	return NewStandardQuestion(TypeRadio, q.ID, q.EventID, q.FormID, q.SectionID, q.Text, customs)
 }
