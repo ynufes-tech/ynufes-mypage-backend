@@ -42,7 +42,7 @@ func (r Relation) ListUserIDsByOrgID(ctx context.Context, orgID id.OrgID) ([]id.
 	return userIDs, nil
 }
 
-func (r Relation) ListOrgIDsByUserID(ctx context.Context, userID id.UserID) ([]id.OrgID, error) {
+func (r Relation) ListOrgIDsByUserID(ctx context.Context, userID id.UserID) (id.OrgIDs, error) {
 	qs, err := r.orgUserRef.OrderByChild("user_id").
 		EqualTo(userID.ExportID()).
 		GetOrdered(ctx)

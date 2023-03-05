@@ -7,5 +7,5 @@ import (
 
 type Relation interface {
 	ListUserIDsByOrgID(ctx context.Context, orgID id.OrgID) ([]id.UserID, error)
-	ListOrgIDsByUserID(ctx context.Context, userID id.UserID) ([]id.OrgID, error)
+	ListOrgIDsByUserID(ctx context.Context, userID id.UserID) (id.OrgIDs, error)
 }
