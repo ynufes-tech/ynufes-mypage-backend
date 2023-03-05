@@ -17,7 +17,7 @@ infrastructure:
     project_id: "ynufes-mypage"
     json_credential_file: "TESTING"
   firebase:
-    database_url: "https://databaseName.firebaseio.com"
+    database_url: "http://localhost:9000"
     json_credential_file: "ynufes-mypage-xxxxxxxxxxxx.json"
 third_party:
   line_login:
