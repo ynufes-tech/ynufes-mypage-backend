@@ -11,7 +11,9 @@ import (
 const SectionRootName = "Sections"
 
 type Section struct {
-	ID string `json:"-"`
+	ID id.SectionID `json:"-"`
+
+	FormID id.FormID `json:"form_id"`
 
 	// Questions map[QID]order
 	// Order of questions are managed by fractional indexing.
@@ -28,13 +30,15 @@ type Section struct {
 }
 
 func NewSection(
-	sectionID string,
+	sectionID id.SectionID,
+	formID id.FormID,
 	questions map[string]float64,
 	conditionQID string,
 	conditionCustoms map[string]string,
 ) Section {
 	return Section{
 		ID:                sectionID,
+		FormID:            formID,
 		Questions:         questions,
 		ConditionQuestion: conditionQID,
 		ConditionCustoms:  conditionCustoms,
@@ -64,18 +68,14 @@ func (s Section) ToModel() (*section.Section, error) {
 		conditionCustoms[i] = nextS
 	}
 
-	sid, err := identity.ImportID(s.ID)
-	if err != nil {
-		return nil, err
-	}
-
 	cid, err := identity.ImportID(s.ConditionQuestion)
 	if err != nil {
 		return nil, err
 	}
 
 	sec := section.NewSection(
-		sid,
+		s.ID,
+		s.FormID,
 		qs,
 		cid,
 		conditionCustoms,
