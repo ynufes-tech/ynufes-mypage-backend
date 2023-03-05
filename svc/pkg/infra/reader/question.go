@@ -85,3 +85,25 @@ func (q Question) ListByFormID(ctx context.Context, id id.FormID) ([]question.Qu
 	}
 	return qs, nil
 }
+
+func (q Question) ListBySectionID(ctx context.Context, id id.SectionID) ([]question.Question, error) {
+	results, err := q.ref.OrderByChild("section_id").EqualTo(id.ExportID()).
+		GetOrdered(ctx)
+	if err != nil {
+		return nil, err
+	}
+	qs := make([]question.Question, len(results))
+	for i := range results {
+		var questionEntity entity.Question
+		if err := results[i].Unmarshal(&questionEntity); err != nil {
+			return nil, err
+		}
+		questionEntity.ID = id
+		model, err := questionEntity.ToModel()
+		if err != nil {
+			return nil, err
+		}
+		qs[i] = model
+	}
+	return qs, nil
+}
