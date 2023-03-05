@@ -58,3 +58,11 @@ func (repo Repository) NewQuestionQuery() query.Question {
 func (repo Repository) NewQuestionCommand() command.Question {
 	return writer.NewQuestion(repo.fb)
 }
+
+func (repo Repository) NewRelationQuery() query.Relation {
+	return reader.NewRelation(repo.fb)
+}
+
+func (repo Repository) NewRelationCommand() command.Relation {
+	return writer.NewRelation(repo.fb)
+}
