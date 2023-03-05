@@ -31,8 +31,8 @@ func (w Question) Create(ctx context.Context, q *question.Question) error {
 	}
 	e := entity.NewQuestion(
 		(*q).GetID(),
-		((*q).GetEventID()).GetValue(),
-		(*q).GetFormID().GetValue(),
+		((*q).GetEventID()).ExportID(),
+		(*q).GetFormID().ExportID(),
 		(*q).GetText(),
 		int((*q).GetType()),
 		(*q).Export().Customs,
@@ -64,8 +64,8 @@ func (w Question) Set(ctx context.Context, q question.Question) error {
 	}
 	e := entity.NewQuestion(
 		q.GetID(),
-		(q.GetEventID()).GetValue(),
-		q.GetFormID().GetValue(),
+		(q.GetEventID()).ExportID(),
+		q.GetFormID().ExportID(),
 		q.GetText(),
 		int(q.GetType()),
 		q.Export().Customs,

@@ -109,5 +109,5 @@ func (q CheckBoxQuestion) Export() StandardQuestion {
 	}
 	customs[CheckBoxOptionsField] = options
 	customs[CheckBoxOptionsOrderField] = optionsOrder
-	return NewStandardQuestion(TypeCheckBox, q.ID, q.Basic.EventID, q.Text, customs)
+	return NewStandardQuestion(TypeCheckBox, q.ID, q.Basic.EventID, q.FormID, q.Text, customs)
 }

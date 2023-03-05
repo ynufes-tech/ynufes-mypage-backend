@@ -10,8 +10,8 @@ const QuestionRootName = "Questions"
 
 type Question struct {
 	ID      id.QuestionID          `json:"-"`
-	EventID int64                  `json:"event_id"`
-	FormID  int64                  `json:"form_id"`
+	EventID string                 `json:"event_id"`
+	FormID  string                 `json:"form_id"`
 	Text    string                 `json:"text"`
 	Type    int                    `json:"type"`
 	Customs map[string]interface{} `json:"customs"`
@@ -19,7 +19,7 @@ type Question struct {
 
 func NewQuestion(
 	id id.QuestionID,
-	eventID, formID int64,
+	eventID, formID string,
 	text string,
 	qType int,
 	customs map[string]interface{},
@@ -35,10 +35,19 @@ func NewQuestion(
 }
 
 func (q Question) ToModel() (question.Question, error) {
+	eid, err := identity.ImportID(q.EventID)
+	if err != nil {
+		return nil, err
+	}
+	fid, err := identity.ImportID(q.FormID)
+	if err != nil {
+		return nil, err
+	}
 	sq := question.NewStandardQuestion(
 		question.Type(q.Type),
 		q.ID,
-		identity.NewID(q.EventID),
+		eid,
+		fid,
 		q.Text,
 		q.Customs,
 	)

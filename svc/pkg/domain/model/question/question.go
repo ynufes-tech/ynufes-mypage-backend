@@ -21,6 +21,7 @@ type (
 		ID      id.QuestionID
 		Text    string
 		EventID id.EventID
+		FormID  id.FormID
 		Type    Type
 		Customs map[string]interface{}
 	}
@@ -33,11 +34,13 @@ const (
 )
 
 func NewStandardQuestion(t Type, id id.QuestionID,
-	eventID id.EventID, text string, customs map[string]interface{}) StandardQuestion {
+	eventID id.EventID, formID id.FormID,
+	text string, customs map[string]interface{}) StandardQuestion {
 	return StandardQuestion{
 		ID:      id,
 		Text:    text,
 		EventID: eventID,
+		FormID:  formID,
 		Type:    t,
 		Customs: customs,
 	}
