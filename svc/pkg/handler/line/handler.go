@@ -9,7 +9,6 @@ import (
 	"ynufes-mypage-backend/pkg/setting"
 	"ynufes-mypage-backend/svc/pkg/config"
 	"ynufes-mypage-backend/svc/pkg/domain/command"
-	"ynufes-mypage-backend/svc/pkg/domain/model/user"
 	"ynufes-mypage-backend/svc/pkg/domain/query"
 	lineDomain "ynufes-mypage-backend/svc/pkg/domain/service/line"
 	"ynufes-mypage-backend/svc/pkg/registry"
@@ -77,14 +76,14 @@ func (a LineAuth) VerificationHandler() gin.HandlerFunc {
 			return
 		}
 		if a.serverConf.OnProduction {
-			if authOut.UserInfo.Status == user.StatusNew {
+			if !authOut.UserInfo.Detail.MeetsBasicRequirement() {
 				c.Redirect(302, "/welcome")
 				return
 			}
 			c.Redirect(302, "/")
 		} else {
 			front := a.serverConf.Frontend
-			if authOut.UserInfo.Status == user.StatusNew {
+			if !authOut.UserInfo.Detail.MeetsBasicRequirement() {
 				c.Redirect(302,
 					fmt.Sprintf("%s%s%s/welcome", front.Protocol, front.Domain, front.Port))
 				return

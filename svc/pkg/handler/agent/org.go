@@ -2,6 +2,7 @@ package agent
 
 import (
 	"github.com/gin-gonic/gin"
+	"log"
 	"strconv"
 	"time"
 	"ynufes-mypage-backend/pkg/identity"
@@ -49,6 +50,7 @@ func (o Org) CreateHandler() gin.HandlerFunc {
 		}
 		opt, err := o.createOrgUC.Do(ipt)
 		if err != nil {
+			log.Printf("failed to create org in CreateOrgHandler: %v", err)
 			c.AbortWithStatusJSON(500, gin.H{"error": "failed to create org"})
 			return
 		}

@@ -3,19 +3,18 @@ package entity
 import (
 	"time"
 	"ynufes-mypage-backend/pkg/identity"
+	"ynufes-mypage-backend/svc/pkg/domain/model/id"
 	"ynufes-mypage-backend/svc/pkg/domain/model/user"
 )
 
-const UserCollectionName = "Users"
+const UserRootName = "Users"
 
 type User struct {
-	// ignore id from firestore
-	ID     user.ID `firestore:"-"`
-	Status int     `firestore:"status"`
-	UserDetail
-	Line
-	Admin
-	Agent
+	ID         id.UserID `json:"-"`
+	UserDetail `json:"detail"`
+	Line       `json:"line"`
+	Admin      `json:"admin"`
+	Agent      `json:"agent"`
 }
 
 func (u User) ToModel() (*user.User, error) {
@@ -44,9 +43,12 @@ func (u User) ToModel() (*user.User, error) {
 		t := time.UnixMilli(u.GrantedTime)
 		adminGrantedTime = &t
 	}
+	ty, err := user.NewType(u.UserDetail.Type)
+	if err != nil {
+		return nil, err
+	}
 	return &user.User{
-		ID:     u.ID,
-		Status: user.Status(u.Status),
+		ID: u.ID,
 		Detail: user.Detail{
 			Name: user.Name{
 				FirstName:     u.NameFirst,
@@ -58,7 +60,7 @@ func (u User) ToModel() (*user.User, error) {
 			Gender: gender,
 			// TODO: add validation for StudentID, Type
 			StudentID: user.StudentID(u.StudentID),
-			Type:      user.Type(u.Type),
+			Type:      ty,
 		},
 		Line: user.Line{
 			LineServiceID:         user.LineServiceID(u.LineServiceID),

@@ -4,12 +4,13 @@ import (
 	"context"
 	"errors"
 	"ynufes-mypage-backend/svc/pkg/domain/model/event"
+	"ynufes-mypage-backend/svc/pkg/domain/model/id"
 	"ynufes-mypage-backend/svc/pkg/domain/query"
 	"ynufes-mypage-backend/svc/pkg/registry"
 )
 
 type InfoUseCaseInput struct {
-	ID event.ID
+	ID id.EventID
 }
 
 type InfoUseCaseOutput struct {

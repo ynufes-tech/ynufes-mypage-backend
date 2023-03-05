@@ -2,15 +2,16 @@ package command
 
 import (
 	"context"
+	"ynufes-mypage-backend/svc/pkg/domain/model/id"
 	"ynufes-mypage-backend/svc/pkg/domain/model/user"
 )
 
 type User interface {
-	Create(context.Context, user.User) error
-	UpdateLine(ctx context.Context, oldUser *user.User, update user.Line) error
-	UpdateUserDetail(ctx context.Context, oldUser *user.User, update user.Detail) error
-	UpdateAgent(ctx context.Context, oldUser *user.User, update user.Agent) error
-	UpdateAdmin(ctx context.Context, oldUser *user.User, update user.Admin) error
-	UpdateAll(context.Context, user.User) error
+	Create(context.Context, *user.User) error
+	Set(context.Context, user.User) error
+	SetLine(context.Context, id.UserID, user.Line) error
+	UpdateUserDetail(context.Context, id.UserID, user.Detail) error
+	SetAgent(context.Context, id.UserID, user.Agent) error
+	SetAdmin(context.Context, id.UserID, user.Admin) error
 	Delete(context.Context, user.User) error
 }

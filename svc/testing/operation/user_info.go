@@ -47,5 +47,4 @@ func (o UserInfoOutput) StrictValidate(t *testing.T, suppose user.InfoResponse) 
 	assert.Equal(t, suppose.NameLast, o.Response.NameLast)
 	assert.Equal(t, suppose.Type, o.Response.Type)
 	assert.Equal(t, suppose.ProfileImageURL, o.Response.ProfileImageURL)
-	assert.Equal(t, suppose.Status, o.Response.Status)
 }

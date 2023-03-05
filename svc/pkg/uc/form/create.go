@@ -3,10 +3,9 @@ package form
 import (
 	"context"
 	"time"
-	"ynufes-mypage-backend/pkg/identity"
 	"ynufes-mypage-backend/svc/pkg/domain/command"
-	"ynufes-mypage-backend/svc/pkg/domain/model/event"
 	"ynufes-mypage-backend/svc/pkg/domain/model/form"
+	"ynufes-mypage-backend/svc/pkg/domain/model/id"
 	"ynufes-mypage-backend/svc/pkg/domain/model/user"
 	"ynufes-mypage-backend/svc/pkg/domain/query"
 	"ynufes-mypage-backend/svc/pkg/registry"
@@ -20,7 +19,7 @@ type CreateUseCase struct {
 type CreateInput struct {
 	Ctx         context.Context
 	User        user.User
-	EventID     event.ID
+	EventID     id.EventID
 	Title       string
 	Summary     string
 	Description string
@@ -28,7 +27,7 @@ type CreateInput struct {
 }
 
 type CreateOutput struct {
-	FormID form.ID
+	FormID id.FormID
 }
 
 func NewCreate(rgst registry.Registry) *CreateUseCase {
@@ -44,23 +43,21 @@ func (uc CreateUseCase) Do(ipt CreateInput) (*CreateOutput, error) {
 		return nil, err
 	}
 	// TODO: check if the agent has appropriate role.
-
-	formID := identity.IssueID()
+	newForm := form.Form{
+		EventID:     ipt.EventID,
+		Title:       ipt.Title,
+		Summary:     ipt.Summary,
+		Description: ipt.Description,
+		// TODO: add roles
+		Roles:    nil,
+		Deadline: ipt.Deadline,
+		IsOpen:   false,
+	}
 	if err := uc.formC.Create(ipt.Ctx,
-		form.Form{
-			ID:          formID,
-			EventID:     ipt.EventID,
-			Title:       ipt.Title,
-			Summary:     ipt.Summary,
-			Description: ipt.Description,
-			// TODO: add roles
-			Roles:    nil,
-			Deadline: ipt.Deadline,
-			IsOpen:   false,
-		}); err != nil {
+		&newForm); err != nil {
 		return nil, err
 	}
 	return &CreateOutput{
-		FormID: formID,
+		FormID: newForm.ID,
 	}, nil
 }

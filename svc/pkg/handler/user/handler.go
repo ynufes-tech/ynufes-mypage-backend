@@ -28,7 +28,6 @@ func (uh User) InfoHandler() gin.HandlerFunc {
 			NameLast:        u.Detail.Name.LastName,
 			Type:            int(u.Detail.Type),
 			ProfileImageURL: string(u.Line.LineProfilePictureURL),
-			Status:          int(u.Status),
 		}
 		j, err := json.Marshal(output)
 		if err != nil {
@@ -48,16 +47,14 @@ func (uh User) InfoUpdateHandler() gin.HandlerFunc {
 			c.AbortWithStatusJSON(400, gin.H{"status": false, "message": err.Error()})
 			return
 		}
-		newDetail := u.Detail
-		err := req.ApplyToDetail(&newDetail)
+		err := req.ApplyToDetail(&u.Detail)
 		if err != nil {
 			c.AbortWithStatusJSON(400, gin.H{"status": false, "message": err.Error()})
 			return
 		}
 		out, err := uh.infoUpdateUC.Do(uc.UserInfoUpdateInput{
-			Ctx:       c,
-			OldUser:   &u,
-			NewDetail: newDetail,
+			Ctx:     c,
+			NewUser: u,
 		})
 		if err != nil {
 			c.AbortWithStatusJSON(500, gin.H{"status": false, "message": err.Error()})

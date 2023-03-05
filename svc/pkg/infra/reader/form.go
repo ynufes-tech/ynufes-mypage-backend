@@ -1,36 +1,47 @@
 package reader
 
 import (
-	"cloud.google.com/go/firestore"
 	"context"
+	"firebase.google.com/go/v4/db"
 	"fmt"
-	"google.golang.org/api/iterator"
-	"ynufes-mypage-backend/svc/pkg/domain/model/event"
+	"ynufes-mypage-backend/pkg/firebase"
+	"ynufes-mypage-backend/pkg/identity"
 	"ynufes-mypage-backend/svc/pkg/domain/model/form"
+	"ynufes-mypage-backend/svc/pkg/domain/model/id"
+	"ynufes-mypage-backend/svc/pkg/exception"
 	entity "ynufes-mypage-backend/svc/pkg/infra/entity/form"
 )
 
 type Form struct {
-	collection *firestore.CollectionRef
+	ref *db.Ref
 }
 
-func NewForm(client *firestore.Client) *Form {
+func NewForm(client *firebase.Firebase) *Form {
 	return &Form{
-		collection: client.Collection(entity.FormCollectionName),
+		ref: client.Client(entity.FormRootName),
 	}
 }
 
-func (f Form) GetByID(ctx context.Context, id form.ID) (*form.Form, error) {
-	snap, err := f.collection.Doc(id.ExportID()).Get(ctx)
-	if err != nil {
-		return nil, err
+func (f Form) GetByID(ctx context.Context, id id.FormID) (*form.Form, error) {
+	if !id.HasValue() {
+		return nil, exception.ErrIDNotAssigned
 	}
 	var e entity.Form
-	err = snap.DataTo(&e)
+	r, err := f.ref.OrderByKey().EqualTo(id.ExportID()).
+		GetOrdered(ctx)
 	if err != nil {
 		return nil, err
 	}
-	e.ID = snap.Ref.ID
+	if len(r) == 0 {
+		return nil, exception.ErrNotFound
+	}
+	if len(r) > 1 {
+		fmt.Printf("multiple form found with id: %s", id)
+	}
+	if err := r[0].Unmarshal(&e); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal form entity: %w", err)
+	}
+	e.ID = id
 	m, err := e.ToModel()
 	if err != nil {
 		return nil, err
@@ -38,28 +49,32 @@ func (f Form) GetByID(ctx context.Context, id form.ID) (*form.Form, error) {
 	return m, nil
 }
 
-func (f Form) ListByEventID(ctx context.Context, eventID event.ID) ([]form.Form, error) {
-	iter := f.collection.Where("event_id", "==", eventID.GetValue()).Documents(ctx)
-	var forms []form.Form
-	for {
-		doc, err := iter.Next()
-		if err != nil {
-			if err == iterator.Done {
-				break
-			}
+func (f Form) ListByEventID(ctx context.Context, eventID id.EventID) ([]form.Form, error) {
+	if !eventID.HasValue() {
+		return nil, exception.ErrIDNotAssigned
+	}
+	results, err := f.ref.OrderByChild("event_id").EqualTo(eventID.ExportID()).
+		GetOrdered(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	forms := make([]form.Form, len(results))
+	for i, r := range results {
+		var e entity.Form
+		if err := r.Unmarshal(&e); err != nil {
 			return nil, err
 		}
-		var e entity.Form
-		err = doc.DataTo(&e)
+		fid, err := identity.ImportID(r.Key())
 		if err != nil {
-			return nil, fmt.Errorf("failed to decode snap into entity.Form in ListByEventID: %w", err)
+			return nil, err
 		}
-		e.ID = doc.Ref.ID
+		e.ID = fid
 		m, err := e.ToModel()
 		if err != nil {
 			return nil, fmt.Errorf("failed to convert entity to model in ListByEventID: %w", err)
 		}
-		forms = append(forms, *m)
+		forms[i] = *m
 	}
 	return forms, nil
 }

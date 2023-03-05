@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"ynufes-mypage-backend/pkg/identity"
-	"ynufes-mypage-backend/svc/pkg/domain/model/event"
+	"ynufes-mypage-backend/svc/pkg/domain/model/id"
 	"ynufes-mypage-backend/svc/pkg/domain/model/util"
 )
 
@@ -27,7 +27,7 @@ const (
 )
 
 func NewRadioButtonsQuestion(
-	id ID, text string, eventID event.ID, options []RadioButtonOption, order []RadioButtonOptionID,
+	id id.QuestionID, text string, eventID id.EventID, options []RadioButtonOption, order []RadioButtonOptionID,
 ) *RadioButtonsQuestion {
 	return &RadioButtonsQuestion{
 		Basic:        NewBasic(id, text, eventID, TypeRadio),

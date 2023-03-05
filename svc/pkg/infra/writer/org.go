@@ -1,89 +1,73 @@
 package writer
 
 import (
-	"cloud.google.com/go/firestore"
 	"context"
+	"firebase.google.com/go/v4/db"
 	"fmt"
 	"log"
+	"ynufes-mypage-backend/pkg/firebase"
+	"ynufes-mypage-backend/pkg/identity"
+	"ynufes-mypage-backend/svc/pkg/domain/model/id"
 	"ynufes-mypage-backend/svc/pkg/domain/model/org"
 	"ynufes-mypage-backend/svc/pkg/exception"
 	entity "ynufes-mypage-backend/svc/pkg/infra/entity/org"
 )
 
 type Org struct {
-	collection *firestore.CollectionRef
+	ref *db.Ref
 }
 
-func NewOrg(c *firestore.Client) Org {
+func NewOrg(f *firebase.Firebase) Org {
 	return Org{
-		collection: c.Collection(entity.OrgCollectionName),
+		ref: f.Client(entity.OrgRootName),
 	}
 }
 
-func (o Org) Create(ctx context.Context, org org.Org) error {
-	if !org.ID.HasValue() {
-		return exception.ErrIDNotAssigned
+// Create new ID will be generated and assigned,
+// do not assign ID to the argument.
+func (w Org) Create(ctx context.Context, o *org.Org) error {
+	if o.ID != nil && o.ID.HasValue() {
+		return exception.ErrIDAlreadyAssigned
 	}
-	usersE := make([]int64, len(org.Users))
-	for i := range org.Users {
-		usersE[i] = org.Users[i].GetValue()
-	}
+	newID := identity.IssueID()
 	e := entity.Org{
-		EventID:   org.Event.ID.GetValue(),
-		EventName: org.Event.Name,
-		Name:      org.Name,
-		Users:     usersE,
-		IsOpen:    org.IsOpen,
+		EventID:   o.Event.ID.ExportID(),
+		EventName: o.Event.Name,
+		Name:      o.Name,
+		IsOpen:    o.IsOpen,
 	}
-	if _, err := o.collection.Doc(org.ID.ExportID()).Create(ctx, e); err != nil {
+	if err := w.ref.Child(newID.ExportID()).
+		Set(ctx, e); err != nil {
 		log.Printf("Failed to create org: %v", err)
 		return fmt.Errorf("failed to create org: %w", err)
 	}
+	o.ID = newID
 	return nil
 }
 
-func (o Org) Set(ctx context.Context, org org.Org) error {
-	usersE := make([]int64, len(org.Users))
+func (w Org) Set(ctx context.Context, o org.Org) error {
+	if !o.ID.HasValue() {
+		return exception.ErrIDNotAssigned
+	}
 	e := entity.Org{
-		EventID:   org.Event.ID.GetValue(),
-		EventName: org.Event.Name,
-		Name:      org.Name,
-		Users:     usersE,
-		IsOpen:    org.IsOpen,
+		EventID:   o.Event.ID.ExportID(),
+		EventName: o.Event.Name,
+		Name:      o.Name,
+		IsOpen:    o.IsOpen,
 	}
-	for i := range org.Users {
-		usersE[i] = org.Users[i].GetValue()
-	}
-	_, err := o.collection.Doc(org.ID.ExportID()).Set(ctx, e)
-	if err != nil {
+	if err := w.ref.Child(o.ID.ExportID()).
+		Set(ctx, e); err != nil {
 		log.Printf("Failed to update org: %v", err)
 		return fmt.Errorf("failed to update org: %w", err)
 	}
 	return nil
 }
 
-func (o Org) UpdateUsers(ctx context.Context, org org.Org) error {
-	usersE := make([]int64, len(org.Users))
-	for i := range org.Users {
-		usersE[i] = org.Users[i].GetValue()
-	}
-	_, err := o.collection.Doc(org.ID.ExportID()).Update(ctx,
-		[]firestore.Update{
-			{Path: "user_ids", Value: usersE},
-		})
-	if err != nil {
-		log.Printf("Failed to update org users: %v", err)
-		return fmt.Errorf("failed to update org users: %w", err)
-	}
-	return nil
-}
-
-func (o Org) UpdateIsOpen(ctx context.Context, org org.Org) error {
-	_, err := o.collection.Doc(org.ID.ExportID()).Update(ctx,
-		[]firestore.Update{
-			{Path: "is_open", Value: org.IsOpen},
-		})
-	if err != nil {
+func (w Org) UpdateIsOpen(ctx context.Context, tID id.OrgID, isOpen bool) error {
+	if err := w.ref.Child(tID.ExportID()).Child("is_open").
+		Update(ctx, map[string]interface{}{
+			"is_open": isOpen,
+		}); err != nil {
 		log.Printf("Failed to update org is_open: %v", err)
 		return fmt.Errorf("failed to update org is_open: %w", err)
 	}

@@ -1,33 +1,43 @@
 package reader
 
 import (
-	"cloud.google.com/go/firestore"
 	"context"
-	"ynufes-mypage-backend/svc/pkg/domain/model/event"
-	"ynufes-mypage-backend/svc/pkg/domain/model/form"
+	"firebase.google.com/go/v4/db"
+	"fmt"
+	"ynufes-mypage-backend/pkg/firebase"
+	"ynufes-mypage-backend/svc/pkg/domain/model/id"
 	"ynufes-mypage-backend/svc/pkg/domain/model/question"
+	"ynufes-mypage-backend/svc/pkg/exception"
 	entity "ynufes-mypage-backend/svc/pkg/infra/entity/question"
 )
 
 type Question struct {
-	collection *firestore.CollectionRef
+	ref *db.Ref
 }
 
-func NewQuestion(c *firestore.Client) Question {
+func NewQuestion(f *firebase.Firebase) Question {
 	return Question{
-		collection: c.Collection(entity.QuestionCollectionName),
+		ref: f.Client(entity.QuestionRootName),
 	}
 }
 
-func (q Question) GetByID(ctx context.Context, id question.ID) (*question.Question, error) {
+func (q Question) GetByID(ctx context.Context, id id.QuestionID) (*question.Question, error) {
 	var questionEntity entity.Question
-	qid := id.ExportID()
-	snap, err := q.collection.Doc(qid).Get(ctx)
+	r, err := q.ref.OrderByKey().
+		EqualTo(id.ExportID()).GetOrdered(ctx)
 	if err != nil {
 		return nil, err
 	}
-	err = snap.DataTo(&questionEntity)
-	questionEntity.ID = qid
+	if len(r) == 0 {
+		return nil, exception.ErrNotFound
+	}
+	if len(r) > 1 {
+		fmt.Printf("multiple question found with id: %s\n", id)
+	}
+	if err := r[0].Unmarshal(&questionEntity); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal question entity: %w", err)
+	}
+	questionEntity.ID = id
 	model, err := questionEntity.ToModel()
 	if err != nil {
 		return nil, err
@@ -35,42 +45,48 @@ func (q Question) GetByID(ctx context.Context, id question.ID) (*question.Questi
 	return &model, nil
 }
 
-func (q Question) ListByEventID(ctx context.Context, id event.ID) ([]question.Question, error) {
+func (q Question) ListByEventID(ctx context.Context, id id.EventID) ([]question.Question, error) {
 	var questions []question.Question
-	iter := q.collection.Where("event_id", "==", id.GetValue()).Documents(ctx)
-	for {
+	results, err := q.ref.OrderByChild("event_id").EqualTo(id.ExportID()).
+		GetOrdered(ctx)
+	if err != nil {
+		return nil, err
+	}
+	qs := make([]question.Question, len(results))
+	for i := range results {
 		var questionEntity entity.Question
-		doc, err := iter.Next()
-		if err != nil {
-			break
+		if err := results[i].Unmarshal(&questionEntity); err != nil {
+			return nil, err
 		}
-		err = doc.DataTo(&questionEntity)
-		questionEntity.ID = doc.Ref.ID
+		questionEntity.ID = id
 		model, err := questionEntity.ToModel()
 		if err != nil {
 			return nil, err
 		}
-		questions = append(questions, model)
+		qs[i] = model
 	}
 	return questions, nil
 }
 
-func (q Question) ListByFormID(ctx context.Context, id form.ID) ([]question.Question, error) {
+func (q Question) ListByFormID(ctx context.Context, id id.FormID) ([]question.Question, error) {
 	var questions []question.Question
-	iter := q.collection.Where("form_id", "==", id.GetValue()).Documents(ctx)
-	for {
+	results, err := q.ref.OrderByChild("form_id").EqualTo(id.ExportID()).
+		GetOrdered(ctx)
+	if err != nil {
+		return nil, err
+	}
+	qs := make([]question.Question, len(results))
+	for i := range results {
 		var questionEntity entity.Question
-		doc, err := iter.Next()
-		if err != nil {
-			break
+		if err := results[i].Unmarshal(&questionEntity); err != nil {
+			return nil, err
 		}
-		err = doc.DataTo(&questionEntity)
-		questionEntity.ID = doc.Ref.ID
+		questionEntity.ID = id
 		model, err := questionEntity.ToModel()
 		if err != nil {
 			return nil, err
 		}
-		questions = append(questions, model)
+		qs[i] = model
 	}
 	return questions, nil
 }

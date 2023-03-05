@@ -3,38 +3,32 @@ package entity
 import (
 	"ynufes-mypage-backend/pkg/identity"
 	"ynufes-mypage-backend/svc/pkg/domain/model/event"
+	"ynufes-mypage-backend/svc/pkg/domain/model/id"
 	"ynufes-mypage-backend/svc/pkg/domain/model/org"
-	"ynufes-mypage-backend/svc/pkg/domain/model/user"
 )
 
-const OrgCollectionName = "Orgs"
+const OrgRootName = "Orgs"
 
 type Org struct {
-	ID        string  `firestore:"-"`
-	EventID   int64   `firestore:"event_id"`
-	EventName string  `firestore:"event_name"`
-	Name      string  `firestore:"name"`
-	Users     []int64 `firestore:"user_ids"`
-	IsOpen    bool    `firestore:"is_open"`
+	ID        id.OrgID `json:"-"`
+	EventID   string   `json:"event_id"`
+	EventName string   `json:"event_name"`
+	Name      string   `json:"name"`
+	IsOpen    bool     `json:"is_open"`
 }
 
 func (o Org) ToModel() (*org.Org, error) {
-	var users []user.ID
-	for i := range o.Users {
-		users = append(users, identity.NewID(o.Users[i]))
-	}
-	id, err := identity.ImportID(o.ID)
+	eid, err := identity.ImportID(o.EventID)
 	if err != nil {
 		return nil, err
 	}
 	return &org.Org{
-		ID: id,
+		ID: o.ID,
 		Event: event.Event{
-			ID:   identity.NewID(o.EventID),
+			ID:   eid,
 			Name: o.EventName,
 		},
 		Name:   o.Name,
-		Users:  users,
 		IsOpen: o.IsOpen,
 	}, nil
 }

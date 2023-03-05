@@ -2,9 +2,9 @@ package org
 
 import (
 	"context"
-	"ynufes-mypage-backend/pkg/identity"
+	"fmt"
 	"ynufes-mypage-backend/svc/pkg/domain/command"
-	"ynufes-mypage-backend/svc/pkg/domain/model/event"
+	"ynufes-mypage-backend/svc/pkg/domain/model/id"
 	"ynufes-mypage-backend/svc/pkg/domain/model/org"
 	"ynufes-mypage-backend/svc/pkg/domain/query"
 	"ynufes-mypage-backend/svc/pkg/registry"
@@ -17,7 +17,7 @@ type CreateOrgUseCase struct {
 
 type CreateOrgInput struct {
 	Ctx     context.Context
-	EventID event.ID
+	EventID id.EventID
 	OrgName string
 	IsOpen  bool
 }
@@ -36,16 +36,14 @@ func NewCreateOrg(rgst registry.Registry) CreateOrgUseCase {
 func (uc CreateOrgUseCase) Do(ipt CreateOrgInput) (*CreateOrgOutput, error) {
 	e, err := uc.eventQ.GetByID(ipt.Ctx, ipt.EventID)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to get event in CreateOrgUC: %w", err)
 	}
 	o := org.Org{
-		ID:     org.ID(identity.IssueID()),
 		Event:  *e,
 		Name:   ipt.OrgName,
-		Users:  nil,
 		IsOpen: ipt.IsOpen,
 	}
-	err = uc.orgC.Create(ipt.Ctx, o)
+	err = uc.orgC.Create(ipt.Ctx, &o)
 	if err != nil {
 		return nil, err
 	}

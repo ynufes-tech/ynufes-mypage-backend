@@ -4,71 +4,81 @@ import (
 	"time"
 	"ynufes-mypage-backend/pkg/identity"
 	"ynufes-mypage-backend/svc/pkg/domain/model/form"
+	"ynufes-mypage-backend/svc/pkg/domain/model/id"
 	"ynufes-mypage-backend/svc/pkg/domain/model/user"
 )
 
-const FormCollectionName = "Forms"
+const FormRootName = "Forms"
 
 type (
 	Form struct {
-		ID           string    `firestore:"-"`
-		EventID      int64     `firestore:"event_id"`
-		Title        string    `firestore:"title"`
-		Summary      string    `firestore:"summary"`
-		Description  string    `firestore:"description"`
-		Roles        []int64   `firestore:"roles"`
-		Deadline     int64     `firestore:"deadline"`
-		IsOpen       bool      `firestore:"is_open"`
-		SectionOrder []int64   `firestore:"section_order"`
-		Sections     []Section `firestore:"sections"`
+		ID          id.FormID       `json:"-"`
+		EventID     string          `json:"event_id"`
+		Title       string          `json:"title"`
+		Summary     string          `json:"summary"`
+		Description string          `json:"description"`
+		Sections    map[string]bool `json:"section"`
+		Roles       map[string]bool `json:"roles"`
+		Deadline    int64           `json:"deadline"`
+		IsOpen      bool            `json:"is_open"`
 	}
 )
 
 func NewForm(
-	id string, eventID int64, title, summary, description string, roles []int64, deadline int64, isOpen bool,
-	sectionOrder []int64, sections []Section,
+	id id.FormID, eventID string,
+	title, summary, description string,
+	sections, roles map[string]bool,
+	deadline int64,
+	isOpen bool,
 ) Form {
 	return Form{
-		ID:           id,
-		EventID:      eventID,
-		Title:        title,
-		Summary:      summary,
-		Description:  description,
-		Roles:        roles,
-		Deadline:     deadline,
-		IsOpen:       isOpen,
-		SectionOrder: sectionOrder,
-		Sections:     sections,
+		ID:          id,
+		EventID:     eventID,
+		Title:       title,
+		Summary:     summary,
+		Description: description,
+		Roles:       roles,
+		Deadline:    deadline,
+		IsOpen:      isOpen,
+		Sections:    sections,
 	}
 }
 
 func (f Form) ToModel() (*form.Form, error) {
-	fid, err := identity.ImportID(f.ID)
+	eID, err := identity.ImportID(f.EventID)
+
 	if err != nil {
 		return nil, err
 	}
-	eID := identity.NewID(f.EventID)
-	roles := make([]user.RoleID, len(f.Roles))
-	for i, r := range f.Roles {
-		roles[i] = identity.NewID(r)
-	}
-	sectionsOrder := make([]form.SectionID, len(f.SectionOrder))
-	for i := range sectionsOrder {
-		sectionsOrder[i] = identity.NewID(f.SectionOrder[i])
-	}
 
-	sections := make(map[form.SectionID]form.Section, len(f.Sections))
-	for _, s := range f.Sections {
-		m, err := s.ToModel()
+	sections := make([]id.SectionID, 0, len(f.Sections))
+	for k, v := range f.Sections {
+		if !v {
+			continue
+		}
+		tid, err := identity.ImportID(k)
 		if err != nil {
 			return nil, err
 		}
-		sections[identity.NewID(s.ID)] = *m
+		sections = append(sections, tid)
+	}
+
+	roles := make([]user.RoleID, 0, len(f.Roles))
+	for k, v := range f.Roles {
+		if !v {
+			continue
+		}
+		tid, err := identity.ImportID(k)
+		if err != nil {
+			return nil, err
+		}
+		roles = append(roles, tid)
 	}
 
 	deadline := time.UnixMilli(f.Deadline)
 	return form.NewForm(
-		fid, eID, f.Title, f.Summary, f.Description, roles, deadline, f.IsOpen,
-		sectionsOrder, sections,
+		f.ID, eID,
+		f.Title, f.Summary, f.Description,
+		sections, roles, deadline, f.IsOpen,
 	), nil
 }

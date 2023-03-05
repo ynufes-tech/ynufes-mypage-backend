@@ -1,17 +1,19 @@
 package question
 
 import (
-	"ynufes-mypage-backend/svc/pkg/domain/model/event"
+	"ynufes-mypage-backend/svc/pkg/domain/model/id"
+	"ynufes-mypage-backend/svc/pkg/exception"
 )
 
 type Basic struct {
-	ID      ID
+	ID      id.QuestionID
 	Text    string
-	EventID event.ID
+	EventID id.EventID
+	FormID  id.FormID
 	qType   Type
 }
 
-func NewBasic(id ID, text string, eventID event.ID, qType Type) Basic {
+func NewBasic(id id.QuestionID, text string, eventID id.EventID, qType Type) Basic {
 	return Basic{
 		ID:      id,
 		Text:    text,
@@ -20,7 +22,7 @@ func NewBasic(id ID, text string, eventID event.ID, qType Type) Basic {
 	}
 }
 
-func (b Basic) GetID() ID {
+func (b Basic) GetID() id.QuestionID {
 	return b.ID
 }
 
@@ -28,10 +30,22 @@ func (b Basic) GetText() string {
 	return b.Text
 }
 
-func (b Basic) GetEventID() event.ID {
+func (b Basic) GetEventID() id.EventID {
 	return b.EventID
+}
+
+func (b Basic) GetFormID() id.FormID {
+	return b.FormID
 }
 
 func (b Basic) GetType() Type {
 	return b.qType
+}
+
+func (b *Basic) AssignID(id id.QuestionID) error {
+	if b.ID != nil && b.ID.HasValue() {
+		return exception.ErrIDAlreadyAssigned
+	}
+	b.ID = id
+	return nil
 }

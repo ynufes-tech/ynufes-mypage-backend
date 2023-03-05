@@ -5,9 +5,10 @@ import "errors"
 type Gender int
 
 const (
-	GenderMan          = 1
-	GenderWoman        = 2
-	GenderNotSpecified = 0
+	GenderUnknown      Gender = 0
+	GenderMan          Gender = 1
+	GenderWoman        Gender = 2
+	GenderNotSpecified Gender = 3
 )
 
 func NewGender(gender int) (Gender, error) {
@@ -18,6 +19,8 @@ func NewGender(gender int) (Gender, error) {
 		return GenderWoman, nil
 	case GenderNotSpecified:
 		return GenderNotSpecified, nil
+	case GenderUnknown:
+		return GenderUnknown, nil
 	default:
 		return -1, errors.New("GENDER VALUE IS INVALID")
 	}

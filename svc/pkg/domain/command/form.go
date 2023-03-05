@@ -6,6 +6,6 @@ import (
 )
 
 type Form interface {
-	Create(context.Context, form.Form) error
+	Create(context.Context, *form.Form) error
 	Set(context.Context, form.Form) error
 }

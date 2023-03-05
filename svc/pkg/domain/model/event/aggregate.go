@@ -1,13 +1,12 @@
 package event
 
 import (
-	"ynufes-mypage-backend/svc/pkg/domain/model/util"
+	"ynufes-mypage-backend/svc/pkg/domain/model/id"
 )
 
 type (
 	Event struct {
-		ID   ID
+		ID   id.EventID
 		Name string
 	}
-	ID util.ID
 )

@@ -1,59 +1,46 @@
 package reader
 
 import (
-	"cloud.google.com/go/firestore"
 	"context"
+	"firebase.google.com/go/v4/db"
+	"fmt"
+	"ynufes-mypage-backend/pkg/firebase"
+	"ynufes-mypage-backend/svc/pkg/domain/model/id"
 	"ynufes-mypage-backend/svc/pkg/domain/model/org"
-	"ynufes-mypage-backend/svc/pkg/domain/model/user"
+	"ynufes-mypage-backend/svc/pkg/exception"
 	entity "ynufes-mypage-backend/svc/pkg/infra/entity/org"
 )
 
 type Org struct {
-	collection *firestore.CollectionRef
+	ref *db.Ref
 }
 
-func NewOrg(c *firestore.Client) Org {
+func NewOrg(f *firebase.Firebase) Org {
 	return Org{
-		collection: c.Collection(entity.OrgCollectionName),
+		ref: f.Client(entity.OrgRootName),
 	}
 }
 
-func (o Org) GetByID(ctx context.Context, id org.ID) (*org.Org, error) {
+func (o Org) GetByID(ctx context.Context, oid id.OrgID) (*org.Org, error) {
 	var orgEntity entity.Org
-	oid := id.ExportID()
-	snap, err := o.collection.Doc(oid).Get(ctx)
+	r, err := o.ref.OrderByKey().
+		EqualTo(oid.ExportID()).GetOrdered(ctx)
 	if err != nil {
 		return nil, err
 	}
-	err = snap.DataTo(&orgEntity)
+	if len(r) == 0 {
+		return nil, exception.ErrNotFound
+	}
+	if len(r) > 1 {
+		fmt.Printf("multiple org found with id: %s\n", oid)
+	}
+	if err := r[0].Unmarshal(&orgEntity); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal org entity: %w", err)
+	}
 	orgEntity.ID = oid
-	model, err := orgEntity.ToModel()
+	m, err := orgEntity.ToModel()
 	if err != nil {
 		return nil, err
 	}
-	return model, nil
-}
-
-func (o Org) ListByGrantedUserID(ctx context.Context, id user.ID) ([]org.Org, error) {
-	var orgs []org.Org
-	uid := id.GetValue()
-	iter := o.collection.Where("user_ids", "array-contains", uid).Documents(ctx)
-	for {
-		var orgEntity entity.Org
-		snap, err := iter.Next()
-		if err != nil {
-			break
-		}
-		err = snap.DataTo(&orgEntity)
-		if err != nil {
-			return nil, err
-		}
-		orgEntity.ID = id.ExportID()
-		model, err := orgEntity.ToModel()
-		if err != nil {
-			return nil, err
-		}
-		orgs = append(orgs, *model)
-	}
-	return orgs, nil
+	return m, nil
 }
