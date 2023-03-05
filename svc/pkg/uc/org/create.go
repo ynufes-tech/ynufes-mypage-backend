@@ -40,7 +40,6 @@ func (uc CreateOrgUseCase) Do(ipt CreateOrgInput) (*CreateOrgOutput, error) {
 	o := org.Org{
 		Event:  *e,
 		Name:   ipt.OrgName,
-		Users:  nil,
 		IsOpen: ipt.IsOpen,
 	}
 	err = uc.orgC.Create(ipt.Ctx, &o)
