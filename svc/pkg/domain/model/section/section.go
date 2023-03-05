@@ -9,7 +9,7 @@ import (
 type (
 	Section struct {
 		ID          id.SectionID
-		QuestionIDs []id.QuestionID
+		QuestionIDs map[id.QuestionID]float64
 
 		// ConditionQuestion a question which determines next section based on its answer
 		// Only some of the questions can be condition questions. (e.g. radio, checkbox)
@@ -23,7 +23,7 @@ type (
 
 func NewSection(
 	id id.SectionID,
-	questionIDs []id.QuestionID,
+	questionIDs map[id.QuestionID]float64,
 	conditionQuestion id.QuestionID,
 	conditionCustoms map[util.ID]id.SectionID,
 ) Section {

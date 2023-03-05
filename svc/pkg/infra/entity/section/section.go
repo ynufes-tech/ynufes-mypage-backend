@@ -14,10 +14,9 @@ type Section struct {
 	ID string `json:"-"`
 
 	// Questions map[QID]order
-	// One of the idea to manage order is to apply fractional indexing,
-	// although implementing here may make data structure more complicated,
-	// decided not to implement.
-	Questions map[string]int `json:"questions"`
+	// Order of questions are managed by fractional indexing.
+	// Reference: https://en-jp.wantedly.com/companies/wantedly/post_articles/386188
+	Questions map[string]float64 `json:"questions"`
 
 	// ConditionQuestion a question which determines next section based on its answer
 	// Only some of the questions can be condition questions. (e.g. radio, checkbox)
@@ -30,7 +29,7 @@ type Section struct {
 
 func NewSection(
 	sectionID string,
-	questions map[string]int,
+	questions map[string]float64,
 	conditionQID string,
 	conditionCustoms map[string]string,
 ) Section {
@@ -43,9 +42,13 @@ func NewSection(
 }
 
 func (s Section) ToModel() (*section.Section, error) {
-	qs, err := sortQuestions(s.Questions)
-	if err != nil {
-		return nil, err
+	qs := make(map[id.QuestionID]float64, len(s.Questions))
+	for k, v := range s.Questions {
+		i, err := identity.ImportID(k)
+		if err != nil {
+			return nil, err
+		}
+		qs[i] = v
 	}
 
 	conditionCustoms := make(map[util.ID]id.SectionID, len(s.ConditionCustoms))
