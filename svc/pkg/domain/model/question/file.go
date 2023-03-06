@@ -23,6 +23,19 @@ const (
 	FileConstraintsCustomsField          = "fileConstraint"
 )
 
+func (t FileType) String() string {
+	switch t {
+	case Image:
+		return "image"
+	case PDF:
+		return "pdf"
+	case Any:
+		return "any"
+	default:
+		return "unknown"
+	}
+}
+
 func NewFileQuestion(id id.QuestionID, text string, eventID id.EventID, fileType FileType, constraint FileConstraint,
 ) *FileQuestion {
 	return &FileQuestion{

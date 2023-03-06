@@ -34,6 +34,19 @@ const (
 	TypeFile     Type = 3
 )
 
+func (t Type) String() string {
+	switch t {
+	case TypeCheckBox:
+		return "checkbox"
+	case TypeRadio:
+		return "radio"
+	case TypeFile:
+		return "file"
+	default:
+		return "unknown"
+	}
+}
+
 func NewStandardQuestion(t Type, id id.QuestionID,
 	eventID id.EventID, formID id.FormID, sectionID id.SectionID,
 	text string, customs map[string]interface{}) StandardQuestion {
