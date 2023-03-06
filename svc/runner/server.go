@@ -5,6 +5,7 @@ import (
 	agentOrg "ynufes-mypage-backend/svc/pkg/handler/agent"
 	"ynufes-mypage-backend/svc/pkg/handler/line"
 	orgHandler "ynufes-mypage-backend/svc/pkg/handler/org"
+	sectionHandler "ynufes-mypage-backend/svc/pkg/handler/section"
 	userHandler "ynufes-mypage-backend/svc/pkg/handler/user"
 	"ynufes-mypage-backend/svc/pkg/middleware"
 	"ynufes-mypage-backend/svc/pkg/registry"
@@ -35,12 +36,14 @@ func Implement(rg *gin.RouterGroup, devTool bool) error {
 
 	user := userHandler.NewUser(*rgst)
 	org := orgHandler.NewOrg(*rgst)
+	section := sectionHandler.NewSection(*rgst)
 	authRg := rg.Use(middlewareAuth.VerifyUser())
 	authRg.Handle("GET", "/user/info", user.InfoHandler())
 	authRg.Handle("POST", "/user/info/update", user.InfoUpdateHandler())
 	authRg.Handle("GET", "/orgs", org.OrgsHandler())
 	authRg.Handle("POST", "/org/register", org.OrgRegisterHandler())
 	authRg.Handle("GET", "/org/:orgID", org.OrgHandler())
+	authRg.Handle("GET", "/section", section.InfoHandler())
 	return nil
 }
 
