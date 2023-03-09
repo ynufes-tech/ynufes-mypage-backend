@@ -3,6 +3,7 @@ package question
 import (
 	"errors"
 	"fmt"
+	"sort"
 	"ynufes-mypage-backend/pkg/identity"
 	"ynufes-mypage-backend/svc/pkg/domain/model/id"
 	"ynufes-mypage-backend/svc/pkg/domain/model/util"
@@ -14,13 +15,15 @@ type (
 	CheckBoxQuestion struct {
 		Basic
 		Options      []CheckBoxOption
-		OptionsOrder []CheckBoxOptionID
+		OptionsOrder CheckboxOptionsOrder
 	}
 
 	CheckBoxOption struct {
 		ID   CheckBoxOptionID
 		Text string
 	}
+
+	CheckboxOptionsOrder map[CheckBoxOptionID]float64
 )
 
 const (
@@ -29,7 +32,7 @@ const (
 )
 
 func NewCheckBoxQuestion(
-	id id.QuestionID, text string, options []CheckBoxOption, optionsOrder []CheckBoxOptionID,
+	id id.QuestionID, text string, options []CheckBoxOption, optionsOrder CheckboxOptionsOrder,
 ) *CheckBoxQuestion {
 	return &CheckBoxQuestion{
 		Basic:        NewBasic(id, text, TypeCheckBox),
@@ -61,21 +64,25 @@ func ImportCheckBoxQuestion(q StandardQuestion) (*CheckBoxQuestion, error) {
 		return nil, errors.New(
 			fmt.Sprintf("\"%s\" is required for CheckBoxQuestion", CheckBoxOptionsOrderField))
 	}
-	optionsOrderData, ok := optionsOrderDataI.([]interface{})
+	optionsOrderData, ok := optionsOrderDataI.(map[string]interface{})
 	if !ok {
 		return nil, errors.New(
 			fmt.Sprintf("\"%s\" must be []int64 for CheckBoxQuestion", CheckBoxOptionsOrderField))
 	}
 
 	options := make([]CheckBoxOption, 0, len(optionsData))
-	optionsOrder := make([]CheckBoxOptionID, 0, len(optionsOrderData))
-	for _, oid := range optionsOrderData {
-		i, ok := oid.(int64)
+	optionsOrder := make(map[CheckBoxOptionID]float64, len(optionsOrderData))
+	for oid, index := range optionsOrderData {
+		i, ok := index.(float64)
 		if !ok {
 			return nil, errors.New(
 				fmt.Sprintf("Option order must be int64 for CheckBoxQuestion"))
 		}
-		optionsOrder = append(optionsOrder, identity.NewID(i))
+		oid, err := identity.ImportID(oid)
+		if err != nil {
+			return nil, err
+		}
+		optionsOrder[oid] = i
 	}
 
 	for oid, textI := range optionsData {
@@ -103,11 +110,22 @@ func (q CheckBoxQuestion) Export() StandardQuestion {
 	for _, option := range q.Options {
 		options[option.ID.ExportID()] = option.Text
 	}
-	optionsOrder := make([]int64, 0, len(q.OptionsOrder))
-	for _, oid := range q.OptionsOrder {
-		optionsOrder = append(optionsOrder, oid.GetValue())
+	optionsOrder := make(map[string]float64, len(q.OptionsOrder))
+	for oid, index := range q.OptionsOrder {
+		optionsOrder[oid.ExportID()] = index
 	}
 	customs[CheckBoxOptionsField] = options
 	customs[CheckBoxOptionsOrderField] = optionsOrder
 	return NewStandardQuestion(TypeCheckBox, q.ID, q.FormID, q.SectionID, q.Text, customs)
+}
+
+func (o CheckboxOptionsOrder) GetOrderedIDs() []CheckBoxOptionID {
+	ids := make([]CheckBoxOptionID, 0, len(o))
+	for oid := range o {
+		ids = append(ids, oid)
+	}
+	sort.Slice(ids, func(i, j int) bool {
+		return o[ids[i]] < o[ids[j]]
+	})
+	return ids
 }

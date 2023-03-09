@@ -12,13 +12,14 @@ type (
 	RadioButtonsQuestion struct {
 		Basic
 		Options      []RadioButtonOption
-		OptionsOrder []RadioButtonOptionID
+		OptionsOrder map[RadioButtonOptionID]float64
 	}
 	RadioButtonOption struct {
 		ID   RadioButtonOptionID
 		Text string
 	}
-	RadioButtonOptionID util.ID
+	RadioButtonOptionID     util.ID
+	RadioButtonOptionsOrder map[RadioButtonOptionID]float64
 )
 
 const (
@@ -27,7 +28,7 @@ const (
 )
 
 func NewRadioButtonsQuestion(
-	id id.QuestionID, text string, options []RadioButtonOption, order []RadioButtonOptionID,
+	id id.QuestionID, text string, options []RadioButtonOption, order RadioButtonOptionsOrder,
 ) *RadioButtonsQuestion {
 	return &RadioButtonsQuestion{
 		Basic:        NewBasic(id, text, TypeRadio),
@@ -55,16 +56,25 @@ func ImportRadioButtonsQuestion(q StandardQuestion) (*RadioButtonsQuestion, erro
 		return nil, errors.New(
 			fmt.Sprintf("\"%s\" is required for RadioButtonsQuestion", RadioButtonOptionsOrderField))
 	}
-	optionsOrderData, ok := optionsOrderDataI.([]int64)
+	optionsOrderData, ok := optionsOrderDataI.(map[string]interface{})
 	if !ok {
 		return nil, errors.New(
 			fmt.Sprintf("\"%s\" must be []int64 for RadioButtonsQuestion", RadioButtonOptionsOrderField))
 	}
 
 	options := make([]RadioButtonOption, 0, len(optionsData))
-	optionsOrder := make([]RadioButtonOptionID, 0, len(optionsOrderData))
-	for _, oid := range optionsOrderData {
-		optionsOrder = append(optionsOrder, identity.NewID(oid))
+	optionsOrder := make(map[RadioButtonOptionID]float64, len(optionsOrderData))
+	for tid, index := range optionsOrderData {
+		fIndex, ok := index.(float64)
+		if !ok {
+			return nil, errors.New(
+				fmt.Sprintf("\"%s\" must be []int64 for RadioButtonsQuestion", RadioButtonOptionsOrderField))
+		}
+		i, err := identity.ImportID(tid)
+		if err != nil {
+			return nil, err
+		}
+		optionsOrder[i] = fIndex
 	}
 
 	for oid, text := range optionsData {
@@ -83,13 +93,22 @@ func (q RadioButtonsQuestion) Export() StandardQuestion {
 	for _, o := range q.Options {
 		options[o.ID.GetValue()] = o.Text
 	}
-	optionsOrder := make([]int64, 0, len(q.OptionsOrder))
-	for _, o := range q.OptionsOrder {
-		optionsOrder = append(optionsOrder, o.GetValue())
+
+	optionsOrder := make(map[string]float64, len(q.OptionsOrder))
+	for tid, index := range q.OptionsOrder {
+		optionsOrder[tid.ExportID()] = index
 	}
 
 	customs[RadioButtonOptionsField] = options
 	customs[RadioButtonOptionsOrderField] = optionsOrder
 
 	return NewStandardQuestion(TypeRadio, q.ID, q.FormID, q.SectionID, q.Text, customs)
+}
+
+func (q RadioButtonsQuestion) GetOrderedIDs() []RadioButtonOptionID {
+	ids := make([]RadioButtonOptionID, 0, len(q.OptionsOrder))
+	for oid := range q.OptionsOrder {
+		ids = append(ids, oid)
+	}
+	return ids
 }
