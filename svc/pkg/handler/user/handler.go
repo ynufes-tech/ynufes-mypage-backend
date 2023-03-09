@@ -23,11 +23,23 @@ func NewUser(rgst registry.Registry) User {
 
 func (uh User) InfoHandler() gin.HandlerFunc {
 	var h util.Handler = func(c *gin.Context, u user.User) {
+		var status int
+		if u.Detail.MeetsBasicRequirement() {
+			status = 2
+		} else {
+			status = 1
+		}
 		output := userSchema.InfoResponse{
 			NameFirst:       u.Detail.Name.FirstName,
 			NameLast:        u.Detail.Name.LastName,
+			NameFirstKana:   u.Detail.Name.FirstNameKana,
+			NameLastKana:    u.Detail.Name.LastNameKana,
 			Type:            int(u.Detail.Type),
 			ProfileImageURL: string(u.Line.LineProfilePictureURL),
+			Email:           string(u.Detail.Email),
+			Gender:          int(u.Detail.Gender),
+			StudentID:       string(u.Detail.StudentID),
+			Status:          status,
 		}
 		j, err := json.Marshal(output)
 		if err != nil {

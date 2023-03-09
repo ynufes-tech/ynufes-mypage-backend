@@ -39,7 +39,7 @@ func Implement(rg *gin.RouterGroup, devTool bool) error {
 	section := sectionHandler.NewSection(*rgst)
 	authRg := rg.Use(middlewareAuth.VerifyUser())
 	authRg.Handle("GET", "/user/info", user.InfoHandler())
-	authRg.Handle("POST", "/user/info/update", user.InfoUpdateHandler())
+	authRg.Handle("POST", "/user/info", user.InfoUpdateHandler())
 	authRg.Handle("GET", "/orgs", org.OrgsHandler())
 	authRg.Handle("POST", "/org/register", org.OrgRegisterHandler())
 	authRg.Handle("GET", "/org/:orgID", org.OrgHandler())
