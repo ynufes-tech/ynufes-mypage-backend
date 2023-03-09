@@ -7,6 +7,7 @@ type (
 	}
 	FileConstraint interface {
 		GetFileType() FileType
+		GetExtensions() []Extension
 		Export() StandardFileConstraint
 		ValidateFiles(file []File) error
 	}
@@ -14,6 +15,7 @@ type (
 		FileName string
 		Data     []byte
 	}
+	Extension string
 )
 
 func NewStandardFileConstraint(fileType FileType, customs map[string]interface{}) StandardFileConstraint {
