@@ -21,6 +21,9 @@ type (
 		// ConditionCustoms map[OptionID]NextSectionID for ConditionQuestion
 		ConditionCustoms map[util.ID]id.SectionID
 	}
+
+	// QuestionsOrder map[QuestionID]orderValue
+	// order of questions are managed by fractional indexing.
 	QuestionsOrder map[id.QuestionID]float64
 )
 
