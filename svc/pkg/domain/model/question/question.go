@@ -47,6 +47,19 @@ func (t Type) String() string {
 	}
 }
 
+func NewType(t string) (Type, error) {
+	switch t {
+	case "checkbox":
+		return TypeCheckBox, nil
+	case "radio":
+		return TypeRadio, nil
+	case "file":
+		return TypeFile, nil
+	default:
+		return 0, errors.New("invalid question type")
+	}
+}
+
 func NewStandardQuestion(t Type, id id.QuestionID,
 	eventID id.EventID, formID id.FormID, sectionID id.SectionID,
 	text string, customs map[string]interface{}) StandardQuestion {
