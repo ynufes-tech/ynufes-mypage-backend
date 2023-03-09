@@ -33,9 +33,10 @@ const (
 
 func NewCheckBoxQuestion(
 	id id.QuestionID, text string, options []CheckBoxOption, optionsOrder CheckboxOptionsOrder,
+	formID id.FormID, sectionID id.SectionID,
 ) *CheckBoxQuestion {
 	return &CheckBoxQuestion{
-		Basic:        NewBasic(id, text, TypeCheckBox),
+		Basic:        NewBasic(id, text, TypeCheckBox, formID, sectionID),
 		Options:      options,
 		OptionsOrder: optionsOrder,
 	}
@@ -101,7 +102,7 @@ func ImportCheckBoxQuestion(q StandardQuestion) (*CheckBoxQuestion, error) {
 			Text: text,
 		})
 	}
-	return NewCheckBoxQuestion(q.ID, q.Text, options, optionsOrder), nil
+	return NewCheckBoxQuestion(q.ID, q.Text, options, optionsOrder, q.FormID, q.SectionID), nil
 }
 
 func (q CheckBoxQuestion) Export() StandardQuestion {

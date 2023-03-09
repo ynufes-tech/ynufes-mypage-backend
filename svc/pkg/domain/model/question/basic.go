@@ -13,11 +13,15 @@ type Basic struct {
 	qType     Type
 }
 
-func NewBasic(id id.QuestionID, text string, qType Type) Basic {
+func NewBasic(
+	id id.QuestionID, text string, qType Type, formID id.FormID, sectionID id.SectionID,
+) Basic {
 	return Basic{
-		ID:    id,
-		Text:  text,
-		qType: qType,
+		ID:        id,
+		Text:      text,
+		qType:     qType,
+		FormID:    formID,
+		SectionID: sectionID,
 	}
 }
 

@@ -30,7 +30,7 @@ type CreateInput struct {
 }
 
 type CreateOutput struct {
-	QuestionID id.QuestionID
+	Question question.Question
 }
 
 func NewCreate(rgst registry.Registry) CreateUseCase {
@@ -79,7 +79,7 @@ func (u CreateUseCase) Do(ipt CreateInput) (*CreateOutput, error) {
 		return nil, err
 	}
 	return &CreateOutput{
-		QuestionID: ipt.Question.GetID(),
+		Question: ipt.Question,
 	}, nil
 }
 

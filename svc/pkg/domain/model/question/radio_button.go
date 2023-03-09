@@ -29,9 +29,10 @@ const (
 
 func NewRadioButtonsQuestion(
 	id id.QuestionID, text string, options []RadioButtonOption, order RadioButtonOptionsOrder,
+	formID id.FormID, sectionID id.SectionID,
 ) *RadioButtonsQuestion {
 	return &RadioButtonsQuestion{
-		Basic:        NewBasic(id, text, TypeRadio),
+		Basic:        NewBasic(id, text, TypeRadio, formID, sectionID),
 		Options:      options,
 		OptionsOrder: order,
 	}
@@ -83,7 +84,9 @@ func ImportRadioButtonsQuestion(q StandardQuestion) (*RadioButtonsQuestion, erro
 			Text: text,
 		})
 	}
-	return NewRadioButtonsQuestion(q.ID, q.Text, options, optionsOrder), nil
+	return NewRadioButtonsQuestion(
+		q.ID, q.Text, options, optionsOrder, q.FormID, q.SectionID,
+	), nil
 }
 
 func (q RadioButtonsQuestion) Export() StandardQuestion {
