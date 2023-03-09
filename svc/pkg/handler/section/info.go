@@ -79,8 +79,13 @@ func (h Section) InfoHandler() gin.HandlerFunc {
 					c.JSON(500, gin.H{"error": err.Error()})
 					return
 				}
+				exts := make([]string, len(fileQ.Constraint.GetExtensions()))
+				for i := range fileQ.Constraint.GetExtensions() {
+					exts[i] = string(fileQ.Constraint.GetExtensions()[i])
+				}
 				fConstraint := schemaS.FileConstraint{
-					Extensions: fileQ.Constraint.GetFileType().String(),
+					FileType:   fileQ.Constraint.GetFileType().String(),
+					Extensions: exts,
 				}
 				respQ.FileConstraint = &fConstraint
 			}

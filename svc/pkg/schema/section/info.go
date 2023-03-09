@@ -26,5 +26,6 @@ type TextConstraint struct {
 }
 
 type FileConstraint struct {
-	Format string `json:"format"`
+	FileType   string   `json:"file_type"`
+	Extensions []string `json:"extensions"`
 }
