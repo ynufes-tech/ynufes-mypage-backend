@@ -29,10 +29,10 @@ const (
 )
 
 func NewCheckBoxQuestion(
-	id id.QuestionID, text string, eventID id.EventID, options []CheckBoxOption, optionsOrder []CheckBoxOptionID,
+	id id.QuestionID, text string, options []CheckBoxOption, optionsOrder []CheckBoxOptionID,
 ) *CheckBoxQuestion {
 	return &CheckBoxQuestion{
-		Basic:        NewBasic(id, text, eventID, TypeCheckBox),
+		Basic:        NewBasic(id, text, TypeCheckBox),
 		Options:      options,
 		OptionsOrder: optionsOrder,
 	}
@@ -69,8 +69,8 @@ func ImportCheckBoxQuestion(q StandardQuestion) (*CheckBoxQuestion, error) {
 
 	options := make([]CheckBoxOption, 0, len(optionsData))
 	optionsOrder := make([]CheckBoxOptionID, 0, len(optionsOrderData))
-	for _, id := range optionsOrderData {
-		i, ok := id.(int64)
+	for _, oid := range optionsOrderData {
+		i, ok := oid.(int64)
 		if !ok {
 			return nil, errors.New(
 				fmt.Sprintf("Option order must be int64 for CheckBoxQuestion"))
@@ -78,14 +78,14 @@ func ImportCheckBoxQuestion(q StandardQuestion) (*CheckBoxQuestion, error) {
 		optionsOrder = append(optionsOrder, identity.NewID(i))
 	}
 
-	for id, textI := range optionsData {
+	for oid, textI := range optionsData {
 		// here we cast textI to string
 		text, ok := textI.(string)
 		if !ok {
 			return nil, errors.New(
 				fmt.Sprintf("Option text must be string for CheckBoxQuestion"))
 		}
-		i, err := identity.ImportID(id)
+		i, err := identity.ImportID(oid)
 		if err != nil {
 			return nil, err
 		}
@@ -94,7 +94,7 @@ func ImportCheckBoxQuestion(q StandardQuestion) (*CheckBoxQuestion, error) {
 			Text: text,
 		})
 	}
-	return NewCheckBoxQuestion(q.ID, q.Text, q.EventID, options, optionsOrder), nil
+	return NewCheckBoxQuestion(q.ID, q.Text, options, optionsOrder), nil
 }
 
 func (q CheckBoxQuestion) Export() StandardQuestion {
@@ -104,10 +104,10 @@ func (q CheckBoxQuestion) Export() StandardQuestion {
 		options[option.ID.ExportID()] = option.Text
 	}
 	optionsOrder := make([]int64, 0, len(q.OptionsOrder))
-	for _, id := range q.OptionsOrder {
-		optionsOrder = append(optionsOrder, id.GetValue())
+	for _, oid := range q.OptionsOrder {
+		optionsOrder = append(optionsOrder, oid.GetValue())
 	}
 	customs[CheckBoxOptionsField] = options
 	customs[CheckBoxOptionsOrderField] = optionsOrder
-	return NewStandardQuestion(TypeCheckBox, q.ID, q.Basic.EventID, q.FormID, q.SectionID, q.Text, customs)
+	return NewStandardQuestion(TypeCheckBox, q.ID, q.FormID, q.SectionID, q.Text, customs)
 }

@@ -27,10 +27,10 @@ const (
 )
 
 func NewRadioButtonsQuestion(
-	id id.QuestionID, text string, eventID id.EventID, options []RadioButtonOption, order []RadioButtonOptionID,
+	id id.QuestionID, text string, options []RadioButtonOption, order []RadioButtonOptionID,
 ) *RadioButtonsQuestion {
 	return &RadioButtonsQuestion{
-		Basic:        NewBasic(id, text, eventID, TypeRadio),
+		Basic:        NewBasic(id, text, TypeRadio),
 		Options:      options,
 		OptionsOrder: order,
 	}
@@ -63,17 +63,17 @@ func ImportRadioButtonsQuestion(q StandardQuestion) (*RadioButtonsQuestion, erro
 
 	options := make([]RadioButtonOption, 0, len(optionsData))
 	optionsOrder := make([]RadioButtonOptionID, 0, len(optionsOrderData))
-	for _, id := range optionsOrderData {
-		optionsOrder = append(optionsOrder, identity.NewID(id))
+	for _, oid := range optionsOrderData {
+		optionsOrder = append(optionsOrder, identity.NewID(oid))
 	}
 
-	for id, text := range optionsData {
+	for oid, text := range optionsData {
 		options = append(options, RadioButtonOption{
-			ID:   identity.NewID(id),
+			ID:   identity.NewID(oid),
 			Text: text,
 		})
 	}
-	return NewRadioButtonsQuestion(q.ID, q.Text, q.EventID, options, optionsOrder), nil
+	return NewRadioButtonsQuestion(q.ID, q.Text, options, optionsOrder), nil
 }
 
 func (q RadioButtonsQuestion) Export() StandardQuestion {
@@ -91,5 +91,5 @@ func (q RadioButtonsQuestion) Export() StandardQuestion {
 	customs[RadioButtonOptionsField] = options
 	customs[RadioButtonOptionsOrderField] = optionsOrder
 
-	return NewStandardQuestion(TypeRadio, q.ID, q.EventID, q.FormID, q.SectionID, q.Text, customs)
+	return NewStandardQuestion(TypeRadio, q.ID, q.FormID, q.SectionID, q.Text, customs)
 }

@@ -13,14 +13,12 @@ type (
 		AssignID(id.QuestionID) error
 		GetID() id.QuestionID
 		GetText() string
-		GetEventID() id.EventID
 		GetFormID() id.FormID
 	}
 
 	StandardQuestion struct {
 		ID        id.QuestionID
 		Text      string
-		EventID   id.EventID
 		FormID    id.FormID
 		SectionID id.SectionID
 		Type      Type
@@ -60,13 +58,12 @@ func NewType(t string) (Type, error) {
 	}
 }
 
-func NewStandardQuestion(t Type, id id.QuestionID,
-	eventID id.EventID, formID id.FormID, sectionID id.SectionID,
-	text string, customs map[string]interface{}) StandardQuestion {
+func NewStandardQuestion(
+	t Type, id id.QuestionID, formID id.FormID, sectionID id.SectionID, text string, customs map[string]interface{},
+) StandardQuestion {
 	return StandardQuestion{
 		ID:        id,
 		Text:      text,
-		EventID:   eventID,
 		FormID:    formID,
 		SectionID: sectionID,
 		Type:      t,
