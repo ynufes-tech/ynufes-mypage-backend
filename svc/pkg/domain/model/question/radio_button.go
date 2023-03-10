@@ -44,10 +44,10 @@ func ImportRadioButtonsQuestion(q StandardQuestion) (*RadioButtonsQuestion, erro
 		return nil, errors.New(
 			fmt.Sprintf("\"%s\" is required for RadioButtonsQuestion", RadioButtonOptionsField))
 	}
-	optionsData, ok := optionsDataI.(map[int64]string)
+	optionsData, ok := optionsDataI.(map[string]string)
 	if !ok {
 		return nil, errors.New(
-			fmt.Sprintf("\"%s\" must be map[int64]string for RadioButtonsQuestion", RadioButtonOptionsField))
+			fmt.Sprintf("\"%s\" must be map[string]string for RadioButtonsQuestion", RadioButtonOptionsField))
 	}
 
 	// check if customs has "order" as []int64, return error if not
@@ -56,16 +56,15 @@ func ImportRadioButtonsQuestion(q StandardQuestion) (*RadioButtonsQuestion, erro
 		return nil, errors.New(
 			fmt.Sprintf("\"%s\" is required for RadioButtonsQuestion", RadioButtonOptionsOrderField))
 	}
-	optionsOrderData, ok := optionsOrderDataI.(map[string]interface{})
+	optionsOrderData, ok := optionsOrderDataI.(map[string]float64)
 	if !ok {
 		return nil, errors.New(
-			fmt.Sprintf("\"%s\" must be []int64 for RadioButtonsQuestion", RadioButtonOptionsOrderField))
+			fmt.Sprintf("\"%s\" must be map[string]float64 for RadioButtonsQuestion", RadioButtonOptionsOrderField))
 	}
 
 	options := make([]RadioButtonOption, 0, len(optionsData))
 	optionsOrder := make(map[RadioButtonOptionID]float64, len(optionsOrderData))
 	for tid, index := range optionsOrderData {
-		fIndex, ok := index.(float64)
 		if !ok {
 			return nil, errors.New(
 				fmt.Sprintf("\"%s\" must be []int64 for RadioButtonsQuestion", RadioButtonOptionsOrderField))
@@ -74,12 +73,16 @@ func ImportRadioButtonsQuestion(q StandardQuestion) (*RadioButtonsQuestion, erro
 		if err != nil {
 			return nil, err
 		}
-		optionsOrder[i] = fIndex
+		optionsOrder[i] = index
 	}
 
 	for oid, text := range optionsData {
+		i, err := identity.ImportID(oid)
+		if err != nil {
+			return nil, err
+		}
 		options = append(options, RadioButtonOption{
-			ID:   identity.NewID(oid),
+			ID:   i,
 			Text: text,
 		})
 	}
@@ -91,9 +94,9 @@ func ImportRadioButtonsQuestion(q StandardQuestion) (*RadioButtonsQuestion, erro
 func (q RadioButtonsQuestion) Export() StandardQuestion {
 	customs := make(map[string]interface{})
 
-	options := make(map[int64]string, len(q.Options))
+	options := make(map[string]string, len(q.Options))
 	for _, o := range q.Options {
-		options[o.ID.GetValue()] = o.Text
+		options[o.ID.ExportID()] = o.Text
 	}
 
 	optionsOrder := make(map[string]float64, len(q.OptionsOrder))

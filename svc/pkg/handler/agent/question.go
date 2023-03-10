@@ -172,11 +172,11 @@ func (q Question) loadRadioQuestion(req schema.CreateQuestionRequest) (*question
 	for i := range options {
 		options[i] = question.RadioButtonOption{
 			ID:   identity.IssueID(),
-			Text: req.Checkbox.Options[i],
+			Text: req.Radio.Options[i],
 		}
 	}
-	optionsOrder := make(map[question.RadioButtonOptionID]float64, len(req.Checkbox.Options))
-	for i := range req.Checkbox.Options {
+	optionsOrder := make(map[question.RadioButtonOptionID]float64, len(req.Radio.Options))
+	for i := range req.Radio.Options {
 		// default order value will be 0.0, 1.0, 2.0, 3.0, 4.0...
 		optionsOrder[options[i].ID] = float64(i)
 	}
