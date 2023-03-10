@@ -37,10 +37,10 @@ func (t FileType) String() string {
 }
 
 func NewFileQuestion(
-	id id.QuestionID, text string, fileType FileType, constraint FileConstraint, formID id.FormID, sectionID id.SectionID,
+	id id.QuestionID, text string, fileType FileType, constraint FileConstraint, formID id.FormID,
 ) *FileQuestion {
 	return &FileQuestion{
-		Basic:      NewBasic(id, text, TypeFile, formID, sectionID),
+		Basic:      NewBasic(id, text, TypeFile, formID),
 		FileType:   fileType,
 		Constraint: constraint,
 	}
@@ -72,13 +72,13 @@ func ImportFileQuestion(q StandardQuestion) (*FileQuestion, error) {
 	}
 
 	if fileType == Any {
-		return NewFileQuestion(q.ID, q.Text, fileType, nil, q.FormID, q.SectionID), nil
+		return NewFileQuestion(q.ID, q.Text, fileType, nil, q.FormID), nil
 	}
 
 	constraintsCustomsData, has := q.Customs[FileConstraintsCustomsField]
 	// if FileConstraintsCustomsField is not present, return FileQuestion without constraint
 	if !has {
-		return NewFileQuestion(q.ID, q.Text, fileType, nil, q.FormID, q.SectionID), nil
+		return NewFileQuestion(q.ID, q.Text, fileType, nil, q.FormID), nil
 	}
 
 	constraintsCustoms, ok := constraintsCustomsData.(map[string]interface{})
@@ -89,7 +89,7 @@ func ImportFileQuestion(q StandardQuestion) (*FileQuestion, error) {
 	}
 
 	constraint := NewStandardFileConstraint(fileType, constraintsCustoms)
-	question := NewFileQuestion(q.ID, q.Text, fileType, ImportFileConstraint(constraint), q.FormID, q.SectionID)
+	question := NewFileQuestion(q.ID, q.Text, fileType, ImportFileConstraint(constraint), q.FormID)
 	if err != nil {
 		return nil, err
 	}
@@ -104,5 +104,5 @@ func (q FileQuestion) Export() StandardQuestion {
 	if q.Constraint != nil {
 		customs[FileConstraintsCustomsField] = q.Constraint.Export().Customs
 	}
-	return NewStandardQuestion(TypeFile, q.ID, q.FormID, q.SectionID, q.Text, customs)
+	return NewStandardQuestion(TypeFile, q.ID, q.FormID, q.Text, customs)
 }

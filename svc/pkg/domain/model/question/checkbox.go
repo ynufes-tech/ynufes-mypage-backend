@@ -32,11 +32,10 @@ const (
 )
 
 func NewCheckBoxQuestion(
-	id id.QuestionID, text string, options []CheckBoxOption, optionsOrder CheckboxOptionsOrder,
-	formID id.FormID, sectionID id.SectionID,
+	id id.QuestionID, text string, options []CheckBoxOption, optionsOrder CheckboxOptionsOrder, formID id.FormID,
 ) *CheckBoxQuestion {
 	return &CheckBoxQuestion{
-		Basic:        NewBasic(id, text, TypeCheckBox, formID, sectionID),
+		Basic:        NewBasic(id, text, TypeCheckBox, formID),
 		Options:      options,
 		OptionsOrder: optionsOrder,
 	}
@@ -101,7 +100,7 @@ func ImportCheckBoxQuestion(q StandardQuestion) (*CheckBoxQuestion, error) {
 			Text: text,
 		})
 	}
-	return NewCheckBoxQuestion(q.ID, q.Text, options, optionsOrder, q.FormID, q.SectionID), nil
+	return NewCheckBoxQuestion(q.ID, q.Text, options, optionsOrder, q.FormID), nil
 }
 
 func (q CheckBoxQuestion) Export() StandardQuestion {
@@ -116,7 +115,7 @@ func (q CheckBoxQuestion) Export() StandardQuestion {
 	}
 	customs[CheckBoxOptionsField] = options
 	customs[CheckBoxOptionsOrderField] = optionsOrder
-	return NewStandardQuestion(TypeCheckBox, q.ID, q.FormID, q.SectionID, q.Text, customs)
+	return NewStandardQuestion(TypeCheckBox, q.ID, q.FormID, q.Text, customs)
 }
 
 func (o CheckboxOptionsOrder) GetOrderedIDs() []CheckBoxOptionID {

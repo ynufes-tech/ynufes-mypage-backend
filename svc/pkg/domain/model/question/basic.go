@@ -14,14 +14,13 @@ type Basic struct {
 }
 
 func NewBasic(
-	id id.QuestionID, text string, qType Type, formID id.FormID, sectionID id.SectionID,
+	id id.QuestionID, text string, qType Type, formID id.FormID,
 ) Basic {
 	return Basic{
-		ID:        id,
-		Text:      text,
-		qType:     qType,
-		FormID:    formID,
-		SectionID: sectionID,
+		ID:     id,
+		Text:   text,
+		qType:  qType,
+		FormID: formID,
 	}
 }
 

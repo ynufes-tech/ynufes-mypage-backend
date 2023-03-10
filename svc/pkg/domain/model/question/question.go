@@ -17,12 +17,11 @@ type (
 	}
 
 	StandardQuestion struct {
-		ID        id.QuestionID
-		Text      string
-		FormID    id.FormID
-		SectionID id.SectionID
-		Type      Type
-		Customs   map[string]interface{}
+		ID      id.QuestionID
+		Text    string
+		FormID  id.FormID
+		Type    Type
+		Customs map[string]interface{}
 	}
 )
 
@@ -59,15 +58,14 @@ func NewType(t string) (Type, error) {
 }
 
 func NewStandardQuestion(
-	t Type, id id.QuestionID, formID id.FormID, sectionID id.SectionID, text string, customs map[string]interface{},
+	t Type, id id.QuestionID, formID id.FormID, text string, customs map[string]interface{},
 ) StandardQuestion {
 	return StandardQuestion{
-		ID:        id,
-		Text:      text,
-		FormID:    formID,
-		SectionID: sectionID,
-		Type:      t,
-		Customs:   customs,
+		ID:      id,
+		Text:    text,
+		FormID:  formID,
+		Type:    t,
+		Customs: customs,
 	}
 }
 

@@ -139,10 +139,6 @@ func (q Question) loadCheckboxQuestion(req schema.CreateQuestionRequest) (*quest
 	if err != nil {
 		return nil, err
 	}
-	sid, err := identity.ImportID(req.SectionID)
-	if err != nil {
-		return nil, err
-	}
 
 	options := make([]question.CheckBoxOption, len(req.Checkbox.Options))
 	for i := range options {
@@ -157,8 +153,7 @@ func (q Question) loadCheckboxQuestion(req schema.CreateQuestionRequest) (*quest
 		optionsOrder[options[i].ID] = float64(i)
 	}
 	newQ := question.NewCheckBoxQuestion(
-		nil, req.Text, options, optionsOrder,
-		fid, sid,
+		nil, req.Text, options, optionsOrder, fid,
 	)
 	return newQ, nil
 }
@@ -169,10 +164,6 @@ func (q Question) loadRadioQuestion(req schema.CreateQuestionRequest) (*question
 	}
 
 	fid, err := identity.ImportID(req.FormID)
-	if err != nil {
-		return nil, err
-	}
-	sid, err := identity.ImportID(req.SectionID)
 	if err != nil {
 		return nil, err
 	}
@@ -190,8 +181,7 @@ func (q Question) loadRadioQuestion(req schema.CreateQuestionRequest) (*question
 		optionsOrder[options[i].ID] = float64(i)
 	}
 	newQ := question.NewRadioButtonsQuestion(
-		nil, req.Text, options, optionsOrder,
-		fid, sid,
+		nil, req.Text, options, optionsOrder, fid,
 	)
 	return newQ, nil
 }

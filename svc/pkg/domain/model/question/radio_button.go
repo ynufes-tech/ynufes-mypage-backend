@@ -28,11 +28,10 @@ const (
 )
 
 func NewRadioButtonsQuestion(
-	id id.QuestionID, text string, options []RadioButtonOption, order RadioButtonOptionsOrder,
-	formID id.FormID, sectionID id.SectionID,
+	id id.QuestionID, text string, options []RadioButtonOption, order RadioButtonOptionsOrder, formID id.FormID,
 ) *RadioButtonsQuestion {
 	return &RadioButtonsQuestion{
-		Basic:        NewBasic(id, text, TypeRadio, formID, sectionID),
+		Basic:        NewBasic(id, text, TypeRadio, formID),
 		Options:      options,
 		OptionsOrder: order,
 	}
@@ -85,7 +84,7 @@ func ImportRadioButtonsQuestion(q StandardQuestion) (*RadioButtonsQuestion, erro
 		})
 	}
 	return NewRadioButtonsQuestion(
-		q.ID, q.Text, options, optionsOrder, q.FormID, q.SectionID,
+		q.ID, q.Text, options, optionsOrder, q.FormID,
 	), nil
 }
 
@@ -105,7 +104,7 @@ func (q RadioButtonsQuestion) Export() StandardQuestion {
 	customs[RadioButtonOptionsField] = options
 	customs[RadioButtonOptionsOrderField] = optionsOrder
 
-	return NewStandardQuestion(TypeRadio, q.ID, q.FormID, q.SectionID, q.Text, customs)
+	return NewStandardQuestion(TypeRadio, q.ID, q.FormID, q.Text, customs)
 }
 
 func (q RadioButtonsQuestion) GetOrderedIDs() []RadioButtonOptionID {
