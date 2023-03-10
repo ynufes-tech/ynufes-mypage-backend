@@ -37,12 +37,17 @@ func (s Section) Create(ctx context.Context, targetSection *section.Section) err
 		customs[key.ExportID()] = value.ExportID()
 	}
 
+	var conditionQID string
+	if targetSection.ConditionQuestion != nil && targetSection.ConditionQuestion.HasValue() {
+		conditionQID = targetSection.ConditionQuestion.ExportID()
+	}
+
 	err := s.ref.Child(newID.ExportID()).Set(ctx,
 		entity.NewSection(
 			newID,
 			targetSection.FormID.ExportID(),
 			questions,
-			targetSection.ConditionQuestion.ExportID(),
+			conditionQID,
 			customs,
 		),
 	)
