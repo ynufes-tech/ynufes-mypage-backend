@@ -40,7 +40,7 @@ func (s Section) Create(ctx context.Context, targetSection *section.Section) err
 	err := s.ref.Child(newID.ExportID()).Set(ctx,
 		entity.NewSection(
 			newID,
-			targetSection.FormID,
+			targetSection.FormID.ExportID(),
 			questions,
 			targetSection.ConditionQuestion.ExportID(),
 			customs,
@@ -71,7 +71,7 @@ func (s Section) Set(ctx context.Context, targetSection section.Section) error {
 	err := s.ref.Child(targetSection.ID.ExportID()).Set(ctx,
 		entity.NewSection(
 			targetSection.ID,
-			targetSection.FormID,
+			targetSection.FormID.ExportID(),
 			questions,
 			targetSection.ConditionQuestion.ExportID(),
 			customs,
