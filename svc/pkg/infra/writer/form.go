@@ -6,6 +6,7 @@ import (
 	"ynufes-mypage-backend/pkg/firebase"
 	"ynufes-mypage-backend/pkg/identity"
 	"ynufes-mypage-backend/svc/pkg/domain/model/form"
+	"ynufes-mypage-backend/svc/pkg/domain/model/id"
 	"ynufes-mypage-backend/svc/pkg/exception"
 	entity "ynufes-mypage-backend/svc/pkg/infra/entity/form"
 )
@@ -25,10 +26,6 @@ func (f Form) Create(ctx context.Context, target *form.Form) error {
 		return exception.ErrIDAlreadyAssigned
 	}
 	tid := identity.IssueID()
-	sections := make(map[string]bool, len(target.Sections))
-	for i := range target.Sections {
-		sections[target.Sections[i].ExportID()] = true
-	}
 
 	var roles = make(map[string]bool, len(target.Roles))
 	for i := 0; i < len(target.Roles); i++ {
@@ -40,7 +37,7 @@ func (f Form) Create(ctx context.Context, target *form.Form) error {
 		target.Title,
 		target.Summary,
 		target.Description,
-		sections,
+		target.Sections,
 		roles,
 		target.Deadline.UnixMilli(),
 		target.IsOpen,
@@ -57,10 +54,6 @@ func (f Form) Set(ctx context.Context, target form.Form) error {
 	if target.ID == nil || !target.ID.HasValue() {
 		return exception.ErrIDNotAssigned
 	}
-	sections := make(map[string]bool, len(target.Sections))
-	for i := range target.Sections {
-		sections[target.Sections[i].ExportID()] = true
-	}
 
 	var roles = make(map[string]bool, len(target.Roles))
 	for i := 0; i < len(target.Roles); i++ {
@@ -72,7 +65,7 @@ func (f Form) Set(ctx context.Context, target form.Form) error {
 		target.Title,
 		target.Summary,
 		target.Description,
-		sections,
+		target.Sections,
 		roles,
 		target.Deadline.UnixMilli(),
 		target.IsOpen,

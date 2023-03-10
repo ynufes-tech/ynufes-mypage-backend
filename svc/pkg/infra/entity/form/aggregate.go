@@ -12,22 +12,23 @@ const FormRootName = "Forms"
 
 type (
 	Form struct {
-		ID          id.FormID       `json:"-"`
-		EventID     string          `json:"event_id"`
-		Title       string          `json:"title"`
-		Summary     string          `json:"summary"`
-		Description string          `json:"description"`
-		Sections    map[string]bool `json:"section"`
-		Roles       map[string]bool `json:"roles"`
-		Deadline    int64           `json:"deadline"`
-		IsOpen      bool            `json:"is_open"`
+		ID          id.FormID          `json:"-"`
+		EventID     string             `json:"event_id"`
+		Title       string             `json:"title"`
+		Summary     string             `json:"summary"`
+		Description string             `json:"description"`
+		Sections    map[string]float64 `json:"sections"`
+		Roles       map[string]bool    `json:"roles"`
+		Deadline    int64              `json:"deadline"`
+		IsOpen      bool               `json:"is_open"`
 	}
 )
 
 func NewForm(
 	id id.FormID, eventID string,
 	title, summary, description string,
-	sections, roles map[string]bool,
+	sections map[string]float64,
+	roles map[string]bool,
 	deadline int64,
 	isOpen bool,
 ) Form {
@@ -51,18 +52,6 @@ func (f Form) ToModel() (*form.Form, error) {
 		return nil, err
 	}
 
-	sections := make([]id.SectionID, 0, len(f.Sections))
-	for k, v := range f.Sections {
-		if !v {
-			continue
-		}
-		tid, err := identity.ImportID(k)
-		if err != nil {
-			return nil, err
-		}
-		sections = append(sections, tid)
-	}
-
 	roles := make([]user.RoleID, 0, len(f.Roles))
 	for k, v := range f.Roles {
 		if !v {
@@ -79,6 +68,6 @@ func (f Form) ToModel() (*form.Form, error) {
 	return form.NewForm(
 		f.ID, eID,
 		f.Title, f.Summary, f.Description,
-		sections, roles, deadline, f.IsOpen,
+		f.Sections, roles, deadline, f.IsOpen,
 	), nil
 }

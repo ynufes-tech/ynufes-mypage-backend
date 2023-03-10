@@ -16,15 +16,16 @@ type (
 		Roles       []user.RoleID
 		Deadline    time.Time
 		IsOpen      bool
-		Sections    []id.SectionID
+		Sections    SectionsOrder
 	}
+	SectionsOrder map[string]float64
 )
 
 func NewForm(
 	id id.FormID,
 	eventID id.EventID,
 	title, summary, description string,
-	sectionIDs []id.SectionID,
+	sectionOrders map[string]float64,
 	roles []user.RoleID,
 	deadline time.Time,
 	isOpen bool,
@@ -38,6 +39,6 @@ func NewForm(
 		Roles:       roles,
 		Deadline:    deadline,
 		IsOpen:      isOpen,
-		Sections:    sectionIDs,
+		Sections:    sectionOrders,
 	}
 }
