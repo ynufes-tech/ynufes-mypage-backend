@@ -37,6 +37,7 @@ func NewCreate(rgst registry.Registry) CreateUseCase {
 	return CreateUseCase{
 		questionC: rgst.Repository().NewQuestionCommand(),
 		questionQ: rgst.Repository().NewQuestionQuery(),
+		sectionC:  rgst.Repository().NewSectionCommand(),
 		sectionQ:  rgst.Repository().NewSectionQuery(),
 	}
 }
@@ -49,7 +50,7 @@ func (u CreateUseCase) Do(ipt CreateInput) (*CreateOutput, error) {
 
 	sec, err := u.sectionQ.GetSectionByID(ipt.Ctx, ipt.SectionID)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to get section in question createUC: %w", err)
 	}
 
 	var newIndex float64
