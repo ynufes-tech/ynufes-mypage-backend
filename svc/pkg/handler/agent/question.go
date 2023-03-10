@@ -94,11 +94,12 @@ func (q Question) CreateHandler() gin.HandlerFunc {
 				c.JSON(500, gin.H{"error": err.Error()})
 				return
 			}
+			optOrder := checkQ.OptionsOrder.GetOrderedIDs()
 			opts := make([]schemaQ.CheckboxOptionInfo, len(checkQ.Options))
-			for i := range checkQ.Options {
+			for i := range optOrder {
 				opts[i] = schemaQ.CheckboxOptionInfo{
-					ID:   checkQ.Options[i].ID.ExportID(),
-					Text: checkQ.Options[i].Text,
+					ID:   checkQ.Options[optOrder[i]].ID.ExportID(),
+					Text: checkQ.Options[optOrder[i]].Text,
 				}
 			}
 			checkbox = &schemaQ.CheckboxQuestionInfo{
@@ -110,11 +111,12 @@ func (q Question) CreateHandler() gin.HandlerFunc {
 				c.JSON(500, gin.H{"error": err.Error()})
 				return
 			}
+			optOrder := radioQ.OptionsOrder.GetOrderedIDs()
 			opts := make([]schemaQ.RadioOptionInfo, len(radioQ.Options))
-			for i := range radioQ.Options {
+			for i := range optOrder {
 				opts[i] = schemaQ.RadioOptionInfo{
-					ID:   radioQ.Options[i].ID.ExportID(),
-					Text: radioQ.Options[i].Text,
+					ID:   radioQ.Options[optOrder[i]].ID.ExportID(),
+					Text: radioQ.Options[optOrder[i]].Text,
 				}
 			}
 			radio = &schemaQ.RadioQuestionInfo{
@@ -140,18 +142,18 @@ func (q Question) loadCheckboxQuestion(req schema.CreateQuestionRequest) (*quest
 		return nil, err
 	}
 
-	options := make([]question.CheckBoxOption, len(req.Checkbox.Options))
-	for i := range options {
-		options[i] = question.CheckBoxOption{
-			ID:   identity.IssueID(),
-			Text: req.Checkbox.Options[i],
-		}
-	}
+	options := make(map[question.CheckBoxOptionID]question.CheckBoxOption, len(req.Checkbox.Options))
 	optionsOrder := make(map[question.CheckBoxOptionID]float64, len(req.Checkbox.Options))
 	for i := range req.Checkbox.Options {
+		newID := identity.IssueID()
+		options[newID] = question.CheckBoxOption{
+			ID:   newID,
+			Text: req.Checkbox.Options[i],
+		}
 		// default order value will be 0.0, 1.0, 2.0, 3.0, 4.0...
-		optionsOrder[options[i].ID] = float64(i)
+		optionsOrder[newID] = float64(i)
 	}
+
 	newQ := question.NewCheckBoxQuestion(
 		nil, req.Text, options, optionsOrder, fid,
 	)
@@ -168,18 +170,18 @@ func (q Question) loadRadioQuestion(req schema.CreateQuestionRequest) (*question
 		return nil, err
 	}
 
-	options := make([]question.RadioButtonOption, len(req.Radio.Options))
-	for i := range options {
-		options[i] = question.RadioButtonOption{
-			ID:   identity.IssueID(),
-			Text: req.Radio.Options[i],
-		}
-	}
+	options := make(map[question.RadioButtonOptionID]question.RadioButtonOption, len(req.Radio.Options))
 	optionsOrder := make(map[question.RadioButtonOptionID]float64, len(req.Radio.Options))
 	for i := range req.Radio.Options {
+		newID := identity.IssueID()
+		options[newID] = question.RadioButtonOption{
+			ID:   newID,
+			Text: req.Radio.Options[i],
+		}
 		// default order value will be 0.0, 1.0, 2.0, 3.0, 4.0...
-		optionsOrder[options[i].ID] = float64(i)
+		optionsOrder[newID] = float64(i)
 	}
+
 	newQ := question.NewRadioButtonsQuestion(
 		nil, req.Text, options, optionsOrder, fid,
 	)

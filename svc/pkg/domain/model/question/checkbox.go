@@ -14,7 +14,7 @@ type (
 
 	CheckBoxQuestion struct {
 		Basic
-		Options      []CheckBoxOption
+		Options      map[CheckBoxOptionID]CheckBoxOption
 		OptionsOrder CheckboxOptionsOrder
 	}
 
@@ -32,7 +32,7 @@ const (
 )
 
 func NewCheckBoxQuestion(
-	id id.QuestionID, text string, options []CheckBoxOption, optionsOrder CheckboxOptionsOrder, formID id.FormID,
+	id id.QuestionID, text string, options map[CheckBoxOptionID]CheckBoxOption, optionsOrder CheckboxOptionsOrder, formID id.FormID,
 ) *CheckBoxQuestion {
 	return &CheckBoxQuestion{
 		Basic:        NewBasic(id, text, TypeCheckBox, formID),
@@ -71,7 +71,7 @@ func ImportCheckBoxQuestion(q StandardQuestion) (*CheckBoxQuestion, error) {
 			fmt.Sprintf("\"%s\" must be []int64 for CheckBoxQuestion", CheckBoxOptionsOrderField))
 	}
 
-	options := make([]CheckBoxOption, 0, len(optionsData))
+	options := make(map[CheckBoxOptionID]CheckBoxOption, len(optionsData))
 	optionsOrder := make(map[CheckBoxOptionID]float64, len(optionsOrderData))
 	for oid, index := range optionsOrderData {
 		if !ok {
@@ -95,10 +95,10 @@ func ImportCheckBoxQuestion(q StandardQuestion) (*CheckBoxQuestion, error) {
 		if err != nil {
 			return nil, err
 		}
-		options = append(options, CheckBoxOption{
+		options[i] = CheckBoxOption{
 			ID:   i,
 			Text: text,
-		})
+		}
 	}
 	return NewCheckBoxQuestion(q.ID, q.Text, options, optionsOrder, q.FormID), nil
 }

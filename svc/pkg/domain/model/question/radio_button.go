@@ -3,6 +3,7 @@ package question
 import (
 	"errors"
 	"fmt"
+	"sort"
 	"ynufes-mypage-backend/pkg/identity"
 	"ynufes-mypage-backend/svc/pkg/domain/model/id"
 	"ynufes-mypage-backend/svc/pkg/domain/model/util"
@@ -11,8 +12,8 @@ import (
 type (
 	RadioButtonsQuestion struct {
 		Basic
-		Options      []RadioButtonOption
-		OptionsOrder map[RadioButtonOptionID]float64
+		Options      map[RadioButtonOptionID]RadioButtonOption
+		OptionsOrder RadioButtonOptionsOrder
 	}
 	RadioButtonOption struct {
 		ID   RadioButtonOptionID
@@ -28,7 +29,7 @@ const (
 )
 
 func NewRadioButtonsQuestion(
-	id id.QuestionID, text string, options []RadioButtonOption, order RadioButtonOptionsOrder, formID id.FormID,
+	id id.QuestionID, text string, options map[RadioButtonOptionID]RadioButtonOption, order RadioButtonOptionsOrder, formID id.FormID,
 ) *RadioButtonsQuestion {
 	return &RadioButtonsQuestion{
 		Basic:        NewBasic(id, text, TypeRadio, formID),
@@ -62,7 +63,7 @@ func ImportRadioButtonsQuestion(q StandardQuestion) (*RadioButtonsQuestion, erro
 			fmt.Sprintf("\"%s\" must be map[string]float64 for RadioButtonsQuestion", RadioButtonOptionsOrderField))
 	}
 
-	options := make([]RadioButtonOption, 0, len(optionsData))
+	options := make(map[RadioButtonOptionID]RadioButtonOption, len(optionsData))
 	optionsOrder := make(map[RadioButtonOptionID]float64, len(optionsOrderData))
 	for tid, index := range optionsOrderData {
 		if !ok {
@@ -81,10 +82,10 @@ func ImportRadioButtonsQuestion(q StandardQuestion) (*RadioButtonsQuestion, erro
 		if err != nil {
 			return nil, err
 		}
-		options = append(options, RadioButtonOption{
+		options[i] = RadioButtonOption{
 			ID:   i,
 			Text: text,
-		})
+		}
 	}
 	return NewRadioButtonsQuestion(
 		q.ID, q.Text, options, optionsOrder, q.FormID,
@@ -110,10 +111,13 @@ func (q RadioButtonsQuestion) Export() StandardQuestion {
 	return NewStandardQuestion(TypeRadio, q.ID, q.FormID, q.Text, customs)
 }
 
-func (q RadioButtonsQuestion) GetOrderedIDs() []RadioButtonOptionID {
-	ids := make([]RadioButtonOptionID, 0, len(q.OptionsOrder))
-	for oid := range q.OptionsOrder {
+func (o RadioButtonOptionsOrder) GetOrderedIDs() []RadioButtonOptionID {
+	ids := make([]RadioButtonOptionID, 0, len(o))
+	for oid := range o {
 		ids = append(ids, oid)
 	}
+	sort.Slice(ids, func(i, j int) bool {
+		return o[ids[i]] < o[ids[j]]
+	})
 	return ids
 }
