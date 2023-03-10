@@ -3,6 +3,7 @@ package reader
 import (
 	"context"
 	"firebase.google.com/go/v4/db"
+	"fmt"
 	"ynufes-mypage-backend/pkg/firebase"
 	"ynufes-mypage-backend/svc/pkg/domain/model/id"
 	"ynufes-mypage-backend/svc/pkg/domain/model/section"
@@ -34,12 +35,12 @@ func (s Section) GetSectionByID(ctx context.Context, tid id.SectionID) (*section
 	}
 	var e entity.Section
 	if err := hits[0].Unmarshal(&e); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("fail to unmarshal: %w", err)
 	}
 	e.ID = tid
 	m, err := e.ToModel()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("fail in entity->model: %w", err)
 	}
 	return m, nil
 }
@@ -57,12 +58,12 @@ func (s Section) ListSectionsByFormID(ctx context.Context, fid id.FormID) ([]sec
 	for _, hit := range hits {
 		var e entity.Section
 		if err := hit.Unmarshal(&e); err != nil {
-			return nil, err
+			return nil, fmt.Errorf("fail to unmarshal: %w", err)
 		}
 		e.ID = fid
 		m, err := e.ToModel()
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("fail in entity->model: %w", err)
 		}
 		sections = append(sections, *m)
 	}
