@@ -11,4 +11,5 @@ var (
 	ErrNotFound          = errors.New("NOT FOUND")
 	ErrUnauthorized      = errors.New("UNAUTHORIZED")
 	ErrNotAvailable      = errors.New("FORM NOT OPEN")
+	ErrAlreadyExists     = errors.New("ALREADY EXISTS")
 )

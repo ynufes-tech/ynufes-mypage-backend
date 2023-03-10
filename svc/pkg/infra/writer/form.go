@@ -3,6 +3,7 @@ package writer
 import (
 	"context"
 	"firebase.google.com/go/v4/db"
+	"fmt"
 	"ynufes-mypage-backend/pkg/firebase"
 	"ynufes-mypage-backend/pkg/identity"
 	"ynufes-mypage-backend/svc/pkg/domain/model/form"
@@ -73,6 +74,52 @@ func (f Form) Set(ctx context.Context, target form.Form) error {
 	err := f.ref.Child(target.ID.ExportID()).Set(ctx, e)
 	if err != nil {
 		return err
+	}
+	return nil
+}
+
+func (f Form) AddSectionOrder(ctx context.Context, fid id.FormID, sid id.SectionID, index float64) error {
+	if fid == nil || !fid.HasValue() ||
+		sid == nil || !sid.HasValue() {
+		return exception.ErrIDNotAssigned
+	}
+	err := f.ref.Child(fid.ExportID()).Child("sections").Child(sid.ExportID()).
+		Transaction(ctx, func(t db.TransactionNode) (interface{}, error) {
+			var v *float64
+			if err := t.Unmarshal(&v); err != nil {
+				return nil, fmt.Errorf("failed to unmarshal: %w", err)
+			}
+			if v == nil {
+				return index, nil
+			} else {
+				return nil, exception.ErrAlreadyExists
+			}
+		})
+	if err != nil {
+		return fmt.Errorf("failed to add section order: %w", err)
+	}
+	return nil
+}
+
+func (f Form) UpdateSectionOrder(ctx context.Context, fid id.FormID, sid id.SectionID, index float64) error {
+	if fid == nil || !fid.HasValue() ||
+		sid == nil || !sid.HasValue() {
+		return exception.ErrIDNotAssigned
+	}
+	err := f.ref.Child(fid.ExportID()).Child("sections").Child(sid.ExportID()).
+		Transaction(ctx, func(t db.TransactionNode) (interface{}, error) {
+			var v *float64
+			if err := t.Unmarshal(&v); err != nil {
+				return nil, fmt.Errorf("failed to unmarshal: %w", err)
+			}
+			if v == nil {
+				return nil, exception.ErrNotFound
+			} else {
+				return index, nil
+			}
+		})
+	if err != nil {
+		return fmt.Errorf("failed to update section order: %w", err)
 	}
 	return nil
 }
