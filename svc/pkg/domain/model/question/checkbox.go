@@ -53,8 +53,9 @@ func ImportCheckBoxQuestion(q StandardQuestion) (*CheckBoxQuestion, error) {
 		return nil, errors.New(
 			fmt.Sprintf("\"%s\" is required for CheckBoxQuestion", CheckBoxOptionsField))
 	}
-	optionsData, ok := optionsDataI.(map[string]interface{})
+	optionsData, ok := optionsDataI.(map[string]string)
 	if !ok {
+		fmt.Printf("optionsDataI: %T\n", optionsDataI)
 		return nil, errors.New(
 			fmt.Sprintf("\"%s\" must be map[string]string for CheckBoxQuestion", CheckBoxOptionsField))
 	}
@@ -65,7 +66,7 @@ func ImportCheckBoxQuestion(q StandardQuestion) (*CheckBoxQuestion, error) {
 		return nil, errors.New(
 			fmt.Sprintf("\"%s\" is required for CheckBoxQuestion", CheckBoxOptionsOrderField))
 	}
-	optionsOrderData, ok := optionsOrderDataI.(map[string]interface{})
+	optionsOrderData, ok := optionsOrderDataI.(map[string]float64)
 	if !ok {
 		return nil, errors.New(
 			fmt.Sprintf("\"%s\" must be []int64 for CheckBoxQuestion", CheckBoxOptionsOrderField))
@@ -74,7 +75,6 @@ func ImportCheckBoxQuestion(q StandardQuestion) (*CheckBoxQuestion, error) {
 	options := make([]CheckBoxOption, 0, len(optionsData))
 	optionsOrder := make(map[CheckBoxOptionID]float64, len(optionsOrderData))
 	for oid, index := range optionsOrderData {
-		i, ok := index.(float64)
 		if !ok {
 			return nil, errors.New(
 				fmt.Sprintf("Option order must be int64 for CheckBoxQuestion"))
@@ -83,12 +83,11 @@ func ImportCheckBoxQuestion(q StandardQuestion) (*CheckBoxQuestion, error) {
 		if err != nil {
 			return nil, err
 		}
-		optionsOrder[oid] = i
+		optionsOrder[oid] = index
 	}
 
-	for oid, textI := range optionsData {
+	for oid, text := range optionsData {
 		// here we cast textI to string
-		text, ok := textI.(string)
 		if !ok {
 			return nil, errors.New(
 				fmt.Sprintf("Option text must be string for CheckBoxQuestion"))
