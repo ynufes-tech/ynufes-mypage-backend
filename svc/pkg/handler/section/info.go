@@ -74,6 +74,7 @@ func (h Section) InfoHandler() gin.HandlerFunc {
 						Text: radioQ.Options[i].Text,
 					})
 				}
+				respQ.Options = &options
 			case question.TypeCheckBox:
 				checkQ, err := question.ImportCheckBoxQuestion(target.Export())
 				if err != nil {
@@ -87,6 +88,7 @@ func (h Section) InfoHandler() gin.HandlerFunc {
 						Text: checkQ.Options[i].Text,
 					})
 				}
+				respQ.Options = &options
 			case question.TypeFile:
 				fileQ, err := question.ImportFileQuestion(target.Export())
 				if err != nil {
