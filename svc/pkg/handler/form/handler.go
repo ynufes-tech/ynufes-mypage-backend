@@ -59,9 +59,10 @@ func (f Form) InfoHandler() gin.HandlerFunc {
 			ctx.JSON(500, gin.H{"error": err.Error()})
 			return
 		}
-		forms := make([]string, len(opt.Form.Sections))
-		for i := range opt.Form.Sections {
-			forms[i] = opt.Form.Sections[i].ExportID()
+		secsO := opt.Form.Sections.GetOrderedIDs()
+		secs := make([]string, len(opt.Form.Sections))
+		for i := range secsO {
+			secs[i] = secsO[i].ExportID()
 		}
 		resp := formResp.FormInfoResponse{
 			ID:          opt.Form.ID.ExportID(),
@@ -72,7 +73,7 @@ func (f Form) InfoHandler() gin.HandlerFunc {
 			// TODO: Set status
 			Status:   0,
 			IsOpen:   opt.Form.IsOpen,
-			Sections: forms,
+			Sections: secs,
 		}
 		ctx.JSON(200, resp)
 	}).GinHandler()

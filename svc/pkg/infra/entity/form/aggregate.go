@@ -64,10 +64,19 @@ func (f Form) ToModel() (*form.Form, error) {
 		roles = append(roles, tid)
 	}
 
+	sections := make(map[id.SectionID]float64, len(f.Sections))
+	for k, v := range f.Sections {
+		tid, err := identity.ImportID(k)
+		if err != nil {
+			return nil, err
+		}
+		sections[tid] = v
+	}
+
 	deadline := time.UnixMilli(f.Deadline)
 	return form.NewForm(
 		f.ID, eID,
 		f.Title, f.Summary, f.Description,
-		f.Sections, roles, deadline, f.IsOpen,
+		sections, roles, deadline, f.IsOpen,
 	), nil
 }

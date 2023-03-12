@@ -32,13 +32,18 @@ func (f Form) Create(ctx context.Context, target *form.Form) error {
 	for i := 0; i < len(target.Roles); i++ {
 		roles[target.Roles[i].ExportID()] = true
 	}
+	oSections := target.Sections.GetOrderedIDs()
+	eSections := make(map[string]float64, len(target.Sections))
+	for i := range oSections {
+		eSections[oSections[i].ExportID()] = float64(i)
+	}
 	e := entity.NewForm(
 		tid,
 		target.EventID.ExportID(),
 		target.Title,
 		target.Summary,
 		target.Description,
-		target.Sections,
+		eSections,
 		roles,
 		target.Deadline.UnixMilli(),
 		target.IsOpen,
@@ -60,13 +65,19 @@ func (f Form) Set(ctx context.Context, target form.Form) error {
 	for i := 0; i < len(target.Roles); i++ {
 		roles[target.Roles[i].ExportID()] = true
 	}
+
+	oSections := target.Sections.GetOrderedIDs()
+	eSections := make(map[string]float64, len(target.Sections))
+	for i := range oSections {
+		eSections[oSections[i].ExportID()] = float64(i)
+	}
 	e := entity.NewForm(
 		target.ID,
 		target.EventID.ExportID(),
 		target.Title,
 		target.Summary,
 		target.Description,
-		target.Sections,
+		eSections,
 		roles,
 		target.Deadline.UnixMilli(),
 		target.IsOpen,
