@@ -1,6 +1,7 @@
 package section
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"ynufes-mypage-backend/pkg/identity"
 	"ynufes-mypage-backend/svc/pkg/domain/model/question"
@@ -40,7 +41,20 @@ func (h Section) InfoHandler() gin.HandlerFunc {
 		qids := opt.Section.QuestionIDs.GetOrderedIDs()
 		respQs := make([]schemaS.Question, 0, len(qids))
 		for i := range qids {
-			target := opt.Section.Questions[qids[i]]
+			target, ok := opt.Section.Questions[qids[i]]
+			if !ok {
+				fmt.Println("internal error: question not found")
+				fmt.Println("section id: ", opt.Section.ID.ExportID())
+				fmt.Println("question id: ", qids[i].ExportID())
+				for _, qid := range qids {
+					fmt.Println("qid: ", qid.ExportID())
+				}
+				for k := range opt.Section.Questions {
+					fmt.Println("key: ", k.ExportID())
+				}
+				c.JSON(500, gin.H{"error": "server process error: question not found"})
+				return
+			}
 			respQ := schemaS.Question{
 				ID:   target.GetID().ExportID(),
 				Type: target.GetType().String(),
