@@ -42,7 +42,7 @@ func Implement(rg *gin.RouterGroup, devTool bool) error {
 	authRg.Handle("POST", "/user/info", user.InfoUpdateHandler())
 	authRg.Handle("GET", "/orgs", org.OrgsHandler())
 	authRg.Handle("POST", "/org/register", org.OrgRegisterHandler())
-	authRg.Handle("GET", "/org/:orgID", org.OrgHandler())
+	authRg.Handle("GET", "/org", org.OrgHandler())
 	authRg.Handle("GET", "/section", section.InfoHandler())
 	return nil
 }

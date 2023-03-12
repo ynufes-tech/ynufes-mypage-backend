@@ -103,7 +103,7 @@ func (o Org) OrgRegisterHandler() gin.HandlerFunc {
 // /org/:orgID
 func (o Org) OrgHandler() gin.HandlerFunc {
 	var h util.Handler = func(ctx *gin.Context, u user.User) {
-		orgID, err := identity.ImportID(ctx.Param("orgID"))
+		orgID, err := identity.ImportID(ctx.Query("org_id"))
 		if err != nil {
 			ctx.AbortWithStatusJSON(400, gin.H{"error": "invalid orgID"})
 			return
