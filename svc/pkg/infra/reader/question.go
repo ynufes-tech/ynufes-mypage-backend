@@ -5,6 +5,7 @@ import (
 	"firebase.google.com/go/v4/db"
 	"fmt"
 	"ynufes-mypage-backend/pkg/firebase"
+	"ynufes-mypage-backend/pkg/identity"
 	"ynufes-mypage-backend/svc/pkg/domain/model/id"
 	"ynufes-mypage-backend/svc/pkg/domain/model/question"
 	"ynufes-mypage-backend/svc/pkg/exception"
@@ -54,7 +55,11 @@ func (q Question) ListByEventID(ctx context.Context, eid id.EventID) ([]question
 		if err := results[i].Unmarshal(&questionEntity); err != nil {
 			return nil, err
 		}
-		questionEntity.ID = eid
+		qid, err := identity.ImportID(results[i].Key())
+		if err != nil {
+			return nil, fmt.Errorf("failed to import question id from Key(): %w", err)
+		}
+		questionEntity.ID = qid
 		model, err := questionEntity.ToModel()
 		if err != nil {
 			return nil, err
@@ -76,7 +81,11 @@ func (q Question) ListByFormID(ctx context.Context, id id.FormID) ([]question.Qu
 		if err := results[i].Unmarshal(&questionEntity); err != nil {
 			return nil, err
 		}
-		questionEntity.ID = id
+		qid, err := identity.ImportID(results[i].Key())
+		if err != nil {
+			return nil, fmt.Errorf("failed to import question id from Key(): %w", err)
+		}
+		questionEntity.ID = qid
 		model, err := questionEntity.ToModel()
 		if err != nil {
 			return nil, err
@@ -98,7 +107,11 @@ func (q Question) ListBySectionID(ctx context.Context, id id.SectionID) ([]quest
 		if err := results[i].Unmarshal(&questionEntity); err != nil {
 			return nil, err
 		}
-		questionEntity.ID = id
+		qid, err := identity.ImportID(results[i].Key())
+		if err != nil {
+			return nil, fmt.Errorf("failed to import question id from Key(): %w", err)
+		}
+		questionEntity.ID = qid
 		model, err := questionEntity.ToModel()
 		if err != nil {
 			return nil, err
