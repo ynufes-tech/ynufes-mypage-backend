@@ -2,6 +2,7 @@ package section
 
 import (
 	"context"
+	"fmt"
 	"ynufes-mypage-backend/svc/pkg/domain/model/id"
 	"ynufes-mypage-backend/svc/pkg/domain/model/question"
 	"ynufes-mypage-backend/svc/pkg/domain/model/section"
@@ -34,12 +35,12 @@ func NewInfo(rgst registry.Registry) InfoUseCase {
 func (uc InfoUseCase) Do(ipt InfoInput) (*InfoOutput, error) {
 	s, err := uc.sectionQ.GetSectionByID(ipt.Ctx, ipt.SectionID)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to get section: %w", err)
 	}
 
-	questions, err := uc.questionQ.ListBySectionID(ipt.Ctx, ipt.SectionID)
+	questions, err := uc.questionQ.ListByFormID(ipt.Ctx, s.FormID)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to get questions: %w", err)
 	}
 
 	qMap := make(map[id.QuestionID]question.Question, len(questions))
