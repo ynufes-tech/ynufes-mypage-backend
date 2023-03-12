@@ -118,6 +118,9 @@ func (o Org) OrgHandler() gin.HandlerFunc {
 			if errors.Is(err, exception.ErrNotFound) {
 				ctx.AbortWithStatusJSON(404, gin.H{"error": "org not found"})
 				return
+			} else if errors.Is(err, exception.ErrUnauthorized) {
+				ctx.AbortWithStatusJSON(401, gin.H{"error": "unauthorized"})
+				return
 			}
 			log.Printf("error in OrgHandler: %v\n", err)
 			_ = ctx.AbortWithError(500, err)
