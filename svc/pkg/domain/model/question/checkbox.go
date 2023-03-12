@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"sort"
 	"ynufes-mypage-backend/pkg/identity"
+	"ynufes-mypage-backend/pkg/typecast"
 	"ynufes-mypage-backend/svc/pkg/domain/model/id"
 	"ynufes-mypage-backend/svc/pkg/domain/model/util"
 )
@@ -44,40 +45,34 @@ func NewCheckBoxQuestion(
 func ImportCheckBoxQuestion(q StandardQuestion) (*CheckBoxQuestion, error) {
 	// CheckBoxOptionsField should be map[string]string
 
-	// Although you cannot cast map[string]interface{} to map[string]string,
-	// you have to iterate over the map and cast each value to string.
-	// First, check if customs has CheckBoxOptionsField as map[string]interface{}, return error if not.
 	optionsDataI, has := q.Customs[CheckBoxOptionsField]
 	if !has {
 		return nil, errors.New(
 			fmt.Sprintf("\"%s\" is required for CheckBoxQuestion", CheckBoxOptionsField))
 	}
-	optionsData, ok := optionsDataI.(map[string]string)
-	if !ok {
-		fmt.Printf("optionsDataI: %T\n", optionsDataI)
+	optionsData, err := typecast.ConvertToStringMapString(optionsDataI)
+	if err != nil {
+		fmt.Printf("optionsDataI: %#v %T\n", optionsDataI, optionsDataI)
 		return nil, errors.New(
 			fmt.Sprintf("\"%s\" must be map[string]string for CheckBoxQuestion", CheckBoxOptionsField))
 	}
 
-	// check if customs has "order" as []int64, return error if not
+	// check if customs has "order" as map[string]float, return error if not
 	optionsOrderDataI, has := q.Customs[CheckBoxOptionsOrderField]
 	if !has {
 		return nil, errors.New(
 			fmt.Sprintf("\"%s\" is required for CheckBoxQuestion", CheckBoxOptionsOrderField))
 	}
-	optionsOrderData, ok := optionsOrderDataI.(map[string]float64)
-	if !ok {
+	optionsOrderData, err := typecast.ConvertToStringMapFloat64(optionsOrderDataI)
+	if err != nil {
+		fmt.Printf("optionsOrderDataI: %#v %T\n", optionsOrderDataI, optionsOrderDataI)
 		return nil, errors.New(
-			fmt.Sprintf("\"%s\" must be []int64 for CheckBoxQuestion", CheckBoxOptionsOrderField))
+			fmt.Sprintf("\"%s\" must be map[string]float64 for CheckBoxQuestion", CheckBoxOptionsOrderField))
 	}
 
 	options := make(map[CheckBoxOptionID]CheckBoxOption, len(optionsData))
 	optionsOrder := make(map[CheckBoxOptionID]float64, len(optionsOrderData))
 	for oid, index := range optionsOrderData {
-		if !ok {
-			return nil, errors.New(
-				fmt.Sprintf("Option order must be int64 for CheckBoxQuestion"))
-		}
 		oid, err := identity.ImportID(oid)
 		if err != nil {
 			return nil, err
@@ -86,11 +81,6 @@ func ImportCheckBoxQuestion(q StandardQuestion) (*CheckBoxQuestion, error) {
 	}
 
 	for oid, text := range optionsData {
-		// here we cast textI to string
-		if !ok {
-			return nil, errors.New(
-				fmt.Sprintf("Option text must be string for CheckBoxQuestion"))
-		}
 		i, err := identity.ImportID(oid)
 		if err != nil {
 			return nil, err

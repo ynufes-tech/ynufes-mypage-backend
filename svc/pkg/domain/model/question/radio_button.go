@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"sort"
 	"ynufes-mypage-backend/pkg/identity"
+	"ynufes-mypage-backend/pkg/typecast"
 	"ynufes-mypage-backend/svc/pkg/domain/model/id"
 	"ynufes-mypage-backend/svc/pkg/domain/model/util"
 )
@@ -39,26 +40,24 @@ func NewRadioButtonsQuestion(
 }
 
 func ImportRadioButtonsQuestion(q StandardQuestion) (*RadioButtonsQuestion, error) {
-	// check if customs has "options" as map[int64]string, return error if not
 	optionsDataI, has := q.Customs[RadioButtonOptionsField]
 	if !has {
 		return nil, errors.New(
 			fmt.Sprintf("\"%s\" is required for RadioButtonsQuestion", RadioButtonOptionsField))
 	}
-	optionsData, ok := optionsDataI.(map[string]string)
-	if !ok {
+	optionsData, err := typecast.ConvertToStringMapString(optionsDataI)
+	if err != nil {
 		return nil, errors.New(
 			fmt.Sprintf("\"%s\" must be map[string]string for RadioButtonsQuestion", RadioButtonOptionsField))
 	}
 
-	// check if customs has "order" as []int64, return error if not
 	optionsOrderDataI, has := q.Customs[RadioButtonOptionsOrderField]
 	if !has {
 		return nil, errors.New(
 			fmt.Sprintf("\"%s\" is required for RadioButtonsQuestion", RadioButtonOptionsOrderField))
 	}
-	optionsOrderData, ok := optionsOrderDataI.(map[string]float64)
-	if !ok {
+	optionsOrderData, err := typecast.ConvertToStringMapFloat64(optionsOrderDataI)
+	if err != nil {
 		return nil, errors.New(
 			fmt.Sprintf("\"%s\" must be map[string]float64 for RadioButtonsQuestion", RadioButtonOptionsOrderField))
 	}
@@ -66,10 +65,6 @@ func ImportRadioButtonsQuestion(q StandardQuestion) (*RadioButtonsQuestion, erro
 	options := make(map[RadioButtonOptionID]RadioButtonOption, len(optionsData))
 	optionsOrder := make(map[RadioButtonOptionID]float64, len(optionsOrderData))
 	for tid, index := range optionsOrderData {
-		if !ok {
-			return nil, errors.New(
-				fmt.Sprintf("\"%s\" must be []int64 for RadioButtonsQuestion", RadioButtonOptionsOrderField))
-		}
 		i, err := identity.ImportID(tid)
 		if err != nil {
 			return nil, err
