@@ -23,10 +23,24 @@ const (
 	FileConstraintsCustomsField          = "fileConstraint"
 )
 
-func NewFileQuestion(id id.QuestionID, text string, eventID id.EventID, fileType FileType, constraint FileConstraint,
+func (t FileType) String() string {
+	switch t {
+	case Image:
+		return "image"
+	case PDF:
+		return "pdf"
+	case Any:
+		return "any"
+	default:
+		return "unknown"
+	}
+}
+
+func NewFileQuestion(
+	id id.QuestionID, text string, fileType FileType, constraint FileConstraint, formID id.FormID,
 ) *FileQuestion {
 	return &FileQuestion{
-		Basic:      NewBasic(id, text, eventID, TypeFile),
+		Basic:      NewBasic(id, text, TypeFile, formID),
 		FileType:   fileType,
 		Constraint: constraint,
 	}
@@ -58,13 +72,13 @@ func ImportFileQuestion(q StandardQuestion) (*FileQuestion, error) {
 	}
 
 	if fileType == Any {
-		return NewFileQuestion(q.ID, q.Text, q.EventID, fileType, nil), nil
+		return NewFileQuestion(q.ID, q.Text, fileType, nil, q.FormID), nil
 	}
 
 	constraintsCustomsData, has := q.Customs[FileConstraintsCustomsField]
 	// if FileConstraintsCustomsField is not present, return FileQuestion without constraint
 	if !has {
-		return NewFileQuestion(q.ID, q.Text, q.EventID, fileType, nil), nil
+		return NewFileQuestion(q.ID, q.Text, fileType, nil, q.FormID), nil
 	}
 
 	constraintsCustoms, ok := constraintsCustomsData.(map[string]interface{})
@@ -75,7 +89,7 @@ func ImportFileQuestion(q StandardQuestion) (*FileQuestion, error) {
 	}
 
 	constraint := NewStandardFileConstraint(fileType, constraintsCustoms)
-	question := NewFileQuestion(q.ID, q.Text, q.EventID, fileType, ImportFileConstraint(constraint))
+	question := NewFileQuestion(q.ID, q.Text, fileType, ImportFileConstraint(constraint), q.FormID)
 	if err != nil {
 		return nil, err
 	}
@@ -90,5 +104,5 @@ func (q FileQuestion) Export() StandardQuestion {
 	if q.Constraint != nil {
 		customs[FileConstraintsCustomsField] = q.Constraint.Export().Customs
 	}
-	return NewStandardQuestion(TypeFile, q.ID, q.EventID, q.Text, customs)
+	return NewStandardQuestion(TypeFile, q.ID, q.FormID, q.Text, customs)
 }

@@ -103,7 +103,7 @@ func (o Org) OrgRegisterHandler() gin.HandlerFunc {
 // /org/:orgID
 func (o Org) OrgHandler() gin.HandlerFunc {
 	var h util.Handler = func(ctx *gin.Context, u user.User) {
-		orgID, err := identity.ImportID(ctx.Param("orgID"))
+		orgID, err := identity.ImportID(ctx.Query("org_id"))
 		if err != nil {
 			ctx.AbortWithStatusJSON(400, gin.H{"error": "invalid orgID"})
 			return
@@ -117,6 +117,9 @@ func (o Org) OrgHandler() gin.HandlerFunc {
 		if err != nil {
 			if errors.Is(err, exception.ErrNotFound) {
 				ctx.AbortWithStatusJSON(404, gin.H{"error": "org not found"})
+				return
+			} else if errors.Is(err, exception.ErrUnauthorized) {
+				ctx.AbortWithStatusJSON(401, gin.H{"error": "unauthorized"})
 				return
 			}
 			log.Printf("error in OrgHandler: %v\n", err)

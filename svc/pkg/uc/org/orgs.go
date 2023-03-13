@@ -46,7 +46,7 @@ func (o OrgsUseCase) Do(ipt OrgsInput) (opt *OrgsOutput, err error) {
 		return nil, err
 	}
 	orgs := make([]org.Org, 0, len(orgIDs))
-	for i := 0; i < len(orgs); i++ {
+	for i := 0; i < len(orgIDs); i++ {
 		t, err := o.orgQ.GetByID(ipt.Ctx, orgIDs[i])
 		if err != nil {
 			if errors.Is(err, exception.ErrNotFound) {

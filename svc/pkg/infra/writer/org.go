@@ -46,7 +46,7 @@ func (w Org) Create(ctx context.Context, o *org.Org) error {
 }
 
 func (w Org) Set(ctx context.Context, o org.Org) error {
-	if !o.ID.HasValue() {
+	if o.ID == nil || !o.ID.HasValue() {
 		return exception.ErrIDNotAssigned
 	}
 	e := entity.Org{

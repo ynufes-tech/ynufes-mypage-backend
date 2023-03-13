@@ -6,19 +6,21 @@ import (
 )
 
 type Basic struct {
-	ID      id.QuestionID
-	Text    string
-	EventID id.EventID
-	FormID  id.FormID
-	qType   Type
+	ID        id.QuestionID
+	Text      string
+	FormID    id.FormID
+	SectionID id.SectionID
+	qType     Type
 }
 
-func NewBasic(id id.QuestionID, text string, eventID id.EventID, qType Type) Basic {
+func NewBasic(
+	id id.QuestionID, text string, qType Type, formID id.FormID,
+) Basic {
 	return Basic{
-		ID:      id,
-		Text:    text,
-		EventID: eventID,
-		qType:   qType,
+		ID:     id,
+		Text:   text,
+		qType:  qType,
+		FormID: formID,
 	}
 }
 
@@ -28,10 +30,6 @@ func (b Basic) GetID() id.QuestionID {
 
 func (b Basic) GetText() string {
 	return b.Text
-}
-
-func (b Basic) GetEventID() id.EventID {
-	return b.EventID
 }
 
 func (b Basic) GetFormID() id.FormID {

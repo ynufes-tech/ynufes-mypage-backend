@@ -23,7 +23,7 @@ func NewForm(client *firebase.Firebase) *Form {
 }
 
 func (f Form) GetByID(ctx context.Context, id id.FormID) (*form.Form, error) {
-	if !id.HasValue() {
+	if id == nil || !id.HasValue() {
 		return nil, exception.ErrIDNotAssigned
 	}
 	var e entity.Form
@@ -50,7 +50,7 @@ func (f Form) GetByID(ctx context.Context, id id.FormID) (*form.Form, error) {
 }
 
 func (f Form) ListByEventID(ctx context.Context, eventID id.EventID) ([]form.Form, error) {
-	if !eventID.HasValue() {
+	if eventID == nil || !eventID.HasValue() {
 		return nil, exception.ErrIDNotAssigned
 	}
 	results, err := f.ref.OrderByChild("event_id").EqualTo(eventID.ExportID()).

@@ -31,8 +31,7 @@ func (w Question) Create(ctx context.Context, q *question.Question) error {
 	}
 	e := entity.NewQuestion(
 		(*q).GetID(),
-		((*q).GetEventID()).GetValue(),
-		(*q).GetFormID().GetValue(),
+		(*q).GetFormID().ExportID(),
 		(*q).GetText(),
 		int((*q).GetType()),
 		(*q).Export().Customs,
@@ -45,7 +44,7 @@ func (w Question) Create(ctx context.Context, q *question.Question) error {
 }
 
 func (w Question) UpdateCustoms(ctx context.Context, id id.QuestionID, customs map[string]interface{}) error {
-	if !id.HasValue() {
+	if id == nil || !id.HasValue() {
 		return exception.ErrIDNotAssigned
 	}
 	err := w.ref.Child(id.ExportID()).
@@ -59,13 +58,12 @@ func (w Question) UpdateCustoms(ctx context.Context, id id.QuestionID, customs m
 }
 
 func (w Question) Set(ctx context.Context, q question.Question) error {
-	if !q.GetID().HasValue() {
+	if q.GetID() == nil || !q.GetID().HasValue() {
 		return exception.ErrIDNotAssigned
 	}
 	e := entity.NewQuestion(
 		q.GetID(),
-		(q.GetEventID()).GetValue(),
-		q.GetFormID().GetValue(),
+		q.GetFormID().ExportID(),
 		q.GetText(),
 		int(q.GetType()),
 		q.Export().Customs,

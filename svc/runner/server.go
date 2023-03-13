@@ -5,6 +5,7 @@ import (
 	agentOrg "ynufes-mypage-backend/svc/pkg/handler/agent"
 	"ynufes-mypage-backend/svc/pkg/handler/line"
 	orgHandler "ynufes-mypage-backend/svc/pkg/handler/org"
+	sectionHandler "ynufes-mypage-backend/svc/pkg/handler/section"
 	userHandler "ynufes-mypage-backend/svc/pkg/handler/user"
 	"ynufes-mypage-backend/svc/pkg/middleware"
 	"ynufes-mypage-backend/svc/pkg/registry"
@@ -35,12 +36,14 @@ func Implement(rg *gin.RouterGroup, devTool bool) error {
 
 	user := userHandler.NewUser(*rgst)
 	org := orgHandler.NewOrg(*rgst)
+	section := sectionHandler.NewSection(*rgst)
 	authRg := rg.Use(middlewareAuth.VerifyUser())
 	authRg.Handle("GET", "/user/info", user.InfoHandler())
-	authRg.Handle("POST", "/user/info/update", user.InfoUpdateHandler())
+	authRg.Handle("POST", "/user/info", user.InfoUpdateHandler())
 	authRg.Handle("GET", "/orgs", org.OrgsHandler())
 	authRg.Handle("POST", "/org/register", org.OrgRegisterHandler())
-	authRg.Handle("GET", "/org/:orgID", org.OrgHandler())
+	authRg.Handle("GET", "/org", org.OrgHandler())
+	authRg.Handle("GET", "/section", section.InfoHandler())
 	return nil
 }
 
@@ -56,9 +59,13 @@ func ImplementAgent(rg *gin.RouterGroup) error {
 	event := agentOrg.NewEvent(*rgst)
 	org := agentOrg.NewOrg(*rgst)
 	form := agentOrg.NewForm(*rgst)
+	section := agentOrg.NewSection(*rgst)
+	question := agentOrg.NewQuestion(*rgst)
 	rg.Handle("GET", "/agent/event/create", event.CreateHandler())
 	rg.Handle("GET", "/agent/org/create", org.CreateHandler())
 	rg.Handle("GET", "/agent/org/token", org.IssueOrgInviteToken())
 	rg.Handle("GET", "/agent/form/create", form.CreateHandler())
+	rg.Handle("GET", "/agent/section/create", section.CreateHandler())
+	rg.Handle("GET", "/agent/question/create", question.CreateHandler())
 	return nil
 }

@@ -3,7 +3,9 @@ package question
 import (
 	"errors"
 	"fmt"
+	"sort"
 	"ynufes-mypage-backend/pkg/identity"
+	"ynufes-mypage-backend/pkg/typecast"
 	"ynufes-mypage-backend/svc/pkg/domain/model/id"
 	"ynufes-mypage-backend/svc/pkg/domain/model/util"
 )
@@ -11,14 +13,15 @@ import (
 type (
 	RadioButtonsQuestion struct {
 		Basic
-		Options      []RadioButtonOption
-		OptionsOrder []RadioButtonOptionID
+		Options      map[RadioButtonOptionID]RadioButtonOption
+		OptionsOrder RadioButtonOptionsOrder
 	}
 	RadioButtonOption struct {
 		ID   RadioButtonOptionID
 		Text string
 	}
-	RadioButtonOptionID util.ID
+	RadioButtonOptionID     util.ID
+	RadioButtonOptionsOrder map[RadioButtonOptionID]float64
 )
 
 const (
@@ -27,69 +30,89 @@ const (
 )
 
 func NewRadioButtonsQuestion(
-	id id.QuestionID, text string, eventID id.EventID, options []RadioButtonOption, order []RadioButtonOptionID,
+	id id.QuestionID, text string, options map[RadioButtonOptionID]RadioButtonOption, order RadioButtonOptionsOrder, formID id.FormID,
 ) *RadioButtonsQuestion {
 	return &RadioButtonsQuestion{
-		Basic:        NewBasic(id, text, eventID, TypeRadio),
+		Basic:        NewBasic(id, text, TypeRadio, formID),
 		Options:      options,
 		OptionsOrder: order,
 	}
 }
 
 func ImportRadioButtonsQuestion(q StandardQuestion) (*RadioButtonsQuestion, error) {
-	// check if customs has "options" as map[int64]string, return error if not
 	optionsDataI, has := q.Customs[RadioButtonOptionsField]
 	if !has {
 		return nil, errors.New(
 			fmt.Sprintf("\"%s\" is required for RadioButtonsQuestion", RadioButtonOptionsField))
 	}
-	optionsData, ok := optionsDataI.(map[int64]string)
-	if !ok {
+	optionsData, err := typecast.ConvertToStringMapString(optionsDataI)
+	if err != nil {
 		return nil, errors.New(
-			fmt.Sprintf("\"%s\" must be map[int64]string for RadioButtonsQuestion", RadioButtonOptionsField))
+			fmt.Sprintf("\"%s\" must be map[string]string for RadioButtonsQuestion", RadioButtonOptionsField))
 	}
 
-	// check if customs has "order" as []int64, return error if not
 	optionsOrderDataI, has := q.Customs[RadioButtonOptionsOrderField]
 	if !has {
 		return nil, errors.New(
 			fmt.Sprintf("\"%s\" is required for RadioButtonsQuestion", RadioButtonOptionsOrderField))
 	}
-	optionsOrderData, ok := optionsOrderDataI.([]int64)
-	if !ok {
+	optionsOrderData, err := typecast.ConvertToStringMapFloat64(optionsOrderDataI)
+	if err != nil {
 		return nil, errors.New(
-			fmt.Sprintf("\"%s\" must be []int64 for RadioButtonsQuestion", RadioButtonOptionsOrderField))
+			fmt.Sprintf("\"%s\" must be map[string]float64 for RadioButtonsQuestion", RadioButtonOptionsOrderField))
 	}
 
-	options := make([]RadioButtonOption, 0, len(optionsData))
-	optionsOrder := make([]RadioButtonOptionID, 0, len(optionsOrderData))
-	for _, id := range optionsOrderData {
-		optionsOrder = append(optionsOrder, identity.NewID(id))
+	options := make(map[RadioButtonOptionID]RadioButtonOption, len(optionsData))
+	optionsOrder := make(map[RadioButtonOptionID]float64, len(optionsOrderData))
+	for tid, index := range optionsOrderData {
+		i, err := identity.ImportID(tid)
+		if err != nil {
+			return nil, err
+		}
+		optionsOrder[i] = index
 	}
 
-	for id, text := range optionsData {
-		options = append(options, RadioButtonOption{
-			ID:   identity.NewID(id),
+	for oid, text := range optionsData {
+		i, err := identity.ImportID(oid)
+		if err != nil {
+			return nil, err
+		}
+		options[i] = RadioButtonOption{
+			ID:   i,
 			Text: text,
-		})
+		}
 	}
-	return NewRadioButtonsQuestion(q.ID, q.Text, q.EventID, options, optionsOrder), nil
+	return NewRadioButtonsQuestion(
+		q.ID, q.Text, options, optionsOrder, q.FormID,
+	), nil
 }
 
 func (q RadioButtonsQuestion) Export() StandardQuestion {
 	customs := make(map[string]interface{})
 
-	options := make(map[int64]string, len(q.Options))
+	options := make(map[string]string, len(q.Options))
 	for _, o := range q.Options {
-		options[o.ID.GetValue()] = o.Text
+		options[o.ID.ExportID()] = o.Text
 	}
-	optionsOrder := make([]int64, 0, len(q.OptionsOrder))
-	for _, o := range q.OptionsOrder {
-		optionsOrder = append(optionsOrder, o.GetValue())
+
+	optionsOrder := make(map[string]float64, len(q.OptionsOrder))
+	for tid, index := range q.OptionsOrder {
+		optionsOrder[tid.ExportID()] = index
 	}
 
 	customs[RadioButtonOptionsField] = options
 	customs[RadioButtonOptionsOrderField] = optionsOrder
 
-	return NewStandardQuestion(TypeRadio, q.ID, q.EventID, q.Text, customs)
+	return NewStandardQuestion(TypeRadio, q.ID, q.FormID, q.Text, customs)
+}
+
+func (o RadioButtonOptionsOrder) GetOrderedIDs() []RadioButtonOptionID {
+	ids := make([]RadioButtonOptionID, 0, len(o))
+	for oid := range o {
+		ids = append(ids, oid)
+	}
+	sort.Slice(ids, func(i, j int) bool {
+		return o[ids[i]] < o[ids[j]]
+	})
+	return ids
 }

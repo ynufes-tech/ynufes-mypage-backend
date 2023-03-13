@@ -25,7 +25,7 @@ func NewUser(c *firebase.Firebase) User {
 }
 
 func (u User) GetByID(ctx context.Context, id id.UserID) (*user.User, error) {
-	if !id.HasValue() {
+	if id == nil || !id.HasValue() {
 		return nil, exception.ErrIDNotAssigned
 	}
 	r, err := u.ref.OrderByKey().EqualTo(id.ExportID()).GetOrdered(ctx)

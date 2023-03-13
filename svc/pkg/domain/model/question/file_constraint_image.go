@@ -17,7 +17,7 @@ type (
 		MaxResolutionWidth  int
 		MinResolutionHeight int
 		MaxResolutionHeight int
-		Extensions          []string
+		Extensions          []Extension
 		PNGInfo             image.InfoExtractor
 		JPGInfo             image.InfoExtractor
 		WEBPInfo            image.InfoExtractor
@@ -32,7 +32,7 @@ const (
 )
 
 func NewImageFileConstraint(
-	ratio float64, minNumber, maxNumber, minWidth, maxWidth, minHeight, maxHeight int, extensions []string,
+	ratio float64, minNumber, maxNumber, minWidth, maxWidth, minHeight, maxHeight int, extensions []Extension,
 ) ImageFileConstraint {
 	return ImageFileConstraint{
 		Ratio:               ratio,
@@ -58,9 +58,9 @@ func ImportImageFileConstraint(standard StandardFileConstraint) ImageFileConstra
 	minHeight, _ := standard.Customs["minHeight"].(int64)
 	maxHeight, _ := standard.Customs["maxHeight"].(int64)
 	extsI, _ := standard.Customs["extensions"].([]interface{})
-	exts := make([]string, len(extsI))
+	exts := make([]Extension, len(extsI))
 	for i, extI := range extsI {
-		exts[i] = extI.(string)
+		exts[i] = extI.(Extension)
 	}
 
 	return NewImageFileConstraint(
@@ -83,6 +83,10 @@ func (c ImageFileConstraint) Export() StandardFileConstraint {
 
 func (c ImageFileConstraint) GetFileType() FileType {
 	return Image
+}
+
+func (c ImageFileConstraint) GetExtensions() []Extension {
+	return c.Extensions
 }
 
 func (c ImageFileConstraint) ValidateFiles(files []File) error {
@@ -158,7 +162,7 @@ func (c ImageFileConstraint) checkExtension(ext string) (ImageType, error) {
 		return convertToImageType(ext)
 	}
 	for _, e := range c.Extensions {
-		if e == ext {
+		if string(e) == ext {
 			return convertToImageType(ext)
 		}
 	}

@@ -44,7 +44,7 @@ func (eve Event) Create(ctx context.Context, model *event.Event) error {
 }
 
 func (eve Event) Set(ctx context.Context, model event.Event) error {
-	if !model.ID.HasValue() {
+	if model.ID == nil || !model.ID.HasValue() {
 		return exception.ErrIDNotAssigned
 	}
 	e := entity.Event{

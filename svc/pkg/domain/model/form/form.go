@@ -1,6 +1,7 @@
 package form
 
 import (
+	"sort"
 	"time"
 	"ynufes-mypage-backend/svc/pkg/domain/model/id"
 	"ynufes-mypage-backend/svc/pkg/domain/model/user"
@@ -16,15 +17,16 @@ type (
 		Roles       []user.RoleID
 		Deadline    time.Time
 		IsOpen      bool
-		Sections    []id.SectionID
+		Sections    SectionsOrder
 	}
+	SectionsOrder map[id.SectionID]float64
 )
 
 func NewForm(
 	id id.FormID,
 	eventID id.EventID,
 	title, summary, description string,
-	sectionIDs []id.SectionID,
+	sectionOrders map[id.SectionID]float64,
 	roles []user.RoleID,
 	deadline time.Time,
 	isOpen bool,
@@ -38,6 +40,17 @@ func NewForm(
 		Roles:       roles,
 		Deadline:    deadline,
 		IsOpen:      isOpen,
-		Sections:    sectionIDs,
+		Sections:    sectionOrders,
 	}
+}
+
+func (o SectionsOrder) GetOrderedIDs() []id.SectionID {
+	ids := make([]id.SectionID, 0, len(o))
+	for oid := range o {
+		ids = append(ids, oid)
+	}
+	sort.Slice(ids, func(i, j int) bool {
+		return o[ids[i]] < o[ids[j]]
+	})
+	return ids
 }
