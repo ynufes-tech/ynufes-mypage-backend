@@ -19,13 +19,13 @@ type CreateUseCase struct {
 	sectionQ  query.Section
 }
 
-// CreateInput Order will be ignored if After is not nil or 0 value.
+// CreateInput Position will be ignored if After is not nil or 0 value.
 type CreateInput struct {
 	Ctx       context.Context
 	UserID    id.UserID
 	SectionID id.SectionID
 	After     id.QuestionID
-	Order     *int
+	Position  *int
 	Question  question.Question
 }
 
@@ -61,14 +61,14 @@ func (u CreateUseCase) Do(ipt CreateInput) (*CreateOutput, error) {
 		if err != nil {
 			return nil, err
 		}
-	} else if ipt.Order != nil {
-		// if order is specified
-		newIndex, err = getNewIndexPos(sec.QuestionIDs, *ipt.Order)
+	} else if ipt.Position != nil {
+		// if Position is specified
+		newIndex, err = getNewIndexPos(sec.QuestionIDs, *ipt.Position)
 		if err != nil {
 			return nil, err
 		}
 	} else {
-		return nil, errors.New("after or order must be specified")
+		return nil, errors.New("after or position must be specified")
 	}
 
 	if err := u.sectionC.LinkQuestion(
