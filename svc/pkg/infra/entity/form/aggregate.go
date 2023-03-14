@@ -6,6 +6,7 @@ import (
 	"ynufes-mypage-backend/svc/pkg/domain/model/form"
 	"ynufes-mypage-backend/svc/pkg/domain/model/id"
 	"ynufes-mypage-backend/svc/pkg/domain/model/user"
+	"ynufes-mypage-backend/svc/pkg/exception"
 )
 
 const FormRootName = "Forms"
@@ -46,6 +47,10 @@ func NewForm(
 }
 
 func (f Form) ToModel() (*form.Form, error) {
+	if f.EventID == "" {
+		return nil, exception.ErrIDNotAssigned
+	}
+
 	eID, err := identity.ImportID(f.EventID)
 
 	if err != nil {
