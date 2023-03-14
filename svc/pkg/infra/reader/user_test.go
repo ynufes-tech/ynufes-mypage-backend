@@ -2,16 +2,56 @@ package reader
 
 import (
 	"context"
-	"errors"
+	"github.com/stretchr/testify/assert"
 	"testing"
-	"ynufes-mypage-backend/pkg/firebase"
 	"ynufes-mypage-backend/pkg/identity"
+	"ynufes-mypage-backend/pkg/testutil"
 	"ynufes-mypage-backend/svc/pkg/domain/model/id"
 	"ynufes-mypage-backend/svc/pkg/domain/model/user"
 	"ynufes-mypage-backend/svc/pkg/exception"
+	"ynufes-mypage-backend/svc/pkg/infra/writer"
 )
 
 func TestUser_GetByID(t *testing.T) {
+	users := []user.User{
+		{
+			Detail: user.Detail{
+				Name: user.Name{
+					FirstName:     "詩恩",
+					LastName:      "市川",
+					FirstNameKana: "シオン",
+					LastNameKana:  "イチカワ",
+				},
+				Email:     "shion1305@gmail.com",
+				Gender:    user.GenderMan,
+				StudentID: "2164027",
+				Type:      user.TypeNormal,
+			},
+			Line: user.Line{
+				LineServiceID:         "LineServiceID",
+				LineProfilePictureURL: "https://profile,img.com/shion1305.png",
+				LineDisplayName:       "Shion Ichikawa",
+				EncryptedAccessToken:  "EncryptedAccessToken",
+				EncryptedRefreshToken: "EncryptedRefreshToken",
+			},
+			Admin: user.Admin{
+				IsSuperAdmin: false,
+				GrantedTime:  nil,
+			},
+			Agent: user.Agent{
+				Roles: []user.Role{},
+			},
+		},
+	}
+
+	ctx := context.Background()
+	fbt := testutil.NewFirebaseTest()
+	defer fbt.Reset()
+	w := writer.NewUser(fbt.GetClient())
+	for i := range users {
+		assert.NoError(t, w.Create(ctx, &users[i]))
+	}
+
 	tests := []struct {
 		name    string
 		query   id.UserID
@@ -19,30 +59,69 @@ func TestUser_GetByID(t *testing.T) {
 		wantErr error
 	}{
 		{
+			name:    "Success",
+			query:   users[0].ID,
+			want:    &users[0],
+			wantErr: nil,
+		},
+		{
 			name:    "NotFound",
-			want:    nil,
 			query:   identity.IssueID(),
+			want:    nil,
 			wantErr: exception.ErrNotFound,
 		},
 	}
-	fb := firebase.New()
-	r := NewUser(&fb)
+	r := NewUser(fbt.GetClient())
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			ctx := context.Background()
 			got, err := r.GetByID(ctx, tt.query)
-			if !errors.Is(err, tt.wantErr) {
-				t.Errorf("GetByID() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if got != tt.want {
-				t.Errorf("GetByID() got = %v, want %v", got, tt.want)
-			}
+			assert.ErrorIs(t, err, tt.wantErr)
+			assert.Equal(t, tt.want, got)
 		})
 	}
 }
 
 func TestUser_GetByLineServiceID(t *testing.T) {
+	users := []user.User{
+		{
+			Detail: user.Detail{
+				Name: user.Name{
+					FirstName:     "詩恩",
+					LastName:      "市川",
+					FirstNameKana: "シオン",
+					LastNameKana:  "イチカワ",
+				},
+				Email:     "shion1305@gmail.com",
+				Gender:    user.GenderMan,
+				StudentID: "2164027",
+				Type:      user.TypeNormal,
+			},
+			Line: user.Line{
+				LineServiceID:         "LineServiceID1",
+				LineProfilePictureURL: "https://profile,img.com/shion1305.png",
+				LineDisplayName:       "Shion Ichikawa",
+				EncryptedAccessToken:  "EncryptedAccessToken",
+				EncryptedRefreshToken: "EncryptedRefreshToken",
+			},
+			Admin: user.Admin{
+				IsSuperAdmin: false,
+				GrantedTime:  nil,
+			},
+			Agent: user.Agent{
+				Roles: []user.Role{},
+			},
+		},
+	}
+
+	ctx := context.Background()
+	fbt := testutil.NewFirebaseTest()
+	defer fbt.Reset()
+	w := writer.NewUser(fbt.GetClient())
+	for i := range users {
+		assert.NoError(t, w.Create(ctx, &users[i]))
+	}
+
 	tests := []struct {
 		name    string
 		query   user.LineServiceID
@@ -50,25 +129,25 @@ func TestUser_GetByLineServiceID(t *testing.T) {
 		wantErr error
 	}{
 		{
+			name:    "Success",
+			query:   users[0].Line.LineServiceID,
+			want:    &users[0],
+			wantErr: nil,
+		},
+		{
 			name:    "NotFound",
+			query:   "LineServiceID_NotExists",
 			want:    nil,
-			query:   user.LineServiceID("2342253"),
 			wantErr: exception.ErrNotFound,
 		},
 	}
-	fb := firebase.New()
-	r := NewUser(&fb)
+	r := NewUser(fbt.GetClient())
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			ctx := context.Background()
 			got, err := r.GetByLineServiceID(ctx, tt.query)
-			if !errors.Is(err, tt.wantErr) {
-				t.Errorf("GetByLineServiceID() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if got != tt.want {
-				t.Errorf("GetByLineServiceID() got = %v, want %v", got, tt.want)
-			}
+			assert.ErrorIs(t, err, tt.wantErr)
+			assert.Equal(t, tt.want, got)
 		})
 	}
 }
