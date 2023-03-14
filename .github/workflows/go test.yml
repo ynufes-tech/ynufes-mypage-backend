@@ -1,4 +1,4 @@
-name: go test with firestore emulator
+name: go test with firebase emulator
 on:
   push:
     branches:
