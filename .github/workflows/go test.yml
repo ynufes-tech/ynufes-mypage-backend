@@ -27,8 +27,8 @@ jobs:
           firebase setup:emulators:database
           firebase emulators:start --only database &
       - name: 'Waiting for the emulator to start up'
-        run: sleep 15
+        run: sleep 20
       - name: Run tests
         env:
           FIREBASE_DATABASE_EMULATOR_HOST: localhost:9000
-        run: go test -v ./... -parallel 1 -count 1
+        run: go test -p=1 ./... #gosetup
