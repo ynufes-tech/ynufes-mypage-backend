@@ -1,0 +1,32 @@
+{
+  "rules": {
+    ".read": "now < 1680274800000",
+    ".write": "now < 1680274800000",
+    "Users": {
+      ".indexOn": "line/id"
+    },
+    "Orgs": {
+      ".indexOn": [
+        "users"
+      ]
+    },
+    "Relation": {
+      "OrgUser": {
+        ".indexOn": [
+          "user_id",
+          "org_id"
+        ]
+      }
+    },
+    "Forms": {
+      ".indexOn": [
+        "event_id"
+      ]
+    },
+    "Questions": {
+      ".indexOn": [
+        "form_id"
+      ]
+    }
+  }
+}

@@ -3,8 +3,8 @@ package reader
 import (
 	"context"
 	"testing"
-	"ynufes-mypage-backend/pkg/firebase"
 	"ynufes-mypage-backend/pkg/identity"
+	"ynufes-mypage-backend/pkg/testutil"
 	"ynufes-mypage-backend/svc/pkg/domain/model/id"
 	"ynufes-mypage-backend/svc/pkg/domain/model/question"
 	"ynufes-mypage-backend/svc/pkg/exception"
@@ -24,8 +24,9 @@ func TestQuestion_GetByID(t *testing.T) {
 			wantErr: exception.ErrNotFound,
 		},
 	}
-	fb := firebase.New()
-	r := NewQuestion(&fb)
+	fbt := testutil.NewFirebaseTest()
+	defer fbt.Reset()
+	r := NewQuestion(fbt.GetClient())
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			ctx := context.Background()

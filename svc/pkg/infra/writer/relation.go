@@ -27,7 +27,6 @@ func (r Relation) CreateOrgUser(ctx context.Context, orgID id.OrgID, userID id.U
 	}
 	_, err := r.OrgUserRef.
 		Push(ctx, t)
-	fmt.Printf("%+v", t)
 	if err != nil {
 		return err
 	}

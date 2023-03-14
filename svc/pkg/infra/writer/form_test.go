@@ -2,19 +2,21 @@ package writer
 
 import (
 	"context"
+	"fmt"
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
-	"ynufes-mypage-backend/pkg/firebase"
 	"ynufes-mypage-backend/pkg/identity"
+	"ynufes-mypage-backend/pkg/testutil"
 	"ynufes-mypage-backend/svc/pkg/domain/model/form"
 	"ynufes-mypage-backend/svc/pkg/domain/model/id"
 	"ynufes-mypage-backend/svc/pkg/exception"
 )
 
 func TestForm_SectionOrder(t *testing.T) {
-	fb := firebase.New()
-	w := NewForm(&fb)
+	fb := testutil.NewFirebaseTest()
+	defer fb.Reset()
+	w := NewForm(fb.GetClient())
 	targetForm := form.Form{
 		EventID:     identity.IssueID(),
 		Title:       "title",
@@ -47,6 +49,7 @@ func TestForm_SectionOrder(t *testing.T) {
 	}
 	err = w.AddSectionOrder(context.Background(), targetForm.ID, targetSection1.SectionID, targetSection1.Index)
 	assert.ErrorIs(t, err, exception.ErrAlreadyExists)
+	fmt.Println("err in add section order: ", err)
 
 	updateCases := []struct {
 		Name      string

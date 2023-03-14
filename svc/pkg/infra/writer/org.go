@@ -29,6 +29,9 @@ func (w Org) Create(ctx context.Context, o *org.Org) error {
 	if o.ID != nil && o.ID.HasValue() {
 		return exception.ErrIDAlreadyAssigned
 	}
+	if o.Event.ID == nil || !o.Event.ID.HasValue() {
+		return exception.ErrIDNotAssigned
+	}
 	newID := identity.IssueID()
 	e := entity.Org{
 		EventID:   o.Event.ID.ExportID(),

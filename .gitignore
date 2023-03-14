@@ -3,3 +3,6 @@
 setting.dev.yaml
 gcloud-credential.json
 *.exe
+node_modules
+*.log
+package-lock.json

@@ -46,3 +46,9 @@ func New() Firebase {
 func (f Firebase) Client(path string) *db.Ref {
 	return f.client.NewRef(path)
 }
+
+func NewWithClient(client *db.Client) Firebase {
+	return Firebase{
+		client: client,
+	}
+}

@@ -76,7 +76,7 @@ func (q Question) CreateHandler() gin.HandlerFunc {
 			UserID:    tUser.ID,
 			SectionID: secID,
 			After:     qIDAfter,
-			Order:     req.PosAt,
+			Position:  req.PosAt,
 			Question:  targetQ,
 		}
 		res, err := q.createUC.Do(ipt)
