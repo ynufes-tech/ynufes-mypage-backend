@@ -1,4 +1,4 @@
-name: go test with firebase emulator
+name: GoTestFirebaseEmulator
 on:
   push:
     branches:
@@ -7,8 +7,9 @@ on:
   pull_request:
     paths:
       - '**.go'
+      - '.github/**'
 jobs:
-  go-test-with-base-emulator:
+  go-test-with-firebase-emulator:
     runs-on: ubuntu-latest
     steps:
       - name: Setup Go
@@ -31,4 +32,6 @@ jobs:
       - name: Run tests
         env:
           FIREBASE_DATABASE_EMULATOR_HOST: localhost:9000
-        run: go test -p=1 ./... #gosetup
+        run: go test -p=1 -race -coverprofile=coverage.txt -covermode=atomic ./... #gosetup
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v3
