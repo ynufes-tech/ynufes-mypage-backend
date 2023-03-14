@@ -54,7 +54,7 @@ func TestForm_GetByID(t *testing.T) {
 	if err != nil {
 		return
 	}
-	assert.Equal(t, form1, *f)
+	checkFormEqual(t, form1, *f)
 }
 
 func TestForm_ListByEventID(t *testing.T) {
@@ -140,10 +140,48 @@ func TestForm_ListByEventID(t *testing.T) {
 	assert.NoError(t, formW.Create(ctx, &form1))
 	assert.NoError(t, formW.Create(ctx, &form2))
 	assert.NoError(t, formW.Create(ctx, &form3))
-	events1, err := formR.ListByEventID(ctx, event1.ID)
+	forms1, err := formR.ListByEventID(ctx, event1.ID)
 	assert.NoError(t, err)
-	events2, err := formR.ListByEventID(ctx, event2.ID)
+	forms2, err := formR.ListByEventID(ctx, event2.ID)
 	assert.NoError(t, err)
-	assert.Equal(t, []form.Form{form1, form2}, events1)
-	assert.Equal(t, []form.Form{form3}, events2)
+	checkFormsEqual(t, []form.Form{form1, form2}, forms1)
+	checkFormsEqual(t, []form.Form{form3}, forms2)
+}
+
+func checkFormsEqual(t *testing.T, f1, f2 []form.Form) {
+	assert.Equal(t, len(f1), len(f2))
+	forms := make(map[id.FormID]form.Form, len(f1))
+	for _, v := range f1 {
+		forms[v.ID] = v
+	}
+	for _, v := range f2 {
+		checkFormEqual(t, v, forms[v.ID])
+	}
+}
+
+func checkFormEqual(t *testing.T, f1, f2 form.Form) {
+	assert.Equal(t, f1.ID, f2.ID)
+	assert.Equal(t, f1.EventID, f2.EventID)
+	assert.Equal(t, f1.Title, f2.Title)
+	assert.Equal(t, f1.Summary, f2.Summary)
+	assert.Equal(t, f1.Description, f2.Description)
+	checkRolesEqual(t, f1.Roles, f2.Roles)
+	assert.Equal(t, f1.Deadline, f2.Deadline)
+	assert.Equal(t, f1.IsOpen, f2.IsOpen)
+	assert.Equal(t, len(f1.Sections), len(f2.Sections))
+	for k, v := range f1.Sections {
+		assert.Equal(t, v, f2.Sections[k])
+	}
+}
+
+func checkRolesEqual(t *testing.T, r1, r2 []user.RoleID) {
+	assert.Equal(t, len(r1), len(r2))
+	roles := make(map[user.RoleID]struct{}, len(r1))
+	for _, v := range r1 {
+		roles[v] = struct{}{}
+	}
+	for _, v := range r2 {
+		_, ok := roles[v]
+		assert.True(t, ok)
+	}
 }

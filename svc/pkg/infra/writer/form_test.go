@@ -2,6 +2,7 @@ package writer
 
 import (
 	"context"
+	"fmt"
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
@@ -48,6 +49,7 @@ func TestForm_SectionOrder(t *testing.T) {
 	}
 	err = w.AddSectionOrder(context.Background(), targetForm.ID, targetSection1.SectionID, targetSection1.Index)
 	assert.ErrorIs(t, err, exception.ErrAlreadyExists)
+	fmt.Println("err in add section order: ", err)
 
 	updateCases := []struct {
 		Name      string
