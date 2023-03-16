@@ -1,24 +1,24 @@
-package user
+package line
 
 import (
 	"ynufes-mypage-backend/pkg/cipher"
 	"ynufes-mypage-backend/svc/pkg/config"
+	"ynufes-mypage-backend/svc/pkg/domain/model/id"
 )
 
 type (
-	LineServiceID         string
-	LineProfilePictureURL string
-	EncryptedAccessToken  string
-	EncryptedRefreshToken string
-	PlainAccessToken      string
-	PlainRefreshToken     string
-	Line                  struct {
+	LineUser struct {
+		UserID                id.UserID
 		LineServiceID         LineServiceID
-		LineProfilePictureURL LineProfilePictureURL
 		LineDisplayName       string
 		EncryptedAccessToken  EncryptedAccessToken
 		EncryptedRefreshToken EncryptedRefreshToken
 	}
+	LineServiceID         string
+	EncryptedAccessToken  string
+	EncryptedRefreshToken string
+	PlainAccessToken      string
+	PlainRefreshToken     string
 )
 
 var aes *cipher.AES

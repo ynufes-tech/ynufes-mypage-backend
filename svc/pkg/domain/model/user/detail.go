@@ -1,14 +1,13 @@
 package user
 
-type (
-	Detail struct {
-		Name      Name
-		Email     Email
-		Gender    Gender
-		StudentID StudentID
-		Type      Type
-	}
-)
+type Detail struct {
+	Name       Name
+	Email      Email
+	Gender     Gender
+	StudentID  StudentID
+	Type       Type
+	PictureURL PictureURL
+}
 
 // TODO: add validation for Name, StudentID, Type
 type (
@@ -18,7 +17,10 @@ type (
 		FirstNameKana string
 		LastNameKana  string
 	}
+
 	StudentID string
+
+	PictureURL string
 )
 
 // IsValid TODO: implement validation for StudentID
