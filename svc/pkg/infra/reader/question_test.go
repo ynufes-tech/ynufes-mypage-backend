@@ -8,7 +8,6 @@ import (
 	"testing"
 	"ynufes-mypage-backend/pkg/identity"
 	"ynufes-mypage-backend/pkg/testutil"
-	"ynufes-mypage-backend/svc/pkg/domain/model/event"
 	"ynufes-mypage-backend/svc/pkg/domain/model/id"
 	"ynufes-mypage-backend/svc/pkg/domain/model/question"
 	"ynufes-mypage-backend/svc/pkg/exception"
@@ -44,12 +43,16 @@ func TestQuestion_GetByID(t *testing.T) {
 			name:  "Success",
 			query: question1.GetID(),
 			want:  question1,
-		},
-		{
+		}, {
 			name:    "NotFound",
 			query:   identity.IssueID(),
 			want:    nil,
 			wantErr: exception.ErrNotFound,
+		}, {
+			name:    "InvalidID",
+			query:   nil,
+			want:    nil,
+			wantErr: exception.ErrIDNotAssigned,
 		},
 	}
 	r := NewQuestion(fbt.GetClient())
@@ -72,24 +75,11 @@ func TestQuestion_GetByID(t *testing.T) {
 	}
 }
 
-func TestQuestion_ListByEventID(t *testing.T) {
+func TestQuestion_ListByFormID(t *testing.T) {
 	fbt := testutil.NewFirebaseTest()
 	defer fbt.Reset()
-	events := []event.Event{
-		{
-			Name: "EventExists",
-		},
-		{
-			Name: "EventWOQuestions",
-		},
-		{
-			Name: "EventNotExists",
-		},
-	}
-	eventW := writer.NewEvent(fbt.GetClient())
-	assert.NoError(t, eventW.Create(context.Background(), &events[0]))
-	assert.NoError(t, eventW.Create(context.Background(), &events[1]))
 
+	form1 := identity.IssueID()
 	qs := make([]question.Question, 2)
 	cop1, cop2, cop3 := identity.IssueID(), identity.IssueID(), identity.IssueID()
 	copt := map[question.CheckBoxOptionID]question.CheckBoxOption{
@@ -114,9 +104,9 @@ func TestQuestion_ListByEventID(t *testing.T) {
 		rop3: 3,
 	}
 	qs[0] = question.NewCheckBoxQuestion(nil, "testQuestion1",
-		copt, cOrder, identity.IssueID())
+		copt, cOrder, form1)
 	qs[1] = question.NewRadioButtonsQuestion(nil, "testQuestion2",
-		ropt, rOrder, identity.IssueID())
+		ropt, rOrder, form1)
 	questionW := writer.NewQuestion(fbt.GetClient())
 	assert.NoError(t, questionW.Create(context.Background(), &qs[0]))
 	assert.NoError(t, questionW.Create(context.Background(), &qs[1]))
@@ -129,17 +119,12 @@ func TestQuestion_ListByEventID(t *testing.T) {
 	}{
 		{
 			name:     "Success",
-			query:    events[0].ID,
+			query:    form1,
 			want:     qs,
 			hasError: false,
 		}, {
 			name:     "NoHits",
 			query:    identity.IssueID(),
-			want:     []question.Question{},
-			hasError: false,
-		}, {
-			name:     "EventNotExists",
-			query:    events[1].ID,
 			want:     []question.Question{},
 			hasError: false,
 		}, {
@@ -152,7 +137,7 @@ func TestQuestion_ListByEventID(t *testing.T) {
 	r := NewQuestion(fbt.GetClient())
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			qs, err := r.ListByEventID(context.Background(), tt.query)
+			qs, err := r.ListByFormID(context.Background(), tt.query)
 			if tt.hasError {
 				assert.Error(t, err)
 			} else {
