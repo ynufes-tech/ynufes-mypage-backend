@@ -9,7 +9,6 @@ import (
 type User interface {
 	Create(context.Context, *user.User) error
 	Set(context.Context, user.User) error
-	SetLine(context.Context, id.UserID, user.Line) error
 	UpdateUserDetail(context.Context, id.UserID, user.Detail) error
 	SetAgent(context.Context, id.UserID, user.Agent) error
 	SetAdmin(context.Context, id.UserID, user.Admin) error

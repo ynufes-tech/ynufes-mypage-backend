@@ -22,11 +22,6 @@ func Users() []user.User {
 				StudentID: "2164027",
 				Type:      user.TypeNormal,
 			},
-			Line: user.Line{
-				LineServiceID:         "LineServiceID",
-				EncryptedAccessToken:  "EncryptedAccessToken",
-				EncryptedRefreshToken: "EncryptedRefreshToken",
-			},
 		},
 		{
 			ID: id.UserID(identity.NewID(12344)),
@@ -41,11 +36,6 @@ func Users() []user.User {
 				Gender:    user.GenderMan,
 				StudentID: "2125178",
 				Type:      user.TypeNormal,
-			},
-			Line: user.Line{
-				LineServiceID:         "LineServiceID",
-				EncryptedAccessToken:  "EncryptedAccessToken",
-				EncryptedRefreshToken: "EncryptedRefreshToken",
 			},
 		},
 	}
