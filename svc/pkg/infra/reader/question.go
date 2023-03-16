@@ -23,6 +23,9 @@ func NewQuestion(f *firebase.Firebase) Question {
 }
 
 func (q Question) GetByID(ctx context.Context, qid id.QuestionID) (*question.Question, error) {
+	if qid == nil || !qid.HasValue() {
+		return nil, exception.ErrIDNotAssigned
+	}
 	var questionEntity entity.Question
 	r, err := q.ref.OrderByKey().
 		EqualTo(qid.ExportID()).GetOrdered(ctx)
@@ -44,6 +47,9 @@ func (q Question) GetByID(ctx context.Context, qid id.QuestionID) (*question.Que
 }
 
 func (q Question) ListByEventID(ctx context.Context, eid id.EventID) ([]question.Question, error) {
+	if eid == nil || !eid.HasValue() {
+		return nil, exception.ErrIDNotAssigned
+	}
 	results, err := q.ref.OrderByChild("event_id").EqualTo(eid.ExportID()).
 		GetOrdered(ctx)
 	if err != nil {
@@ -69,8 +75,8 @@ func (q Question) ListByEventID(ctx context.Context, eid id.EventID) ([]question
 	return qs, nil
 }
 
-func (q Question) ListByFormID(ctx context.Context, id id.FormID) ([]question.Question, error) {
-	results, err := q.ref.OrderByChild("form_id").EqualTo(id.ExportID()).
+func (q Question) ListByFormID(ctx context.Context, fid id.FormID) ([]question.Question, error) {
+	results, err := q.ref.OrderByChild("form_id").EqualTo(fid.ExportID()).
 		GetOrdered(ctx)
 	if err != nil {
 		return nil, err
@@ -95,8 +101,11 @@ func (q Question) ListByFormID(ctx context.Context, id id.FormID) ([]question.Qu
 	return qs, nil
 }
 
-func (q Question) ListBySectionID(ctx context.Context, id id.SectionID) ([]question.Question, error) {
-	results, err := q.ref.OrderByChild("section_id").EqualTo(id.ExportID()).
+func (q Question) ListBySectionID(ctx context.Context, sid id.SectionID) ([]question.Question, error) {
+	if sid == nil || !sid.HasValue() {
+		return nil, exception.ErrIDNotAssigned
+	}
+	results, err := q.ref.OrderByChild("section_id").EqualTo(sid.ExportID()).
 		GetOrdered(ctx)
 	if err != nil {
 		return nil, err
