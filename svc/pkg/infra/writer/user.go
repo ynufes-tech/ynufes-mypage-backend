@@ -40,13 +40,6 @@ func (u User) Create(ctx context.Context, model *user.User) error {
 			Email:         string(model.Detail.Email),
 			Type:          int(model.Detail.Type),
 		},
-		Line: entity.Line{
-			LineServiceID:         string(model.Line.LineServiceID),
-			LineProfileURL:        string(model.Line.LineProfilePictureURL),
-			LineDisplayName:       model.Line.LineDisplayName,
-			EncryptedAccessToken:  string(model.Line.EncryptedAccessToken),
-			EncryptedRefreshToken: string(model.Line.EncryptedRefreshToken),
-		},
 		// new user will not have any roles
 		Admin: entity.Admin{
 			IsSuperAdmin: false,
@@ -93,13 +86,6 @@ func (u User) Set(ctx context.Context, model user.User) error {
 			Email:         string(model.Detail.Email),
 			Type:          int(model.Detail.Type),
 		},
-		Line: entity.Line{
-			LineServiceID:         string(model.Line.LineServiceID),
-			LineProfileURL:        string(model.Line.LineProfilePictureURL),
-			LineDisplayName:       model.Line.LineDisplayName,
-			EncryptedAccessToken:  string(model.Line.EncryptedAccessToken),
-			EncryptedRefreshToken: string(model.Line.EncryptedRefreshToken),
-		},
 		Admin: entity.Admin{
 			IsSuperAdmin: model.Admin.IsSuperAdmin,
 			GrantedTime:  t,
@@ -109,19 +95,6 @@ func (u User) Set(ctx context.Context, model user.User) error {
 		},
 	}
 	err := u.ref.Child(model.ID.ExportID()).
-		Set(ctx, e)
-	return err
-}
-
-func (u User) SetLine(ctx context.Context, tID id.UserID, update user.Line) error {
-	e := entity.Line{
-		LineServiceID:         string(update.LineServiceID),
-		LineProfileURL:        string(update.LineProfilePictureURL),
-		LineDisplayName:       update.LineDisplayName,
-		EncryptedAccessToken:  string(update.EncryptedAccessToken),
-		EncryptedRefreshToken: string(update.EncryptedRefreshToken),
-	}
-	err := u.ref.Child(tID.ExportID()).Child("line").
 		Set(ctx, e)
 	return err
 }

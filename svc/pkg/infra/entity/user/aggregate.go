@@ -12,7 +12,6 @@ const UserRootName = "Users"
 type User struct {
 	ID         id.UserID `json:"-"`
 	UserDetail `json:"detail"`
-	Line       `json:"line"`
 	Admin      `json:"admin"`
 	Agent      `json:"agent"`
 }
@@ -59,15 +58,9 @@ func (u User) ToModel() (*user.User, error) {
 			Email:  email,
 			Gender: gender,
 			// TODO: add validation for StudentID, Type
-			StudentID: user.StudentID(u.StudentID),
-			Type:      ty,
-		},
-		Line: user.Line{
-			LineServiceID:         user.LineServiceID(u.LineServiceID),
-			LineProfilePictureURL: user.LineProfilePictureURL(u.LineProfileURL),
-			LineDisplayName:       u.LineDisplayName,
-			EncryptedAccessToken:  user.EncryptedAccessToken(u.EncryptedAccessToken),
-			EncryptedRefreshToken: user.EncryptedRefreshToken(u.EncryptedRefreshToken),
+			StudentID:  user.StudentID(u.StudentID),
+			Type:       ty,
+			PictureURL: user.PictureURL(u.PictureURL),
 		},
 		Admin: user.Admin{
 			IsSuperAdmin: u.IsSuperAdmin,
