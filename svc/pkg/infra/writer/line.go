@@ -15,12 +15,12 @@ type Line struct {
 
 func NewLine(fb *firebase.Firebase) Line {
 	return Line{
-		ref: fb.Client("line"),
+		ref: fb.Client(entity.LineRootName),
 	}
 }
 
 func (w Line) Create(ctx context.Context, lineUser line.LineUser) error {
-	if lineUser.LineServiceID == "" {
+	if lineUser.LineServiceID == "" || lineUser.UserID == nil || !lineUser.UserID.HasValue() {
 		return exception.ErrIDNotAssigned
 	}
 	err := w.ref.Child(string(lineUser.LineServiceID)).

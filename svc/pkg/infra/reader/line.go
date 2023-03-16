@@ -22,7 +22,10 @@ func NewLine(fb *firebase.Firebase) Line {
 }
 
 func (l Line) GetByUserID(ctx context.Context, userID id.UserID) (*line.LineUser, error) {
-	r, err := l.ref.OrderByChild("user_id").EqualTo(userID).GetOrdered(ctx)
+	if userID == nil || !userID.HasValue() {
+		return nil, exception.ErrIDNotAssigned
+	}
+	r, err := l.ref.OrderByChild("user_id").EqualTo(userID.ExportID()).GetOrdered(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -45,6 +48,9 @@ func (l Line) GetByUserID(ctx context.Context, userID id.UserID) (*line.LineUser
 }
 
 func (l Line) GetByLineServiceID(ctx context.Context, lineID line.LineServiceID) (*line.LineUser, error) {
+	if lineID == "" {
+		return nil, exception.ErrIDNotAssigned
+	}
 	r, err := l.ref.OrderByKey().EqualTo(lineID).GetOrdered(ctx)
 	if err != nil {
 		return nil, err
