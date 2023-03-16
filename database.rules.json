@@ -25,7 +25,8 @@
     },
     "Questions": {
       ".indexOn": [
-        "form_id"
+        "form_id",
+        "event_id"
       ]
     }
   }
