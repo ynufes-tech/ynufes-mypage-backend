@@ -8,5 +8,4 @@ import (
 
 type User interface {
 	GetByID(context.Context, id.UserID) (*user.User, error)
-	GetByLineServiceID(context.Context, user.LineServiceID) (*user.User, error)
 }

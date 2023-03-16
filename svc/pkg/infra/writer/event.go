@@ -61,6 +61,9 @@ func (eve Event) Set(ctx context.Context, model event.Event) error {
 // event_name in Orgs should be updated by GoogleCloudFunctions or as concurrent process.
 // TODO: implement GoogleCloudFunctions or concurrent process.
 func (eve Event) UpdateName(ctx context.Context, tid id.EventID, name string) error {
+	if tid == nil || !tid.HasValue() {
+		return exception.ErrIDNotAssigned
+	}
 	err := eve.eventRef.Child(tid.ExportID()).
 		Transaction(
 			ctx,

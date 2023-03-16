@@ -27,13 +27,6 @@ func TestUser_GetByID(t *testing.T) {
 				StudentID: "2164027",
 				Type:      user.TypeNormal,
 			},
-			Line: user.Line{
-				LineServiceID:         "LineServiceID",
-				LineProfilePictureURL: "https://profile,img.com/shion1305.png",
-				LineDisplayName:       "Shion Ichikawa",
-				EncryptedAccessToken:  "EncryptedAccessToken",
-				EncryptedRefreshToken: "EncryptedRefreshToken",
-			},
 			Admin: user.Admin{
 				IsSuperAdmin: false,
 				GrantedTime:  nil,
@@ -76,76 +69,6 @@ func TestUser_GetByID(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			ctx := context.Background()
 			got, err := r.GetByID(ctx, tt.query)
-			assert.ErrorIs(t, err, tt.wantErr)
-			assert.Equal(t, tt.want, got)
-		})
-	}
-}
-
-func TestUser_GetByLineServiceID(t *testing.T) {
-	users := []user.User{
-		{
-			Detail: user.Detail{
-				Name: user.Name{
-					FirstName:     "詩恩",
-					LastName:      "市川",
-					FirstNameKana: "シオン",
-					LastNameKana:  "イチカワ",
-				},
-				Email:     "shion1305@gmail.com",
-				Gender:    user.GenderMan,
-				StudentID: "2164027",
-				Type:      user.TypeNormal,
-			},
-			Line: user.Line{
-				LineServiceID:         "LineServiceID1",
-				LineProfilePictureURL: "https://profile,img.com/shion1305.png",
-				LineDisplayName:       "Shion Ichikawa",
-				EncryptedAccessToken:  "EncryptedAccessToken",
-				EncryptedRefreshToken: "EncryptedRefreshToken",
-			},
-			Admin: user.Admin{
-				IsSuperAdmin: false,
-				GrantedTime:  nil,
-			},
-			Agent: user.Agent{
-				Roles: []user.Role{},
-			},
-		},
-	}
-
-	ctx := context.Background()
-	fbt := testutil.NewFirebaseTest()
-	defer fbt.Reset()
-	w := writer.NewUser(fbt.GetClient())
-	for i := range users {
-		assert.NoError(t, w.Create(ctx, &users[i]))
-	}
-
-	tests := []struct {
-		name    string
-		query   user.LineServiceID
-		want    *user.User
-		wantErr error
-	}{
-		{
-			name:    "Success",
-			query:   users[0].Line.LineServiceID,
-			want:    &users[0],
-			wantErr: nil,
-		},
-		{
-			name:    "NotFound",
-			query:   "LineServiceID_NotExists",
-			want:    nil,
-			wantErr: exception.ErrNotFound,
-		},
-	}
-	r := NewUser(fbt.GetClient())
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			ctx := context.Background()
-			got, err := r.GetByLineServiceID(ctx, tt.query)
 			assert.ErrorIs(t, err, tt.wantErr)
 			assert.Equal(t, tt.want, got)
 		})

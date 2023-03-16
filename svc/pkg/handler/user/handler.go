@@ -35,7 +35,7 @@ func (uh User) InfoHandler() gin.HandlerFunc {
 			NameFirstKana:   u.Detail.Name.FirstNameKana,
 			NameLastKana:    u.Detail.Name.LastNameKana,
 			Type:            int(u.Detail.Type),
-			ProfileImageURL: string(u.Line.LineProfilePictureURL),
+			ProfileImageURL: string(u.Detail.PictureURL),
 			Email:           string(u.Detail.Email),
 			Gender:          int(u.Detail.Gender),
 			StudentID:       string(u.Detail.StudentID),

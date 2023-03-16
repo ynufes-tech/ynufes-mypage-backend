@@ -2,8 +2,12 @@
   "rules": {
     ".read": "now < 1680274800000",
     ".write": "now < 1680274800000",
+    "Lines": {
+      ".indexOn": [
+        "user_id"
+      ]
+    },
     "Users": {
-      ".indexOn": "line/id"
     },
     "Orgs": {
       ".indexOn": [
@@ -25,7 +29,8 @@
     },
     "Questions": {
       ".indexOn": [
-        "form_id"
+        "form_id",
+        "event_id"
       ]
     }
   }

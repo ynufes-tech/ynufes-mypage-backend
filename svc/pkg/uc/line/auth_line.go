@@ -7,16 +7,19 @@ import (
 	"log"
 	linePkg "ynufes-mypage-backend/pkg/line"
 	"ynufes-mypage-backend/svc/pkg/domain/command"
+	"ynufes-mypage-backend/svc/pkg/domain/model/line"
 	"ynufes-mypage-backend/svc/pkg/domain/model/user"
 	"ynufes-mypage-backend/svc/pkg/domain/query"
-	"ynufes-mypage-backend/svc/pkg/domain/service/line"
+	lineSVC "ynufes-mypage-backend/svc/pkg/domain/service/line"
 	"ynufes-mypage-backend/svc/pkg/registry"
 )
 
 type AuthUseCase struct {
-	authVerifier *line.AuthVerifier
+	authVerifier *lineSVC.AuthVerifier
 	userQ        query.User
 	userC        command.User
+	lineQ        query.Line
+	lineC        command.Line
 	enableLine   bool
 }
 
@@ -27,48 +30,49 @@ type AuthInput struct {
 }
 
 type AuthOutput struct {
-	ErrorMsg string
-	UserInfo *user.User
+	UserInfo      *user.User
+	LineServiceID line.LineServiceID
 }
 
-func NewAuthCodeUseCase(rgst registry.Registry, enableLineAuth bool, authVerifier *line.AuthVerifier) AuthUseCase {
+func NewAuthCodeUseCase(rgst registry.Registry, enableLineAuth bool, authVerifier *lineSVC.AuthVerifier) AuthUseCase {
 	return AuthUseCase{
 		authVerifier: authVerifier,
 		userQ:        rgst.Repository().NewUserQuery(),
 		userC:        rgst.Repository().NewUserCommand(),
+		lineQ:        rgst.Repository().NewLineQuery(),
+		lineC:        rgst.Repository().NewLineCommand(),
 		enableLine:   enableLineAuth,
 	}
 }
 
 func (uc AuthUseCase) Do(ipt AuthInput) (*AuthOutput, error) {
-	var aToken user.EncryptedAccessToken
-	var rToken user.EncryptedRefreshToken
+	var aToken line.EncryptedAccessToken
+	var rToken line.EncryptedRefreshToken
 	var profile linePkg.ProfileResponse
 	if uc.enableLine {
 		token, err := (*uc.authVerifier).RequestAccessToken(ipt.Code, ipt.State)
 		if err != nil {
 			err = fmt.Errorf("bad request, failed to authorize with LINE: %v", err)
-			log.Printf("error: %v", err)
-			return &AuthOutput{
-				ErrorMsg: err.Error(),
-			}, nil
+			log.Printf("error in line auth: %v\n", err)
+			return nil, err
 		}
-		aToken = user.NewEncryptedAccessToken(user.PlainAccessToken(token.AccessToken))
-		rToken = user.NewEncryptedRefreshToken(user.PlainRefreshToken(token.RefreshToken))
+		aToken = line.NewEncryptedAccessToken(line.PlainAccessToken(token.AccessToken))
+		rToken = line.NewEncryptedRefreshToken(line.PlainRefreshToken(token.RefreshToken))
 		profile, err = linePkg.GetProfile(token.AccessToken)
 		if err != nil {
 			// failed to get profile
-			log.Printf("failed to get profile: %v", err)
+			err = fmt.Errorf("bad request, failed to get profile from LINE: %v", err)
+			log.Printf("error in line auth: %v\n", err)
 			return nil, err
 		}
 	} else {
 		// if line auth is disabled, return dummy data
 		// if the request has query, it will be used.
 		c := ipt.Ctx.(*gin.Context)
-		aToken = user.NewEncryptedAccessToken(
-			user.PlainAccessToken(c.DefaultQuery("accessToken", "testAccessToken")))
-		rToken = user.NewEncryptedRefreshToken(
-			user.PlainRefreshToken(c.DefaultQuery("refreshToken", "testRefreshToken")))
+		aToken = line.NewEncryptedAccessToken(
+			line.PlainAccessToken(c.DefaultQuery("accessToken", "testAccessToken")))
+		rToken = line.NewEncryptedRefreshToken(
+			line.PlainRefreshToken(c.DefaultQuery("refreshToken", "testRefreshToken")))
 		profile = linePkg.ProfileResponse{
 			UserID:        c.DefaultQuery("userID", "testUserID"),
 			DisplayName:   c.DefaultQuery("displayName", "testDisplayName"),
@@ -76,47 +80,78 @@ func (uc AuthUseCase) Do(ipt AuthInput) (*AuthOutput, error) {
 			StatusMessage: c.DefaultQuery("statusMessage", "testStatusMessage"),
 		}
 	}
-	lineServiceID := user.LineServiceID(profile.UserID)
-	u, err := uc.userQ.GetByLineServiceID(ipt.Ctx, lineServiceID)
+	lineServiceID := line.LineServiceID(profile.UserID)
+
+	lu, err := uc.lineQ.GetByLineServiceID(ipt.Ctx, lineServiceID)
+
 	if err != nil {
 		// if error is "user not found", Create User and redirect to basic info form
 		// Otherwise, respond with error
 		newUser := user.User{
-			Line: user.Line{
+			Detail: user.Detail{
+				Name:       user.Name{},
+				Email:      "",
+				Gender:     user.GenderUnknown,
+				StudentID:  "",
+				Type:       user.TypeNormal,
+				PictureURL: user.PictureURL(profile.PictureURL),
+			},
+			Admin: user.Admin{},
+			Agent: user.Agent{},
+		}
+		if err := uc.userC.Create(ipt.Ctx, &newUser); err != nil {
+			err = fmt.Errorf("failed to create user: %v", err)
+			log.Printf("error in line auth: %v\n", err)
+			return nil, err
+		}
+		if err := uc.lineC.Create(ipt.Ctx,
+			line.LineUser{
+				UserID:                newUser.ID,
 				LineServiceID:         lineServiceID,
-				LineProfilePictureURL: user.LineProfilePictureURL(profile.PictureURL),
 				LineDisplayName:       profile.DisplayName,
 				EncryptedAccessToken:  aToken,
 				EncryptedRefreshToken: rToken,
-			},
-			Detail: user.Detail{
-				Name:      user.Name{},
-				Email:     "",
-				Gender:    user.GenderUnknown,
-				StudentID: "",
-				Type:      user.TypeNormal,
-			},
-		}
-		if err = uc.userC.Create(ipt.Ctx, &newUser); err != nil {
-			log.Printf("failed to create user: %v", err)
+			}); err != nil {
+			err = fmt.Errorf("failed to create line user: %v", err)
+			log.Printf("error in line auth: %v\n", err)
 			return nil, err
 		}
 		return &AuthOutput{
-			UserInfo: &newUser,
+			UserInfo:      &newUser,
+			LineServiceID: lineServiceID,
 		}, nil
 	}
 	// User found. Update Line info
-	update := user.Line{
+	update := line.LineUser{
 		LineServiceID:         lineServiceID,
-		LineProfilePictureURL: user.LineProfilePictureURL(profile.PictureURL),
 		LineDisplayName:       profile.DisplayName,
 		EncryptedAccessToken:  aToken,
 		EncryptedRefreshToken: rToken,
 	}
-	if err := uc.userC.SetLine(ipt.Ctx, u.ID, update); err != nil {
-		return nil, fmt.Errorf("failed to update line info: %v", err)
+
+	if err := uc.lineC.Set(ipt.Ctx, update); err != nil {
+		err = fmt.Errorf("failed to update line user: %v", err)
+		log.Printf("error in line auth: %v\n", err)
+		return nil, err
+	}
+	u, err := uc.userQ.GetByID(ipt.Ctx, lu.UserID)
+	if err != nil {
+		err = fmt.Errorf("authorized, but failed to get user: %v", err)
+		log.Printf("error in line auth: %v\n", err)
+		return nil, err
+	}
+	if u.Detail.PictureURL != user.PictureURL(profile.PictureURL) {
+		updateDetail := user.Detail{
+			PictureURL: user.PictureURL(profile.PictureURL),
+		}
+		if err := uc.userC.UpdateUserDetail(ipt.Ctx, lu.UserID, updateDetail); err != nil {
+			err = fmt.Errorf("failed to update user: %v", err)
+			log.Printf("error in line auth: %v\n", err)
+			return nil, err
+		}
 	}
 	return &AuthOutput{
-		UserInfo: u,
+		UserInfo:      u,
+		LineServiceID: lineServiceID,
 	}, nil
 }

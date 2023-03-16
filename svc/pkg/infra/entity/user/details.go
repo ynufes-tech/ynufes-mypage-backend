@@ -13,5 +13,6 @@ type (
 		StudentID     string `json:"student_id,omitempty"`
 		Email         string `json:"email,omitempty"`
 		Type          int    `json:"type,omitempty"`
+		PictureURL    string `json:"picture_url,omitempty"`
 	}
 )

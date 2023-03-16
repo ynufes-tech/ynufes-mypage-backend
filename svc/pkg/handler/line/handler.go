@@ -63,12 +63,6 @@ func (a LineAuth) VerificationHandler() gin.HandlerFunc {
 			c.AbortWithStatus(500)
 			return
 		}
-		if authOut.UserInfo == nil {
-			_, _ = c.Writer.WriteString(authOut.ErrorMsg)
-			fmt.Println(authOut.ErrorMsg)
-			c.AbortWithStatus(400)
-			return
-		}
 		err = a.setCookie(c, authOut.UserInfo.ID.ExportID())
 		if err != nil {
 			log.Println(c, "failed to set cookie: %v", err)

@@ -23,6 +23,9 @@ func NewQuestion(f *firebase.Firebase) Question {
 }
 
 func (q Question) GetByID(ctx context.Context, qid id.QuestionID) (*question.Question, error) {
+	if qid == nil || !qid.HasValue() {
+		return nil, exception.ErrIDNotAssigned
+	}
 	var questionEntity entity.Question
 	r, err := q.ref.OrderByKey().
 		EqualTo(qid.ExportID()).GetOrdered(ctx)
@@ -43,8 +46,11 @@ func (q Question) GetByID(ctx context.Context, qid id.QuestionID) (*question.Que
 	return &model, nil
 }
 
-func (q Question) ListByEventID(ctx context.Context, eid id.EventID) ([]question.Question, error) {
-	results, err := q.ref.OrderByChild("event_id").EqualTo(eid.ExportID()).
+func (q Question) ListByFormID(ctx context.Context, fid id.FormID) ([]question.Question, error) {
+	if fid == nil || !fid.HasValue() {
+		return nil, exception.ErrIDNotAssigned
+	}
+	results, err := q.ref.OrderByChild("form_id").EqualTo(fid.ExportID()).
 		GetOrdered(ctx)
 	if err != nil {
 		return nil, err
@@ -69,54 +75,31 @@ func (q Question) ListByEventID(ctx context.Context, eid id.EventID) ([]question
 	return qs, nil
 }
 
-func (q Question) ListByFormID(ctx context.Context, id id.FormID) ([]question.Question, error) {
-	results, err := q.ref.OrderByChild("form_id").EqualTo(id.ExportID()).
-		GetOrdered(ctx)
-	if err != nil {
-		return nil, err
-	}
-	qs := make([]question.Question, len(results))
-	for i := range results {
-		var questionEntity entity.Question
-		if err := results[i].Unmarshal(&questionEntity); err != nil {
-			return nil, err
-		}
-		qid, err := identity.ImportID(results[i].Key())
-		if err != nil {
-			return nil, fmt.Errorf("failed to import question id from Key(): %w", err)
-		}
-		questionEntity.ID = qid
-		model, err := questionEntity.ToModel()
-		if err != nil {
-			return nil, err
-		}
-		qs[i] = model
-	}
-	return qs, nil
-}
-
-func (q Question) ListBySectionID(ctx context.Context, id id.SectionID) ([]question.Question, error) {
-	results, err := q.ref.OrderByChild("section_id").EqualTo(id.ExportID()).
-		GetOrdered(ctx)
-	if err != nil {
-		return nil, err
-	}
-	qs := make([]question.Question, len(results))
-	for i := range results {
-		var questionEntity entity.Question
-		if err := results[i].Unmarshal(&questionEntity); err != nil {
-			return nil, err
-		}
-		qid, err := identity.ImportID(results[i].Key())
-		if err != nil {
-			return nil, fmt.Errorf("failed to import question id from Key(): %w", err)
-		}
-		questionEntity.ID = qid
-		model, err := questionEntity.ToModel()
-		if err != nil {
-			return nil, err
-		}
-		qs[i] = model
-	}
-	return qs, nil
-}
+//func (q Question) ListBySectionID(ctx context.Context, sid id.SectionID) ([]question.Question, error) {
+//	if sid == nil || !sid.HasValue() {
+//		return nil, exception.ErrIDNotAssigned
+//	}
+//	results, err := q.ref.OrderByChild("section_id").EqualTo(sid.ExportID()).
+//		GetOrdered(ctx)
+//	if err != nil {
+//		return nil, err
+//	}
+//	qs := make([]question.Question, len(results))
+//	for i := range results {
+//		var questionEntity entity.Question
+//		if err := results[i].Unmarshal(&questionEntity); err != nil {
+//			return nil, err
+//		}
+//		qid, err := identity.ImportID(results[i].Key())
+//		if err != nil {
+//			return nil, fmt.Errorf("failed to import question id from Key(): %w", err)
+//		}
+//		questionEntity.ID = qid
+//		model, err := questionEntity.ToModel()
+//		if err != nil {
+//			return nil, err
+//		}
+//		qs[i] = model
+//	}
+//	return qs, nil
+//}

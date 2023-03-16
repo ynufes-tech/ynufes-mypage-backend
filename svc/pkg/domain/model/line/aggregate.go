@@ -1,24 +1,24 @@
-package user
+package line
 
 import (
 	"ynufes-mypage-backend/pkg/cipher"
 	"ynufes-mypage-backend/svc/pkg/config"
+	"ynufes-mypage-backend/svc/pkg/domain/model/id"
 )
 
 type (
-	LineServiceID         string
-	LineProfilePictureURL string
-	EncryptedAccessToken  string
-	EncryptedRefreshToken string
-	PlainAccessToken      string
-	PlainRefreshToken     string
-	Line                  struct {
+	LineUser struct {
+		UserID                id.UserID
 		LineServiceID         LineServiceID
-		LineProfilePictureURL LineProfilePictureURL
 		LineDisplayName       string
 		EncryptedAccessToken  EncryptedAccessToken
 		EncryptedRefreshToken EncryptedRefreshToken
 	}
+	LineServiceID         string
+	EncryptedAccessToken  string
+	EncryptedRefreshToken string
+	PlainAccessToken      string
+	PlainRefreshToken     string
 )
 
 var aes *cipher.AES
@@ -37,7 +37,7 @@ func NewEncryptedRefreshToken(s PlainRefreshToken) EncryptedRefreshToken {
 	return EncryptedRefreshToken(encrypted)
 }
 
-func (l Line) AccessToken() (PlainAccessToken, error) {
+func (l LineUser) AccessToken() (PlainAccessToken, error) {
 	decrypted, err := aes.Decrypt(string(l.EncryptedAccessToken))
 	if err != nil {
 		return PlainAccessToken(""), err
@@ -45,7 +45,7 @@ func (l Line) AccessToken() (PlainAccessToken, error) {
 	return PlainAccessToken(decrypted), nil
 }
 
-func (l Line) RefreshToken() (PlainRefreshToken, error) {
+func (l LineUser) RefreshToken() (PlainRefreshToken, error) {
 	decrypted, err := aes.Decrypt(string(l.EncryptedRefreshToken))
 	if err != nil {
 		return PlainRefreshToken(""), err
