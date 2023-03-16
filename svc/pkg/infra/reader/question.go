@@ -46,35 +46,6 @@ func (q Question) GetByID(ctx context.Context, qid id.QuestionID) (*question.Que
 	return &model, nil
 }
 
-func (q Question) ListByEventID(ctx context.Context, eid id.EventID) ([]question.Question, error) {
-	if eid == nil || !eid.HasValue() {
-		return nil, exception.ErrIDNotAssigned
-	}
-	results, err := q.ref.OrderByChild("event_id").EqualTo(eid.ExportID()).
-		GetOrdered(ctx)
-	if err != nil {
-		return nil, err
-	}
-	qs := make([]question.Question, len(results))
-	for i := range results {
-		var questionEntity entity.Question
-		if err := results[i].Unmarshal(&questionEntity); err != nil {
-			return nil, err
-		}
-		qid, err := identity.ImportID(results[i].Key())
-		if err != nil {
-			return nil, fmt.Errorf("failed to import question id from Key(): %w", err)
-		}
-		questionEntity.ID = qid
-		model, err := questionEntity.ToModel()
-		if err != nil {
-			return nil, err
-		}
-		qs[i] = model
-	}
-	return qs, nil
-}
-
 func (q Question) ListByFormID(ctx context.Context, fid id.FormID) ([]question.Question, error) {
 	results, err := q.ref.OrderByChild("form_id").EqualTo(fid.ExportID()).
 		GetOrdered(ctx)
@@ -101,31 +72,31 @@ func (q Question) ListByFormID(ctx context.Context, fid id.FormID) ([]question.Q
 	return qs, nil
 }
 
-func (q Question) ListBySectionID(ctx context.Context, sid id.SectionID) ([]question.Question, error) {
-	if sid == nil || !sid.HasValue() {
-		return nil, exception.ErrIDNotAssigned
-	}
-	results, err := q.ref.OrderByChild("section_id").EqualTo(sid.ExportID()).
-		GetOrdered(ctx)
-	if err != nil {
-		return nil, err
-	}
-	qs := make([]question.Question, len(results))
-	for i := range results {
-		var questionEntity entity.Question
-		if err := results[i].Unmarshal(&questionEntity); err != nil {
-			return nil, err
-		}
-		qid, err := identity.ImportID(results[i].Key())
-		if err != nil {
-			return nil, fmt.Errorf("failed to import question id from Key(): %w", err)
-		}
-		questionEntity.ID = qid
-		model, err := questionEntity.ToModel()
-		if err != nil {
-			return nil, err
-		}
-		qs[i] = model
-	}
-	return qs, nil
-}
+//func (q Question) ListBySectionID(ctx context.Context, sid id.SectionID) ([]question.Question, error) {
+//	if sid == nil || !sid.HasValue() {
+//		return nil, exception.ErrIDNotAssigned
+//	}
+//	results, err := q.ref.OrderByChild("section_id").EqualTo(sid.ExportID()).
+//		GetOrdered(ctx)
+//	if err != nil {
+//		return nil, err
+//	}
+//	qs := make([]question.Question, len(results))
+//	for i := range results {
+//		var questionEntity entity.Question
+//		if err := results[i].Unmarshal(&questionEntity); err != nil {
+//			return nil, err
+//		}
+//		qid, err := identity.ImportID(results[i].Key())
+//		if err != nil {
+//			return nil, fmt.Errorf("failed to import question id from Key(): %w", err)
+//		}
+//		questionEntity.ID = qid
+//		model, err := questionEntity.ToModel()
+//		if err != nil {
+//			return nil, err
+//		}
+//		qs[i] = model
+//	}
+//	return qs, nil
+//}
