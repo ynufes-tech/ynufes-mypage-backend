@@ -13,7 +13,7 @@ type Line struct {
 	ref *db.Ref
 }
 
-func NewLine(fb firebase.Firebase) Line {
+func NewLine(fb *firebase.Firebase) Line {
 	return Line{
 		ref: fb.Client("line"),
 	}
