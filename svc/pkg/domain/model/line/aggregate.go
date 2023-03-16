@@ -37,7 +37,7 @@ func NewEncryptedRefreshToken(s PlainRefreshToken) EncryptedRefreshToken {
 	return EncryptedRefreshToken(encrypted)
 }
 
-func (l Line) AccessToken() (PlainAccessToken, error) {
+func (l LineUser) AccessToken() (PlainAccessToken, error) {
 	decrypted, err := aes.Decrypt(string(l.EncryptedAccessToken))
 	if err != nil {
 		return PlainAccessToken(""), err
@@ -45,7 +45,7 @@ func (l Line) AccessToken() (PlainAccessToken, error) {
 	return PlainAccessToken(decrypted), nil
 }
 
-func (l Line) RefreshToken() (PlainRefreshToken, error) {
+func (l LineUser) RefreshToken() (PlainRefreshToken, error) {
 	decrypted, err := aes.Decrypt(string(l.EncryptedRefreshToken))
 	if err != nil {
 		return PlainRefreshToken(""), err
