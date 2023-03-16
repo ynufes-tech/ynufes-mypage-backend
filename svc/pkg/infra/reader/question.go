@@ -47,6 +47,9 @@ func (q Question) GetByID(ctx context.Context, qid id.QuestionID) (*question.Que
 }
 
 func (q Question) ListByFormID(ctx context.Context, fid id.FormID) ([]question.Question, error) {
+	if fid == nil || !fid.HasValue() {
+		return nil, exception.ErrIDNotAssigned
+	}
 	results, err := q.ref.OrderByChild("form_id").EqualTo(fid.ExportID()).
 		GetOrdered(ctx)
 	if err != nil {
