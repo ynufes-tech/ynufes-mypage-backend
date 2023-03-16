@@ -77,3 +77,11 @@ func (repo Repository) NewSectionCommand() command.Section {
 func (repo Repository) NewSectionQuery() query.Section {
 	return reader.NewSection(repo.fb)
 }
+
+func (repo Repository) NewLineCommand() command.Line {
+	return writer.NewLine(repo.fb)
+}
+
+func (repo Repository) NewLineQuery() query.Line {
+	return reader.NewLine(repo.fb)
+}
