@@ -1,15 +1,12 @@
 package testutil
 
 import (
-	"ynufes-mypage-backend/pkg/identity"
-	"ynufes-mypage-backend/svc/pkg/domain/model/id"
 	"ynufes-mypage-backend/svc/pkg/domain/model/user"
 )
 
 func Users() []user.User {
 	return []user.User{
 		{
-			ID: id.UserID(identity.NewID(1234)),
 			Detail: user.Detail{
 				Name: user.Name{
 					FirstName:     "詩恩",
@@ -22,9 +19,7 @@ func Users() []user.User {
 				StudentID: "2164027",
 				Type:      user.TypeNormal,
 			},
-		},
-		{
-			ID: id.UserID(identity.NewID(12344)),
+		}, {
 			Detail: user.Detail{
 				Name: user.Name{
 					FirstName:     "友哉",
