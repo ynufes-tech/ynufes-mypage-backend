@@ -127,6 +127,7 @@ func (uc AuthUseCase) Do(ipt AuthInput) (*AuthOutput, error) {
 		LineDisplayName:       profile.DisplayName,
 		EncryptedAccessToken:  aToken,
 		EncryptedRefreshToken: rToken,
+		UserID:                lu.UserID,
 	}
 
 	if err := uc.lineC.Set(ipt.Ctx, update); err != nil {

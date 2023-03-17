@@ -39,6 +39,7 @@ func (u User) Create(ctx context.Context, model *user.User) error {
 			StudentID:     string(model.Detail.StudentID),
 			Email:         string(model.Detail.Email),
 			Type:          int(model.Detail.Type),
+			PictureURL:    string(model.Detail.PictureURL),
 		},
 		// new user will not have any roles
 		Admin: entity.Admin{
@@ -111,6 +112,7 @@ func (u User) UpdateUserDetail(ctx context.Context, tID id.UserID, detail user.D
 		StudentID:     string(detail.StudentID),
 		Email:         string(detail.Email),
 		Type:          int(detail.Type),
+		PictureURL:    string(detail.PictureURL),
 	}
 	// marshal to json and unmarshal to map[string]interface{}
 	// so that empty value will not be updated.
