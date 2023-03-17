@@ -39,6 +39,7 @@ func (u User) Create(ctx context.Context, model *user.User) error {
 			StudentID:     string(model.Detail.StudentID),
 			Email:         string(model.Detail.Email),
 			Type:          int(model.Detail.Type),
+			PictureURL:    string(model.Detail.PictureURL),
 		},
 		// new user will not have any roles
 		Admin: entity.Admin{
