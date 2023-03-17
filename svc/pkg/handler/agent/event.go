@@ -19,8 +19,14 @@ func NewEvent(rgst registry.Registry) Event {
 
 func (uc Event) CreateHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		eventName, has := c.GetQuery("event_name")
-		if !has {
+		var req agent.CreateEventRequest
+		if err := c.ShouldBindJSON(&req); err != nil {
+			c.AbortWithStatusJSON(400, gin.H{
+				"error": "invalid request",
+			})
+			return
+		}
+		if req.EventName == "" {
 			c.AbortWithStatusJSON(400, gin.H{
 				"error": "event_name is required",
 			})
@@ -28,7 +34,7 @@ func (uc Event) CreateHandler() gin.HandlerFunc {
 		}
 		opt, err := uc.createUC.Do(event.CreateInput{
 			Ctx:       c,
-			EventName: eventName,
+			EventName: req.EventName,
 		})
 		if err != nil {
 			return

@@ -61,11 +61,11 @@ func ImplementAgent(rg *gin.RouterGroup) error {
 	form := agentOrg.NewForm(*rgst)
 	section := agentOrg.NewSection(*rgst)
 	question := agentOrg.NewQuestion(*rgst)
-	rg.Handle("GET", "/agent/event/create", event.CreateHandler())
-	rg.Handle("GET", "/agent/org/create", org.CreateHandler())
+	rg.Handle("POST", "/agent/event/create", event.CreateHandler())
+	rg.Handle("POST", "/agent/org/create", org.CreateHandler())
 	rg.Handle("GET", "/agent/org/token", org.IssueOrgInviteToken())
-	rg.Handle("GET", "/agent/form/create", form.CreateHandler())
-	rg.Handle("GET", "/agent/section/create", section.CreateHandler())
-	rg.Handle("GET", "/agent/question/create", question.CreateHandler())
+	rg.Handle("POST", "/agent/form/create", form.CreateHandler())
+	rg.Handle("POST", "/agent/section/create", section.CreateHandler())
+	rg.Handle("POST", "/agent/question/create", question.CreateHandler())
 	return nil
 }

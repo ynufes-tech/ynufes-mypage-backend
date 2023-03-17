@@ -3,7 +3,6 @@ package agent
 import (
 	"github.com/gin-gonic/gin"
 	"log"
-	"strconv"
 	"time"
 	"ynufes-mypage-backend/pkg/identity"
 	"ynufes-mypage-backend/pkg/jwt"
@@ -30,23 +29,26 @@ func NewOrg(rgst registry.Registry) *Org {
 
 func (o Org) CreateHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		eventID, err := identity.ImportID(c.Query("event_id"))
-		if err != nil {
-			c.AbortWithStatusJSON(400, gin.H{"error": "invalid event_id"})
+		var req agent.CreateOrgRequest
+		if err := c.ShouldBindJSON(&req); err != nil {
+			c.AbortWithStatusJSON(400, gin.H{"error": "invalid request"})
 			return
 		}
-		orgName := c.Query("org_name")
-		isOpenRaw := c.DefaultQuery("is_open", "true")
-		isOpen, err := strconv.ParseBool(isOpenRaw)
+		if req.OrgName == "" || req.EventID == "" {
+			c.AbortWithStatusJSON(400,
+				gin.H{"error": "org_name and event_id are required"})
+			return
+		}
+		eventID, err := identity.ImportID(req.EventID)
 		if err != nil {
-			c.AbortWithStatusJSON(400, gin.H{"error": "invalid is_open"})
+			c.AbortWithStatusJSON(400, gin.H{"error": "invalid event_id"})
 			return
 		}
 		ipt := org.CreateOrgInput{
 			Ctx:     c,
 			EventID: eventID,
-			OrgName: orgName,
-			IsOpen:  isOpen,
+			OrgName: req.OrgName,
+			IsOpen:  req.IsOpen,
 		}
 		opt, err := o.createOrgUC.Do(ipt)
 		if err != nil {

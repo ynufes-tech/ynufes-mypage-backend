@@ -1,5 +1,11 @@
 package agent
 
+type CreateOrgRequest struct {
+	EventID string `json:"event_id"`
+	OrgName string `json:"org_name"`
+	IsOpen  bool   `json:"is_open"`
+}
+
 type CreateOrgResponse struct {
 	EventID   string `json:"event_id"`
 	EventName string `json:"event_name"`
