@@ -48,6 +48,9 @@ func (w Line) Create(ctx context.Context, lineUser line.LineUser) error {
 }
 
 func (w Line) Set(ctx context.Context, lineUser line.LineUser) error {
+	if lineUser.UserID == nil || !lineUser.UserID.HasValue() {
+		return exception.ErrIDNotAssigned
+	}
 	if lineUser.LineServiceID == "" {
 		return exception.ErrIDNotAssigned
 	}

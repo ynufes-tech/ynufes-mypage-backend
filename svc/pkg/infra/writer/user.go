@@ -112,6 +112,7 @@ func (u User) UpdateUserDetail(ctx context.Context, tID id.UserID, detail user.D
 		StudentID:     string(detail.StudentID),
 		Email:         string(detail.Email),
 		Type:          int(detail.Type),
+		PictureURL:    string(detail.PictureURL),
 	}
 	// marshal to json and unmarshal to map[string]interface{}
 	// so that empty value will not be updated.
