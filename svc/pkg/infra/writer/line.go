@@ -29,7 +29,7 @@ func (w Line) Create(ctx context.Context, lineUser line.LineUser) error {
 			if err := node.Unmarshal(&e); err != nil {
 				return nil, err
 			}
-			if e.LineServiceID != "" {
+			if e.UserID != "" {
 				return nil, exception.ErrAlreadyExists
 			}
 			e = entity.Line{
