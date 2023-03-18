@@ -67,11 +67,12 @@ func (h Section) InfoHandler() gin.HandlerFunc {
 					c.JSON(500, gin.H{"error": err.Error()})
 					return
 				}
+				optO := radioQ.OptionsOrder.GetOrderedIDs()
 				options := make([]schemaS.Option, 0, len(radioQ.Options))
-				for i := range radioQ.Options {
+				for i := range optO {
 					options = append(options, schemaS.Option{
-						ID:   radioQ.Options[i].ID.ExportID(),
-						Text: radioQ.Options[i].Text,
+						ID:   radioQ.Options[optO[i]].ID.ExportID(),
+						Text: radioQ.Options[optO[i]].Text,
 					})
 				}
 				respQ.Options = &options
@@ -81,11 +82,12 @@ func (h Section) InfoHandler() gin.HandlerFunc {
 					c.JSON(500, gin.H{"error": err.Error()})
 					return
 				}
+				optO := checkQ.OptionsOrder.GetOrderedIDs()
 				options := make([]schemaS.Option, 0, len(checkQ.Options))
-				for i := range checkQ.Options {
+				for i := range optO {
 					options = append(options, schemaS.Option{
-						ID:   checkQ.Options[i].ID.ExportID(),
-						Text: checkQ.Options[i].Text,
+						ID:   checkQ.Options[optO[i]].ID.ExportID(),
+						Text: checkQ.Options[optO[i]].Text,
 					})
 				}
 				respQ.Options = &options
