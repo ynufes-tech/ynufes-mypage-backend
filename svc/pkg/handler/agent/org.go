@@ -1,6 +1,7 @@
 package agent
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"log"
 	"time"
@@ -53,7 +54,8 @@ func (o Org) CreateHandler() gin.HandlerFunc {
 		opt, err := o.createOrgUC.Do(ipt)
 		if err != nil {
 			log.Printf("failed to create org in CreateOrgHandler: %v", err)
-			c.AbortWithStatusJSON(500, gin.H{"error": "failed to create org"})
+			c.AbortWithStatusJSON(500,
+				gin.H{"error": fmt.Sprintf("failed to create org: %v", err)})
 			return
 		}
 		resp := agent.CreateOrgResponse{
