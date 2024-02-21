@@ -3,7 +3,6 @@ package main
 import (
 	"github.com/gin-gonic/gin"
 	"log"
-	"ynufes-mypage-backend/svc/pkg/handler/test"
 	"ynufes-mypage-backend/svc/runner"
 )
 
@@ -19,7 +18,6 @@ func main() {
 		return
 	}
 
-	engine.GET("/hello/", test.TestHello)
 	if err := engine.Run("localhost:1306"); err != nil {
 		log.Fatalf("Failed to start server... %v", err)
 		return
