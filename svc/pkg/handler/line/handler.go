@@ -56,48 +56,40 @@ func (a LineAuth) VerificationHandler() gin.HandlerFunc {
 			Ctx:   c,
 		}
 		authOut, err := a.authUC.Do(authInput)
-
 		if err != nil {
 			_, _ = c.Writer.WriteString(err.Error())
 			log.Printf("error: %v", err)
 			c.AbortWithStatus(500)
 			return
 		}
-		err = a.setCookie(c, authOut.UserInfo.ID.ExportID())
+
+		var redirectDest string
+		if a.serverConf.OnProduction {
+			redirectDest = "/token"
+		} else {
+			redirectDest = fmt.Sprintf(
+				"%s%s%s/token", a.serverConf.Frontend.Protocol, a.serverConf.Frontend.Domain, a.serverConf.Frontend.Port,
+			)
+		}
+		redirectDest, err = a.attachToken(authOut.UserInfo.ID.ExportID(), redirectDest)
 		if err != nil {
-			log.Println(c, "failed to set cookie: %v", err)
+			log.Printf("failed to attach token: %v", err)
 			c.AbortWithStatus(500)
 			return
 		}
-		if a.serverConf.OnProduction {
-			if !authOut.UserInfo.Detail.MeetsBasicRequirement() {
-				c.Redirect(302, "/welcome")
-				return
-			}
-			c.Redirect(302, "/")
-		} else {
-			front := a.serverConf.Frontend
-			if !authOut.UserInfo.Detail.MeetsBasicRequirement() {
-				c.Redirect(302,
-					fmt.Sprintf("%s%s%s/welcome", front.Protocol, front.Domain, front.Port))
-				return
-			}
-			c.Redirect(302,
-				fmt.Sprintf("%s%s%s/", front.Protocol, front.Domain, front.Port))
-		}
+		c.Redirect(302, redirectDest)
 	}
 }
 
-func (a LineAuth) setCookie(c *gin.Context, id string) error {
+func (a LineAuth) attachToken(id string, dest string) (string, error) {
+	// maxAge is set to 1 day
 	claim := jwt.CreateClaims(id, 24*time.Hour, a.serverConf.Backend.Domain)
 	token, err := jwt.IssueJWT(claim, config.JWT.JWTSecret)
 	if err != nil {
-		return err
+		return "", err
 	}
-	// maxAge is set to 1 day
-	c.SetCookie("Authorization", token, 3600*24,
-		"/", a.serverConf.Frontend.Domain, a.secureCookie, false)
-	return nil
+	dest = fmt.Sprintf("%s?token=%s", dest, token)
+	return dest, nil
 }
 
 func (a LineAuth) StateIssuer() gin.HandlerFunc {
