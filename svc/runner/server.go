@@ -6,6 +6,7 @@ import (
 	"ynufes-mypage-backend/svc/pkg/handler/line"
 	orgHandler "ynufes-mypage-backend/svc/pkg/handler/org"
 	sectionHandler "ynufes-mypage-backend/svc/pkg/handler/section"
+	"ynufes-mypage-backend/svc/pkg/handler/token"
 	userHandler "ynufes-mypage-backend/svc/pkg/handler/user"
 	"ynufes-mypage-backend/svc/pkg/middleware"
 	"ynufes-mypage-backend/svc/pkg/registry"
@@ -16,6 +17,10 @@ func Implement(rg *gin.RouterGroup, devTool bool) error {
 	if err != nil {
 		return err
 	}
+
+	tkn := token.NewToken(*rgst)
+	rg.Handle("POST", "/auth/token", tkn.IssueHandler())
+
 	lineAuth := line.NewLineAuth(*rgst)
 	rg.Handle("GET", "/auth/line/callback", lineAuth.VerificationHandler())
 	rg.Handle("GET", "/auth/line/state", lineAuth.StateIssuer())
