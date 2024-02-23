@@ -81,6 +81,37 @@ func TestIssuer_IssueToken(t *testing.T) {
 				assert.Equal(t, "code expired", err.Error())
 			},
 		},
+		{
+			name: "RevokedCodes",
+			// scenario:
+			// 1. issue code1
+			// 2. wait for 0.2 seconds
+			// 3. issue code2
+			// 4. wait for 4.9 seconds
+			// 5. issue token2 (code2 is still valid, but code1 is expired)
+			// 6. wait for 0.1 seconds (wait for clean process to be done)
+			// 7. issue token1 (code1 is expired, and already cleaned from the cache)
+			tc: func(t *testing.T) {
+				t.Parallel()
+				iss := NewTokenIssuer(jwtSecret, issuer, maxAge)
+				code1, err := iss.IssueNewCode(id1)
+				assert.NoError(t, err)
+				time.Sleep(200 * time.Millisecond)
+				code2, err := iss.IssueNewCode(id2)
+				assert.NoError(t, err)
+				time.Sleep(4900 * time.Millisecond)
+
+				token2, err := iss.IssueToken(code2)
+				assert.NoError(t, err)
+				authID2, err := jwt.Verify(token2, jwtSecret)
+				assert.NoError(t, err)
+				assert.Equal(t, id2, authID2.Id)
+				time.Sleep(100 * time.Millisecond)
+				_, err = iss.IssueToken(code1)
+				assert.Error(t, err)
+				assert.Equal(t, "code not found", err.Error())
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, tt.tc)
