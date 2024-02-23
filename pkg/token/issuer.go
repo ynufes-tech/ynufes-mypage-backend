@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"google.golang.org/appengine/v2/log"
 	"strconv"
+	"sync"
 	"time"
 	"ynufes-mypage-backend/pkg/jwt"
 )
@@ -16,6 +17,7 @@ type Issuer struct {
 	issuer    string
 	maxAge    time.Duration
 	codeCache map[string]credit
+	lock      sync.RWMutex // lock for codeCache, prevents race condition
 }
 
 type credit struct {
@@ -23,8 +25,8 @@ type credit struct {
 	time int64
 }
 
-func NewTokenIssuer(jwtSecret string, issuer string, maxAge time.Duration) Issuer {
-	return Issuer{
+func NewTokenIssuer(jwtSecret string, issuer string, maxAge time.Duration) *Issuer {
+	return &Issuer{
 		jwtSecret: jwtSecret,
 		issuer:    issuer,
 		maxAge:    maxAge,
@@ -32,7 +34,9 @@ func NewTokenIssuer(jwtSecret string, issuer string, maxAge time.Duration) Issue
 	}
 }
 
-func (v Issuer) IssueNewCode(id string) (string, error) {
+func (v *Issuer) IssueNewCode(id string) (string, error) {
+	v.lock.Lock()
+	defer v.lock.Unlock()
 	cnt := 0
 	newCode, err := v.generateSecret()
 	if err != nil {
@@ -52,7 +56,9 @@ func (v Issuer) IssueNewCode(id string) (string, error) {
 	return newCode, nil
 }
 
-func (v Issuer) IssueToken(code string) (string, error) {
+func (v *Issuer) IssueToken(code string) (string, error) {
+	v.lock.Lock()
+	defer v.lock.Unlock()
 	credit, ok := v.codeCache[code]
 	if !ok {
 		return "", fmt.Errorf("code not found")
@@ -71,7 +77,9 @@ func (v Issuer) IssueToken(code string) (string, error) {
 	return token, nil
 }
 
-func (v Issuer) RevokeOldCodes() {
+func (v *Issuer) RevokeOldCodes() {
+	v.lock.Lock()
+	defer v.lock.Unlock()
 	for s, t := range v.codeCache {
 		// If the code is older than 5 seconds, delete it
 		if time.Now().UnixMilli()-t.time > 5000 {
@@ -80,7 +88,7 @@ func (v Issuer) RevokeOldCodes() {
 	}
 }
 
-func (v Issuer) generateSecret() (string, error) {
+func (v *Issuer) generateSecret() (string, error) {
 	var secret uint64
 	if err := binary.Read(rand.Reader, binary.BigEndian, &secret); err != nil {
 		return "", fmt.Errorf("failed to read random number: %w", err)
