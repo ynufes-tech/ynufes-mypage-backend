@@ -24,6 +24,7 @@ type LineAuth struct {
 	secureCookie bool
 	authUC       lineUC.AuthUseCase
 }
+
 type devSetting struct {
 	callbackURI string
 	clientID    string
@@ -31,9 +32,9 @@ type devSetting struct {
 
 func NewLineAuth(registry registry.Registry) LineAuth {
 	conf := setting.Get()
-	authVerifier := registry.Service().NewLineAuthVerifier()
+	authVerifier := registry.Service().LineAuthVerifier()
 	return LineAuth{
-		verifier:   &authVerifier,
+		verifier:   authVerifier,
 		userQ:      registry.Repository().NewUserQuery(),
 		userC:      registry.Repository().NewUserCommand(),
 		serverConf: conf.Application.Server,
@@ -42,7 +43,7 @@ func NewLineAuth(registry registry.Registry) LineAuth {
 			clientID:    conf.ThirdParty.LineLogin.ClientID,
 		},
 		secureCookie: conf.Service.Authentication.SecureCookie,
-		authUC:       lineUC.NewAuthCodeUseCase(registry, conf.ThirdParty.LineLogin.EnableLineAuth, &authVerifier),
+		authUC:       lineUC.NewAuthCodeUseCase(registry, conf.ThirdParty.LineLogin.EnableLineAuth, authVerifier),
 	}
 }
 

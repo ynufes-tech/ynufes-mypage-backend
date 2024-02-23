@@ -9,17 +9,30 @@ import (
 
 type Service struct{}
 
+var (
+	lineAuthVerifier lineDomain.AuthVerifier
+	accessController access.AccessController
+)
+
+func init() {
+	config := setting.Get()
+
+	lineAuthVerifier = linePkg.NewAuthVerifier(
+		config.ThirdParty.LineLogin.CallbackURI,
+		config.ThirdParty.LineLogin.ClientID,
+		config.ThirdParty.LineLogin.ClientSecret,
+	)
+	accessController = access.NewAccessController(repo.NewRelationQuery())
+}
+
 func NewService() Service {
 	return Service{}
 }
 
-func (s Service) NewLineAuthVerifier() lineDomain.AuthVerifier {
-	config := setting.Get()
-	return linePkg.NewAuthVerifier(config.ThirdParty.LineLogin.CallbackURI, config.ThirdParty.LineLogin.ClientID, config.ThirdParty.LineLogin.ClientSecret)
+func (s Service) LineAuthVerifier() *lineDomain.AuthVerifier {
+	return &lineAuthVerifier
 }
 
-func (s Service) AccessController() access.AccessController {
-	return access.NewAccessController(
-		repo.NewRelationQuery(),
-	)
+func (s Service) AccessController() *access.AccessController {
+	return &accessController
 }
