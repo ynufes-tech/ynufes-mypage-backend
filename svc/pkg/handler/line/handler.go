@@ -4,12 +4,10 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"log"
-	"time"
-	"ynufes-mypage-backend/pkg/jwt"
 	"ynufes-mypage-backend/pkg/setting"
-	"ynufes-mypage-backend/svc/pkg/config"
 	"ynufes-mypage-backend/svc/pkg/domain/command"
 	"ynufes-mypage-backend/svc/pkg/domain/query"
+	"ynufes-mypage-backend/svc/pkg/domain/service/auth"
 	lineDomain "ynufes-mypage-backend/svc/pkg/domain/service/line"
 	"ynufes-mypage-backend/svc/pkg/registry"
 	lineUC "ynufes-mypage-backend/svc/pkg/uc/line"
@@ -23,6 +21,7 @@ type LineAuth struct {
 	devSetting   devSetting
 	secureCookie bool
 	authUC       lineUC.AuthUseCase
+	tokenIssuer  *auth.TokenIssuer
 }
 
 type devSetting struct {
@@ -44,6 +43,7 @@ func NewLineAuth(registry registry.Registry) LineAuth {
 		},
 		secureCookie: conf.Service.Authentication.SecureCookie,
 		authUC:       lineUC.NewAuthCodeUseCase(registry, conf.ThirdParty.LineLogin.EnableLineAuth, authVerifier),
+		tokenIssuer:  registry.Service().TokenIssuer(),
 	}
 }
 
@@ -72,7 +72,7 @@ func (a LineAuth) VerificationHandler() gin.HandlerFunc {
 				"%s%s%s/token", a.serverConf.Frontend.Protocol, a.serverConf.Frontend.Domain, a.serverConf.Frontend.Port,
 			)
 		}
-		redirectDest, err = a.attachToken(authOut.UserInfo.ID.ExportID(), redirectDest)
+		redirectDest, err = a.attachCode(authOut.UserInfo.ID.ExportID(), redirectDest)
 		if err != nil {
 			log.Printf("failed to attach token: %v", err)
 			c.AbortWithStatus(500)
@@ -82,14 +82,12 @@ func (a LineAuth) VerificationHandler() gin.HandlerFunc {
 	}
 }
 
-func (a LineAuth) attachToken(id string, dest string) (string, error) {
-	// maxAge is set to 1 day
-	claim := jwt.CreateClaims(id, 24*time.Hour, a.serverConf.Backend.Domain)
-	token, err := jwt.IssueJWT(claim, config.JWT.JWTSecret)
+func (a LineAuth) attachCode(id string, dest string) (string, error) {
+	code, err := (*a.tokenIssuer).IssueNewCode(id)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to issue code: %v", err)
 	}
-	dest = fmt.Sprintf("%s?token=%s", dest, token)
+	dest = fmt.Sprintf("%s?code=%s", dest, code)
 	return dest, nil
 }
 
