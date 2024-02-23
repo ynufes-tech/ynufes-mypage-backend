@@ -9,6 +9,7 @@ import (
 func main() {
 	engine := gin.Default()
 	apiV1 := engine.Group("/api/v1")
+	runner.NewCORS().ConfigureCORS(apiV1)
 	if err := runner.Implement(apiV1, true); err != nil {
 		log.Fatalf("Failed to start server... %v", err)
 		return
