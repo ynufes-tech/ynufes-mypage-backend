@@ -4,7 +4,6 @@ import (
 	"sort"
 	"time"
 	"ynufes-mypage-backend/svc/pkg/domain/model/id"
-	"ynufes-mypage-backend/svc/pkg/domain/model/user"
 )
 
 type (
@@ -14,7 +13,7 @@ type (
 		Title       string
 		Summary     string
 		Description string
-		Roles       []user.RoleID
+		Roles       []id.RoleID
 		Deadline    time.Time
 		IsOpen      bool
 		Sections    SectionsOrder
@@ -27,7 +26,7 @@ func NewForm(
 	eventID id.EventID,
 	title, summary, description string,
 	sectionOrders map[id.SectionID]float64,
-	roles []user.RoleID,
+	roles []id.RoleID,
 	deadline time.Time,
 	isOpen bool,
 ) *Form {
