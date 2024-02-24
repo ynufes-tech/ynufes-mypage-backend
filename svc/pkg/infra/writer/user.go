@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"firebase.google.com/go/v4/db"
-	"time"
 	"ynufes-mypage-backend/pkg/firebase"
 	"ynufes-mypage-backend/pkg/identity"
 	"ynufes-mypage-backend/svc/pkg/domain/model/id"
@@ -41,11 +40,6 @@ func (u User) Create(ctx context.Context, model *user.User) error {
 			Type:          int(model.Detail.Type),
 			PictureURL:    string(model.Detail.PictureURL),
 		},
-		// new user will not have any roles
-		Admin: entity.Admin{
-			IsSuperAdmin: false,
-			GrantedTime:  0,
-		},
 		Agent: entity.Agent{
 			Roles: []entity.Role{},
 		},
@@ -62,10 +56,6 @@ func (u User) Create(ctx context.Context, model *user.User) error {
 func (u User) Set(ctx context.Context, model user.User) error {
 	if model.ID == nil || !model.ID.HasValue() {
 		return exception.ErrIDNotAssigned
-	}
-	var t int64
-	if model.Admin.IsSuperAdmin {
-		t = time.Now().UnixMilli()
 	}
 
 	rs := make([]entity.Role, len(model.Agent.Roles))
@@ -86,10 +76,6 @@ func (u User) Set(ctx context.Context, model user.User) error {
 			StudentID:     string(model.Detail.StudentID),
 			Email:         string(model.Detail.Email),
 			Type:          int(model.Detail.Type),
-		},
-		Admin: entity.Admin{
-			IsSuperAdmin: model.Admin.IsSuperAdmin,
-			GrantedTime:  t,
 		},
 		Agent: entity.Agent{
 			Roles: rs,
@@ -155,28 +141,6 @@ func (u User) SetAgent(ctx context.Context, tID id.UserID, newAgent user.Agent) 
 			u.Agent = e
 			return u, nil
 		}); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (u User) SetAdmin(ctx context.Context, tID id.UserID, admin user.Admin) error {
-	if tID == nil || !tID.HasValue() {
-		return exception.ErrIDNotAssigned
-	}
-	if err := u.ref.Child(tID.ExportID()).
-		Transaction(ctx,
-			func(t db.TransactionNode) (interface{}, error) {
-				var e entity.User
-				if err := t.Unmarshal(&e); err != nil {
-					return nil, err
-				}
-				e.IsSuperAdmin = admin.IsSuperAdmin
-				if admin.IsSuperAdmin {
-					e.Admin.GrantedTime = time.Now().UnixMilli()
-				}
-				return e, nil
-			}); err != nil {
 		return err
 	}
 	return nil

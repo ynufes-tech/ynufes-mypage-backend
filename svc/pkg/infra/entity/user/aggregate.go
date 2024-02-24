@@ -12,7 +12,6 @@ const UserRootName = "Users"
 type User struct {
 	ID         id.UserID `json:"-"`
 	UserDetail `json:"detail"`
-	Admin      `json:"admin"`
 	Agent      `json:"agent"`
 }
 
@@ -37,11 +36,6 @@ func (u User) ToModel() (*user.User, error) {
 			GrantedTime: time.UnixMilli(role.GrantedTime),
 		}
 	}
-	var adminGrantedTime *time.Time
-	if u.IsSuperAdmin {
-		t := time.UnixMilli(u.GrantedTime)
-		adminGrantedTime = &t
-	}
 	ty, err := user.NewType(u.UserDetail.Type)
 	if err != nil {
 		return nil, err
@@ -61,10 +55,6 @@ func (u User) ToModel() (*user.User, error) {
 			StudentID:  user.StudentID(u.StudentID),
 			Type:       ty,
 			PictureURL: user.PictureURL(u.PictureURL),
-		},
-		Admin: user.Admin{
-			IsSuperAdmin: u.IsSuperAdmin,
-			GrantedTime:  adminGrantedTime,
 		},
 		Agent: user.Agent{
 			Roles: roles,
