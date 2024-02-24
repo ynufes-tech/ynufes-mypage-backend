@@ -96,7 +96,6 @@ func (uc AuthUseCase) Do(ipt AuthInput) (*AuthOutput, error) {
 				Type:       user.TypeNormal,
 				PictureURL: user.PictureURL(profile.PictureURL),
 			},
-			Agent: user.Agent{},
 		}
 		if err := uc.userC.Create(ipt.Ctx, &newUser); err != nil {
 			err = fmt.Errorf("failed to create user: %v", err)

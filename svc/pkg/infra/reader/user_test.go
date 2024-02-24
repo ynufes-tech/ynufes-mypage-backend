@@ -28,9 +28,6 @@ func TestUser_GetByID(t *testing.T) {
 				Type:       user.TypeNormal,
 				PictureURL: "https://shion1305.com/picture.png",
 			},
-			Agent: user.Agent{
-				Roles: []user.Role{},
-			},
 		},
 	}
 

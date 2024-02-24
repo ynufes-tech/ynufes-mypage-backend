@@ -1,8 +1,6 @@
 package entity
 
 import (
-	"time"
-	"ynufes-mypage-backend/pkg/identity"
 	"ynufes-mypage-backend/svc/pkg/domain/model/id"
 	"ynufes-mypage-backend/svc/pkg/domain/model/user"
 )
@@ -12,7 +10,6 @@ const UserRootName = "Users"
 type User struct {
 	ID         id.UserID `json:"-"`
 	UserDetail `json:"detail"`
-	Agent      `json:"agent"`
 }
 
 func (u User) ToModel() (*user.User, error) {
@@ -23,18 +20,6 @@ func (u User) ToModel() (*user.User, error) {
 	gender, err := user.NewGender(u.Gender)
 	if err != nil {
 		return nil, err
-	}
-	roles := make([]user.Role, len(u.Roles))
-	for i, role := range u.Roles {
-		lv, err := user.NewRoleLevel(role.Level)
-		if err != nil {
-			return nil, err
-		}
-		roles[i] = user.Role{
-			ID:          identity.NewID(role.ID),
-			Level:       lv,
-			GrantedTime: time.UnixMilli(role.GrantedTime),
-		}
 	}
 	ty, err := user.NewType(u.UserDetail.Type)
 	if err != nil {
@@ -55,9 +40,6 @@ func (u User) ToModel() (*user.User, error) {
 			StudentID:  user.StudentID(u.StudentID),
 			Type:       ty,
 			PictureURL: user.PictureURL(u.PictureURL),
-		},
-		Agent: user.Agent{
-			Roles: roles,
 		},
 	}, nil
 }
