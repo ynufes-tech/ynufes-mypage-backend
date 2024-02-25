@@ -40,6 +40,7 @@ func (r RelationOrgUser) DeleteOrgUser(ctx context.Context, orgID id.OrgID, user
 	if err != nil {
 		return err
 	}
+	var found bool
 	for _, org := range orgs {
 		var rEntity entity.OrgUserRelation
 		if err := org.Unmarshal(&rEntity); err != nil {
@@ -52,7 +53,10 @@ func (r RelationOrgUser) DeleteOrgUser(ctx context.Context, orgID id.OrgID, user
 		if err := r.OrgUserRef.Child(org.Key()).Delete(ctx); err != nil {
 			return err
 		}
-		return nil
+		found = true
 	}
-	return exception.ErrNotFound
+	if !found {
+		return exception.ErrNotFound
+	}
+	return nil
 }

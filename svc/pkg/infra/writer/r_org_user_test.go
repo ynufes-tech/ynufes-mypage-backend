@@ -33,65 +33,42 @@ func TestRelationOrgUser_CreateOrgUser(t *testing.T) {
 }
 
 func TestRelationOrgUser_DeleteOrgUser(t *testing.T) {
-	relations := []struct {
+	type relationOrgUser struct {
 		OrgID  id.OrgID
 		UserID id.UserID
-	}{
-		{
-			OrgID:  id.OrgID(identity.IssueID()),
-			UserID: id.UserID(identity.IssueID()),
-		},
 	}
+
+	rSimple := relationOrgUser{OrgID: id.OrgID(identity.IssueID()), UserID: id.UserID(identity.IssueID())}
+	rMultiple := relationOrgUser{OrgID: id.OrgID(identity.IssueID()), UserID: id.UserID(identity.IssueID())}
+	relations := []relationOrgUser{rSimple, rMultiple, rMultiple, rMultiple}
 	tests := []struct {
-		name string
-		give struct {
-			OrgID  id.OrgID
-			UserID id.UserID
-		}
+		name    string
+		give    relationOrgUser
 		wantErr error
 	}{
 		{
-			name: "normal delete",
-			give: struct {
-				OrgID  id.OrgID
-				UserID id.UserID
-			}{
-				OrgID:  relations[0].OrgID,
-				UserID: relations[0].UserID,
-			},
+			name:    "normal delete",
+			give:    rSimple,
 			wantErr: nil,
 		},
 		{
-			name: "not exist - 1",
-			give: struct {
-				OrgID  id.OrgID
-				UserID id.UserID
-			}{
-				OrgID:  id.OrgID(identity.IssueID()),
-				UserID: id.UserID(identity.IssueID()),
-			},
+			name:    "delete with multiple connections",
+			give:    rMultiple,
+			wantErr: nil,
+		},
+		{
+			name:    "not exist - 1",
+			give:    relationOrgUser{OrgID: id.OrgID(identity.IssueID()), UserID: id.UserID(identity.IssueID())},
 			wantErr: exception.ErrNotFound,
 		},
 		{
-			name: "not exist - 2",
-			give: struct {
-				OrgID  id.OrgID
-				UserID id.UserID
-			}{
-				OrgID:  relations[0].OrgID,
-				UserID: id.UserID(identity.IssueID()),
-			},
+			name:    "not exist - 2",
+			give:    relationOrgUser{OrgID: relations[0].OrgID, UserID: id.UserID(identity.IssueID())},
 			wantErr: exception.ErrNotFound,
 		},
 		{
-			name: "not exist - 3",
-			give: struct {
-				OrgID  id.OrgID
-				UserID id.UserID
-			}{
-				OrgID:  id.OrgID(identity.IssueID()),
-				UserID: relations[0].UserID,
-			},
+			name:    "not exist - 3",
+			give:    relationOrgUser{OrgID: id.OrgID(identity.IssueID()), UserID: relations[0].UserID},
 			wantErr: exception.ErrNotFound,
 		},
 	}
@@ -110,6 +87,16 @@ func TestRelationOrgUser_DeleteOrgUser(t *testing.T) {
 
 			err := w.DeleteOrgUser(ctx, tt.give.OrgID, tt.give.UserID)
 			assert.ErrorIs(t, err, tt.wantErr)
+
+			if tt.wantErr == nil {
+				orgs, err := reader.NewRelationOrgUser(fb.GetClient()).ListOrgIDsByUserID(ctx, tt.give.UserID)
+				assert.NoError(t, err)
+				assert.NotContains(t, orgs, tt.give.OrgID)
+
+				users, err := reader.NewRelationOrgUser(fb.GetClient()).ListUserIDsByOrgID(ctx, tt.give.OrgID)
+				assert.NoError(t, err)
+				assert.NotContains(t, users, tt.give.UserID)
+			}
 		})
 	}
 }
