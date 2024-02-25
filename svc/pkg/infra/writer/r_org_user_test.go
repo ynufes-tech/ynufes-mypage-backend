@@ -12,18 +12,18 @@ import (
 	"ynufes-mypage-backend/svc/pkg/infra/reader"
 )
 
-func TestRelation_CreateOrgUser(t *testing.T) {
+func TestRelationOrgUser_CreateOrgUser(t *testing.T) {
 	ctx := context.Background()
 	fbt := testutil.NewFirebaseTest()
 	defer fbt.Reset()
 	orgID := id.OrgID(identity.IssueID())
 	userID := id.UserID(identity.IssueID())
 	fmt.Println("firebase test created")
-	w := NewRelation(fbt.GetClient())
+	w := NewRelationOrgUser(fbt.GetClient())
 	err := w.CreateOrgUser(ctx, orgID, userID)
 	assert.NoError(t, err)
 
-	relationR := reader.NewRelation(fbt.GetClient())
+	relationR := reader.NewRelationOrgUser(fbt.GetClient())
 	orgs, err := relationR.ListOrgIDsByUserID(ctx, userID)
 	assert.NoError(t, err)
 	assert.Equal(t, id.OrgIDs{orgID}, orgs)
@@ -32,7 +32,7 @@ func TestRelation_CreateOrgUser(t *testing.T) {
 	assert.Equal(t, []id.UserID{userID}, users)
 }
 
-func TestRelation_DeleteOrgUser(t *testing.T) {
+func TestRelationOrgUser_DeleteOrgUser(t *testing.T) {
 	relations := []struct {
 		OrgID  id.OrgID
 		UserID id.UserID
@@ -102,7 +102,7 @@ func TestRelation_DeleteOrgUser(t *testing.T) {
 			defer fb.Reset()
 
 			ctx := context.Background()
-			w := NewRelation(fb.GetClient())
+			w := NewRelationOrgUser(fb.GetClient())
 
 			for _, r := range relations {
 				assert.NoError(t, w.CreateOrgUser(ctx, r.OrgID, r.UserID))
