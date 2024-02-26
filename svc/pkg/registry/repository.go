@@ -63,11 +63,11 @@ func (repo Repository) NewQuestionCommand() command.Question {
 }
 
 func (repo Repository) NewRelationQuery() query.Relation {
-	return reader.NewRelation(repo.fb)
+	return reader.NewRelationOrgUser(repo.fb)
 }
 
 func (repo Repository) NewRelationCommand() command.Relation {
-	return writer.NewRelation(repo.fb)
+	return writer.NewRelationOrgUser(repo.fb)
 }
 
 func (repo Repository) NewSectionCommand() command.Section {

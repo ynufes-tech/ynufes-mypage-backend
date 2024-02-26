@@ -10,7 +10,6 @@ import (
 	"ynufes-mypage-backend/svc/pkg/domain/model/event"
 	"ynufes-mypage-backend/svc/pkg/domain/model/form"
 	"ynufes-mypage-backend/svc/pkg/domain/model/id"
-	"ynufes-mypage-backend/svc/pkg/domain/model/user"
 	"ynufes-mypage-backend/svc/pkg/infra/writer"
 )
 
@@ -33,9 +32,9 @@ func TestForm_GetByID(t *testing.T) {
 		Title:       "FormTitle1",
 		Summary:     "FormSummary1",
 		Description: "FormDescription1",
-		Roles: []user.RoleID{
-			user.RoleID(identity.IssueID()),
-			user.RoleID(identity.IssueID()),
+		Roles: []id.RoleID{
+			id.RoleID(identity.IssueID()),
+			id.RoleID(identity.IssueID()),
 		},
 		Deadline: time.UnixMilli(deadline),
 		IsOpen:   false,
@@ -82,9 +81,9 @@ func TestForm_ListByEventID(t *testing.T) {
 		Title:       "FormTitle1",
 		Summary:     "FormSummary1",
 		Description: "FormDescription1",
-		Roles: []user.RoleID{
-			user.RoleID(identity.IssueID()),
-			user.RoleID(identity.IssueID()),
+		Roles: []id.RoleID{
+			id.RoleID(identity.IssueID()),
+			id.RoleID(identity.IssueID()),
 		},
 		Deadline: time.UnixMilli(deadline1),
 		IsOpen:   false,
@@ -102,9 +101,9 @@ func TestForm_ListByEventID(t *testing.T) {
 		Title:       "FormTitle2",
 		Summary:     "FormSummary2",
 		Description: "FormDescription2",
-		Roles: []user.RoleID{
-			user.RoleID(identity.IssueID()),
-			user.RoleID(identity.IssueID()),
+		Roles: []id.RoleID{
+			id.RoleID(identity.IssueID()),
+			id.RoleID(identity.IssueID()),
 		},
 		Deadline: time.UnixMilli(deadline2),
 		IsOpen:   false,
@@ -122,9 +121,9 @@ func TestForm_ListByEventID(t *testing.T) {
 		Title:       "FormTitle3",
 		Summary:     "FormSummary3",
 		Description: "FormDescription3",
-		Roles: []user.RoleID{
-			user.RoleID(identity.IssueID()),
-			user.RoleID(identity.IssueID()),
+		Roles: []id.RoleID{
+			id.RoleID(identity.IssueID()),
+			id.RoleID(identity.IssueID()),
 		},
 		Deadline: time.UnixMilli(deadline3),
 		IsOpen:   false,
@@ -174,9 +173,9 @@ func checkFormEqual(t *testing.T, f1, f2 form.Form) {
 	}
 }
 
-func checkRolesEqual(t *testing.T, r1, r2 []user.RoleID) {
+func checkRolesEqual(t *testing.T, r1, r2 []id.RoleID) {
 	assert.Equal(t, len(r1), len(r2))
-	roles := make(map[user.RoleID]struct{}, len(r1))
+	roles := make(map[id.RoleID]struct{}, len(r1))
 	for _, v := range r1 {
 		roles[v] = struct{}{}
 	}

@@ -5,7 +5,6 @@ import (
 	"ynufes-mypage-backend/pkg/identity"
 	"ynufes-mypage-backend/svc/pkg/domain/model/form"
 	"ynufes-mypage-backend/svc/pkg/domain/model/id"
-	"ynufes-mypage-backend/svc/pkg/domain/model/user"
 	"ynufes-mypage-backend/svc/pkg/exception"
 )
 
@@ -57,7 +56,7 @@ func (f Form) ToModel() (*form.Form, error) {
 		return nil, err
 	}
 
-	roles := make([]user.RoleID, 0, len(f.Roles))
+	roles := make([]id.RoleID, 0, len(f.Roles))
 	for k, v := range f.Roles {
 		if !v {
 			continue
