@@ -20,6 +20,12 @@
           "user_id",
           "org_id"
         ]
+      },
+      "RoleStaff": {
+        ".indexOn": [
+          "user_id",
+          "role_id"
+        ]
       }
     },
     "Forms": {

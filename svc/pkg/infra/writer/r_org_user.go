@@ -10,17 +10,17 @@ import (
 	entity "ynufes-mypage-backend/svc/pkg/infra/entity/relation"
 )
 
-type Relation struct {
+type RelationOrgUser struct {
 	OrgUserRef *db.Ref
 }
 
-func NewRelation(db *firebase.Firebase) Relation {
-	return Relation{
+func NewRelationOrgUser(db *firebase.Firebase) RelationOrgUser {
+	return RelationOrgUser{
 		OrgUserRef: db.Client(entity.RelationRootName).Child(entity.RelationOrgUserName),
 	}
 }
 
-func (r Relation) CreateOrgUser(ctx context.Context, orgID id.OrgID, userID id.UserID) error {
+func (r RelationOrgUser) CreateOrgUser(ctx context.Context, orgID id.OrgID, userID id.UserID) error {
 	t := entity.OrgUserRelation{
 		OrgID:  orgID.ExportID(),
 		UserID: userID.ExportID(),
@@ -33,13 +33,14 @@ func (r Relation) CreateOrgUser(ctx context.Context, orgID id.OrgID, userID id.U
 	return nil
 }
 
-func (r Relation) DeleteOrgUser(ctx context.Context, orgID id.OrgID, userID id.UserID) error {
+func (r RelationOrgUser) DeleteOrgUser(ctx context.Context, orgID id.OrgID, userID id.UserID) error {
 	orgs, err := r.OrgUserRef.
 		OrderByChild("user_id").EqualTo(userID.ExportID()).
 		GetOrdered(ctx)
 	if err != nil {
 		return err
 	}
+	var found bool
 	for _, org := range orgs {
 		var rEntity entity.OrgUserRelation
 		if err := org.Unmarshal(&rEntity); err != nil {
@@ -52,7 +53,10 @@ func (r Relation) DeleteOrgUser(ctx context.Context, orgID id.OrgID, userID id.U
 		if err := r.OrgUserRef.Child(org.Key()).Delete(ctx); err != nil {
 			return err
 		}
-		return nil
+		found = true
 	}
-	return exception.ErrNotFound
+	if !found {
+		return exception.ErrNotFound
+	}
+	return nil
 }

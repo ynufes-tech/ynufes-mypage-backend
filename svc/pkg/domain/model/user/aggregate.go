@@ -8,8 +8,6 @@ type (
 	User struct {
 		ID     id.UserID
 		Detail Detail
-		Admin  Admin
-		Agent  Agent
 	}
 )
 
