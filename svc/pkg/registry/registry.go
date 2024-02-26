@@ -6,13 +6,13 @@ type Registry struct {
 }
 
 func New() (*Registry, error) {
-	repository, err := NewRepository()
+	repo, err := NewRepository()
 	if err != nil {
 		return nil, err
 	}
-	svc := NewService()
+	svc := NewService(&repo)
 	return &Registry{
-		repo: repository,
+		repo: repo,
 		svc:  svc,
 	}, nil
 }
