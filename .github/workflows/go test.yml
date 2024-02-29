@@ -13,11 +13,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Setup Go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v5
         with:
-          go-version: 1.19
+          go-version: 1.22
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - run: |
           echo "ENV_LOCATION=$GITHUB_WORKSPACE/pkg/setting/files/setting.testing.yaml"
           echo "ENV_LOCATION=$GITHUB_WORKSPACE/pkg/setting/files/setting.testing.yaml" >> $GITHUB_ENV
@@ -34,4 +34,4 @@ jobs:
           FIREBASE_DATABASE_EMULATOR_HOST: localhost:9000
         run: go test -p=1 -race -coverprofile=coverage.txt -covermode=atomic ./... #gosetup
       - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
