@@ -12,7 +12,7 @@ import (
 
 type InfoUseCase struct {
 	formQ  query.Form
-	access access.AccessController
+	access *access.AccessController
 }
 
 type InfoInput struct {
