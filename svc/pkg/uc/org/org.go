@@ -17,7 +17,7 @@ type (
 	OrgUseCase struct {
 		orgQ    query.Org
 		formQ   query.Form
-		accessC access.AccessController
+		accessC *access.AccessController
 	}
 	OrgInput struct {
 		Ctx   context.Context
