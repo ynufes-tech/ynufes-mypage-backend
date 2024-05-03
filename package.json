@@ -1,7 +1,7 @@
 {
   "dependencies": {
     "env-cmd": "^10.1.0",
-    "firebase-tools": "^13.3.0"
+    "firebase-tools": "^13.6.0"
   },
   "scripts": {
     "emulator": "firebase emulators:start --only database"
