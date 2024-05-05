@@ -3,6 +3,7 @@ package runner
 import (
 	"github.com/gin-gonic/gin"
 	agentOrg "ynufes-mypage-backend/svc/pkg/handler/agent"
+	formHandler "ynufes-mypage-backend/svc/pkg/handler/form"
 	"ynufes-mypage-backend/svc/pkg/handler/line"
 	orgHandler "ynufes-mypage-backend/svc/pkg/handler/org"
 	sectionHandler "ynufes-mypage-backend/svc/pkg/handler/section"
@@ -32,16 +33,18 @@ func Implement(rg *gin.RouterGroup, devTool bool) error {
 
 	middlewareAuth := middleware.NewAuth(*rgst)
 
-	user := userHandler.NewUser(*rgst)
-	org := orgHandler.NewOrg(*rgst)
-	section := sectionHandler.NewSection(*rgst)
+	userH := userHandler.NewUser(*rgst)
+	orgH := orgHandler.NewOrg(*rgst)
+	secH := sectionHandler.NewSection(*rgst)
+	formH := formHandler.NewForm(*rgst)
 	authRg := rg.Use(middlewareAuth.VerifyUser())
-	authRg.Handle("GET", "/user/info", user.InfoHandler())
-	authRg.Handle("POST", "/user/info", user.InfoUpdateHandler())
-	authRg.Handle("GET", "/orgs", org.OrgsHandler())
-	authRg.Handle("POST", "/org/register", org.OrgRegisterHandler())
-	authRg.Handle("GET", "/org", org.OrgHandler())
-	authRg.Handle("GET", "/section", section.InfoHandler())
+	authRg.Handle("GET", "/user/info", userH.InfoHandler())
+	authRg.Handle("POST", "/user/info", userH.InfoUpdateHandler())
+	authRg.Handle("GET", "/orgs", orgH.OrgsHandler())
+	authRg.Handle("POST", "/org/register", orgH.OrgRegisterHandler())
+	authRg.Handle("GET", "/org", orgH.OrgHandler())
+	authRg.Handle("GET", "/form", formH.InfoHandler())
+	authRg.Handle("GET", "/section", secH.InfoHandler())
 	return nil
 }
 
