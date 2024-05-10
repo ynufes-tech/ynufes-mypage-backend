@@ -48,10 +48,10 @@ type IssueLinkOptions struct {
 	AuthQueries     map[string]string
 }
 
-// IssueLink
+// IssueDownloadSignedURL
 // removeAuthQueries will remove the query parameters from the signed URL.
 // It will be useful for preventing CSRF attacks.
-func (r ObjectRef) IssueLink(ops IssueLinkOptions, removeAuthQueries bool) (SignedObjectLink, error) {
+func (r ObjectRef) IssueDownloadSignedURL(ops IssueLinkOptions, removeAuthQueries bool) (SignedObjectLink, error) {
 	headers := make([]string, 0, len(ops.AuthHeaders))
 	for k, v := range ops.AuthHeaders {
 		headers = append(headers, k+":"+v)
