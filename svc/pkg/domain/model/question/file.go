@@ -9,76 +9,62 @@ import (
 type (
 	FileQuestion struct {
 		Basic
-		FileType   FileType
+		FileTypes  FileTypes
 		Constraint FileConstraint
 	}
-	FileType int
+	FileTypes struct {
+		AcceptAny   bool
+		AcceptImage bool
+		AcceptPDF   bool
+	}
 )
 
 const (
-	Image                       FileType = 1
-	PDF                         FileType = 2
-	Any                         FileType = 3
-	FileQuestionFileTypeField            = "fileType"
-	FileConstraintsCustomsField          = "fileConstraint"
+	FileQuestionFileTypeField   = "fileTypes"
+	FileConstraintsCustomsField = "fileConstraint"
 )
 
-func (t FileType) String() string {
-	switch t {
-	case Image:
-		return "image"
-	case PDF:
-		return "pdf"
-	case Any:
-		return "any"
-	default:
-		return "unknown"
-	}
-}
-
 func NewFileQuestion(
-	id id.QuestionID, text string, fileType FileType, constraint FileConstraint, formID id.FormID,
+	id id.QuestionID, text string, fileTypes FileTypes, constraint FileConstraint, formID id.FormID,
 ) *FileQuestion {
 	return &FileQuestion{
 		Basic:      NewBasic(id, text, TypeFile, formID),
-		FileType:   fileType,
+		FileTypes:  fileTypes,
 		Constraint: constraint,
 	}
 }
 
-func NewFileType(v int) (FileType, error) {
-	switch FileType(v) {
-	case Image, PDF, Any:
-		return FileType(v), nil
-	}
-	return 0, errors.New("invalid file type")
-}
-
 func ImportFileQuestion(q StandardQuestion) (*FileQuestion, error) {
-	// check if customs has "fileType" as int, return error if not
+	// expect custom field has fileTypes as []bool
+	// [AcceptAny, AcceptImage, AcceptPDF]
 	fileTypeDataI, has := q.Customs[FileQuestionFileTypeField]
 	if !has {
 		return nil, errors.New(
 			fmt.Sprintf("\"%s\" is required for FileQuestion", FileQuestionFileTypeField))
 	}
-	fileTypeData, ok := fileTypeDataI.(int64)
+	fileTypeData, ok := fileTypeDataI.([]bool)
 	if !ok {
 		return nil, errors.New(
 			fmt.Sprintf("\"%s\" must be int for FileQuestion", FileQuestionFileTypeField))
 	}
-	fileType, err := NewFileType(int(fileTypeData))
-	if err != nil {
-		return nil, err
+
+	// extend length if not enough
+	if len(fileTypeData) < 3 {
+		for i := len(fileTypeData); i < 3; i++ {
+			fileTypeData = append(fileTypeData, false)
+		}
 	}
 
-	if fileType == Any {
-		return NewFileQuestion(q.ID, q.Text, fileType, nil, q.FormID), nil
+	fileTypes := FileTypes{
+		AcceptAny:   fileTypeData[0],
+		AcceptImage: fileTypeData[1],
+		AcceptPDF:   fileTypeData[2],
 	}
 
 	constraintsCustomsData, has := q.Customs[FileConstraintsCustomsField]
 	// if FileConstraintsCustomsField is not present, return FileQuestion without constraint
 	if !has {
-		return NewFileQuestion(q.ID, q.Text, fileType, nil, q.FormID), nil
+		return NewFileQuestion(q.ID, q.Text, fileTypes, nil, q.FormID), nil
 	}
 
 	constraintsCustoms, ok := constraintsCustomsData.(map[string]interface{})
@@ -88,18 +74,16 @@ func ImportFileQuestion(q StandardQuestion) (*FileQuestion, error) {
 			fmt.Sprintf("\"%s\" must be map[string]interface{} for FileQuestion", FileConstraintsCustomsField))
 	}
 
-	constraint := NewStandardFileConstraint(fileType, constraintsCustoms)
-	question := NewFileQuestion(q.ID, q.Text, fileType, ImportFileConstraint(constraint), q.FormID)
-	if err != nil {
-		return nil, err
-	}
+	constraint := NewStandardFileConstraint(fileTypes, constraintsCustoms)
+	question := NewFileQuestion(q.ID, q.Text, fileTypes, ImportFileConstraint(constraint), q.FormID)
 	return question, nil
 }
 
 func (q FileQuestion) Export() StandardQuestion {
 	customs := make(map[string]interface{})
 
-	customs[FileQuestionFileTypeField] = q.FileType
+	qt := []bool{q.FileTypes.AcceptAny, q.FileTypes.AcceptImage, q.FileTypes.AcceptPDF}
+	customs[FileQuestionFileTypeField] = qt
 
 	if q.Constraint != nil {
 		customs[FileConstraintsCustomsField] = q.Constraint.Export().Customs
