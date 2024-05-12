@@ -1,6 +1,7 @@
 package question
 
 type (
+	FileType               int
 	StandardFileConstraint struct {
 		Type    FileType
 		Customs map[string]interface{}
@@ -16,6 +17,11 @@ type (
 		Data     []byte
 	}
 	Extension string
+)
+
+const (
+	Image FileType = 1
+	PDF   FileType = 2
 )
 
 func NewStandardFileConstraint(fileType FileType, customs map[string]interface{}) StandardFileConstraint {
