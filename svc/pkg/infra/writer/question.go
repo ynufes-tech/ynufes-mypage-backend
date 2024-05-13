@@ -26,15 +26,22 @@ func NewQuestion(f *firebase.Firebase) Question {
 
 func (w Question) Create(ctx context.Context, q *question.Question) error {
 	newID := identity.IssueID()
+	if q == nil {
+		return fmt.Errorf("question is nil")
+	}
 	if err := (*q).AssignID(newID); err != nil {
 		return err
+	}
+	st, err := (*q).Export()
+	if err != nil {
+		return fmt.Errorf("failed to export question: %w", err)
 	}
 	e := entity.NewQuestion(
 		(*q).GetID(),
 		(*q).GetFormID().ExportID(),
 		(*q).GetText(),
 		int((*q).GetType()),
-		(*q).Export().Customs,
+		st.Customs,
 	)
 	if err := w.ref.Child((*q).GetID().ExportID()).
 		Set(ctx, e); err != nil {
@@ -61,12 +68,16 @@ func (w Question) Set(ctx context.Context, q question.Question) error {
 	if q.GetID() == nil || !q.GetID().HasValue() {
 		return exception.ErrIDNotAssigned
 	}
+	st, err := q.Export()
+	if err != nil {
+		return fmt.Errorf("failed to export question: %w", err)
+	}
 	e := entity.NewQuestion(
 		q.GetID(),
 		q.GetFormID().ExportID(),
 		q.GetText(),
 		int(q.GetType()),
-		q.Export().Customs,
+		st.Customs,
 	)
 	if err := w.ref.Child(q.GetID().ExportID()).
 		Set(ctx, e); err != nil {

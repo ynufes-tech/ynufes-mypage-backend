@@ -87,7 +87,7 @@ func ImportRadioButtonsQuestion(q StandardQuestion) (*RadioButtonsQuestion, erro
 	), nil
 }
 
-func (q RadioButtonsQuestion) Export() StandardQuestion {
+func (q RadioButtonsQuestion) Export() (*StandardQuestion, error) {
 	customs := make(map[string]interface{})
 
 	options := make(map[string]string, len(q.Options))
@@ -103,7 +103,7 @@ func (q RadioButtonsQuestion) Export() StandardQuestion {
 	customs[RadioButtonOptionsField] = options
 	customs[RadioButtonOptionsOrderField] = optionsOrder
 
-	return NewStandardQuestion(TypeRadio, q.ID, q.FormID, q.Text, customs)
+	return NewStandardQuestion(TypeRadio, q.ID, q.FormID, q.Text, customs), nil
 }
 
 func (o RadioButtonOptionsOrder) GetOrderedIDs() []RadioButtonOptionID {

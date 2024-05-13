@@ -79,7 +79,7 @@ func ImportFileQuestion(q StandardQuestion) (*FileQuestion, error) {
 	return question, nil
 }
 
-func (q FileQuestion) Export() StandardQuestion {
+func (q FileQuestion) Export() (*StandardQuestion, error) {
 	customs := make(map[string]interface{})
 
 	qt := []bool{q.FileTypes.AcceptAny, q.FileTypes.AcceptImage, q.FileTypes.AcceptPDF}
@@ -88,5 +88,5 @@ func (q FileQuestion) Export() StandardQuestion {
 	if q.Constraint != nil {
 		customs[FileConstraintsCustomsField] = q.Constraint.Export().Customs
 	}
-	return NewStandardQuestion(TypeFile, q.ID, q.FormID, q.Text, customs)
+	return NewStandardQuestion(TypeFile, q.ID, q.FormID, q.Text, customs), nil
 }
