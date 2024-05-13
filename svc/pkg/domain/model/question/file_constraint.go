@@ -1,5 +1,7 @@
 package question
 
+import "fmt"
+
 type (
 	FileType               int
 	StandardFileConstraint struct {
@@ -9,7 +11,7 @@ type (
 	FileConstraint interface {
 		GetFileType() FileType
 		GetExtensions() []Extension
-		Export() StandardFileConstraint
+		Export() (*StandardFileConstraint, error)
 		ValidateFiles(file []File) error
 	}
 	File struct {
@@ -20,22 +22,24 @@ type (
 )
 
 const (
-	Image FileType = 1
-	PDF   FileType = 2
+	Image               FileType = 1
+	PDF                 FileType = 2
+	FileTypeCustomField          = "type"
 )
 
-func NewStandardFileConstraint(fileType FileType, customs map[string]interface{}) StandardFileConstraint {
-	return StandardFileConstraint{
+func NewStandardFileConstraint(fileType FileType, customs map[string]interface{}) (*StandardFileConstraint, error) {
+	customs[FileTypeCustomField] = fileType
+	return &StandardFileConstraint{
 		Type:    fileType,
 		Customs: customs,
-	}
+	}, nil
 }
 
-func ImportFileConstraint(standard StandardFileConstraint) FileConstraint {
-	switch standard.Type {
+func ImportFileConstraint(st StandardFileConstraint) (FileType, FileConstraint, error) {
+	switch st.Type {
 	case Image:
-		return ImportImageFileConstraint(standard)
+		return Image, ImportImageFileConstraint(st), nil
 	default:
-		return nil
+		return 0, nil, fmt.Errorf("invalid file type")
 	}
 }

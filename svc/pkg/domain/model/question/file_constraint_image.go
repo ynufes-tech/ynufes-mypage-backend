@@ -67,7 +67,7 @@ func ImportImageFileConstraint(standard StandardFileConstraint) ImageFileConstra
 		ratio, int(minNumber), int(maxNumber), int(minWidth), int(maxWidth), int(minHeight), int(maxHeight), exts)
 }
 
-func (c ImageFileConstraint) Export() StandardFileConstraint {
+func (c ImageFileConstraint) Export() (*StandardFileConstraint, error) {
 	return NewStandardFileConstraint(Image,
 		map[string]interface{}{
 			"ratio":      c.Ratio,
