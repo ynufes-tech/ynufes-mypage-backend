@@ -9,8 +9,8 @@ import (
 type (
 	FileQuestion struct {
 		Basic
-		FileTypes   FileTypes
-		Constraints map[FileType]FileConstraint
+		FileTypes FileTypes
+		ImageFileConstraint
 	}
 	FileTypes struct {
 		AcceptAny   bool
@@ -20,17 +20,19 @@ type (
 )
 
 const (
-	FileQuestionFileTypeField   = "fileTypes"
-	FileConstraintsCustomsField = "fileConstraint"
+	FileQuestionFileTypeField = "fileTypes"
+	FileImageConstraintField  = "img_c"
 )
 
 func NewFileQuestion(
-	id id.QuestionID, text string, fileTypes FileTypes, constraint map[FileType]FileConstraint, formID id.FormID,
+	id id.QuestionID, text string, fileTypes FileTypes,
+	imgConstraint ImageFileConstraint,
+	formID id.FormID,
 ) *FileQuestion {
 	return &FileQuestion{
-		Basic:       NewBasic(id, text, TypeFile, formID),
-		FileTypes:   fileTypes,
-		Constraints: constraint,
+		Basic:               NewBasic(id, text, TypeFile, formID),
+		FileTypes:           fileTypes,
+		ImageFileConstraint: imgConstraint,
 	}
 }
 
@@ -61,40 +63,23 @@ func ImportFileQuestion(q StandardQuestion) (*FileQuestion, error) {
 		AcceptPDF:   fileTypeData[2],
 	}
 
-	constraintsCustomsData, has := q.Customs[FileConstraintsCustomsField]
+	imgConstraintCustomR, has := q.Customs[FileImageConstraintField]
 	//if FileConstraintsCustomsField is not present, return FileQuestion without constraint
 	if !has {
-		return NewFileQuestion(q.ID, q.Text, fileTypes, nil, q.FormID), nil
+		return NewFileQuestion(q.ID, q.Text, fileTypes, ImageFileConstraint{}, q.FormID), nil
 	}
 
-	constraintsCustoms, ok := constraintsCustomsData.([]interface{})
+	imgConstraintCustom, ok := imgConstraintCustomR.(map[string]interface{})
 	//if FileConstraintsCustomsField Found, but it is not slice, return error
 	if !ok {
 		return nil, errors.New(
-			fmt.Sprintf("\"%s\" must be map[string]interface{} for FileQuestion", FileConstraintsCustomsField))
+			fmt.Sprintf("\"%s\" must be map[string]interface{} for FileQuestion", FileImageConstraintField))
 	}
-
-	constraints := make(map[FileType]FileConstraint, len(constraintsCustoms))
-
-	for _, constraintCustomsDataI := range constraintsCustoms {
-		constraintCustomsData, ok := constraintCustomsDataI.(map[string]interface{})
-		if !ok {
-			return nil, errors.New(
-				fmt.Sprintf("\"%s\" must be map[string]interface{} for FileQuestion", FileConstraintsCustomsField))
-		}
-
-		st, err := NewStandardFileConstraint(FileType(constraintCustomsData[FileTypeCustomField].(float64)), constraintCustomsData)
-		if err != nil {
-			return nil, fmt.Errorf("failed to import file constraint: %w", err)
-		}
-		fileType, constraint, err := ImportFileConstraint(*st)
-		if err != nil {
-			return nil, fmt.Errorf("failed to import file constraint: %w", err)
-		}
-		constraints[fileType] = constraint
+	imgConstraint, err := ImportImageFileConstraint(imgConstraintCustom)
+	if err != nil {
+		return nil, fmt.Errorf("failed to import ImageFileConstraint: %w", err)
 	}
-
-	question := NewFileQuestion(q.ID, q.Text, fileTypes, constraints, q.FormID)
+	question := NewFileQuestion(q.ID, q.Text, fileTypes, *imgConstraint, q.FormID)
 	return question, nil
 }
 
@@ -103,16 +88,5 @@ func (q FileQuestion) Export() (*StandardQuestion, error) {
 
 	qt := []bool{q.FileTypes.AcceptAny, q.FileTypes.AcceptImage, q.FileTypes.AcceptPDF}
 	customs[FileQuestionFileTypeField] = qt
-
-	if q.Constraints != nil {
-		constraints := make([]map[string]interface{}, 0, len(q.Constraints))
-		for _, constraint := range q.Constraints {
-			c, err := constraint.Export()
-			if err != nil {
-				return nil, fmt.Errorf("failed to export file constraint: %w", err)
-			}
-			constraints = append(constraints, c.Customs)
-		}
-	}
 	return NewStandardQuestion(TypeFile, q.ID, q.FormID, q.Text, customs), nil
 }
