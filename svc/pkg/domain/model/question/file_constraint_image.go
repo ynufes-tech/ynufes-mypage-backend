@@ -233,3 +233,168 @@ func (s DimensionSpec) Validate() error {
 	}
 	return nil
 }
+
+const (
+	FileImageConstraintWidth        = "w"
+	FileImageConstraintHeight       = "h"
+	FileImageConstraintRatio        = "r"
+	FileImageConstraintMinNumber    = "min"
+	FileImageConstraintMaxNumber    = "max"
+	FileImageConstraintDimensionEq  = "eq"
+	FileImageConstraintDimensionMin = "min"
+	FileImageConstraintDimensionMax = "max"
+	FileImageConstraintRatioEq      = "eq"
+	FileImageConstraintRatioMin     = "min"
+	FileImageConstraintRatioMax     = "max"
+)
+
+func ImportImageFileConstraint(c map[string]interface{}) (*ImageFileConstraint, error) {
+	width, err := loadDimensionSpec(c, FileImageConstraintWidth)
+	if err != nil {
+		return nil, fmt.Errorf("failed to load width: %w", err)
+	}
+	height, err := loadDimensionSpec(c, FileImageConstraintHeight)
+	if err != nil {
+		return nil, fmt.Errorf("failed to load height: %w", err)
+	}
+	ratio, err := loadRatioSpec(c, FileImageConstraintRatio)
+	if err != nil {
+		return nil, fmt.Errorf("failed to load ratio: %w", err)
+	}
+	minNumber, err := loadInt(c, FileImageConstraintMinNumber)
+	if err != nil {
+		return nil, fmt.Errorf("failed to load min number: %w", err)
+	}
+	maxNumber, err := loadInt(c, FileImageConstraintMaxNumber)
+	if err != nil {
+		return nil, fmt.Errorf("failed to load max number: %w", err)
+	}
+	return NewImageFileConstraint(minNumber, maxNumber, width, height, ratio)
+}
+
+func loadDimensionSpec(c map[string]interface{}, key string) (DimensionSpec, error) {
+	target := DimensionSpec{}
+	t, has := c[key]
+	if !has {
+		return DimensionSpec{}, nil
+	}
+	m, ok := t.(map[string]interface{})
+	if !ok {
+		return DimensionSpec{}, errors.New("invalid dimension spec")
+	}
+	if eqR, has := m[FileImageConstraintDimensionEq]; has && eqR != nil {
+		eqV, ok := eqR.(int)
+		if !ok {
+			return DimensionSpec{}, errors.New("invalid eq dimension")
+		}
+		target.Eq = &eqV
+	} else {
+		if minR, has := m[FileImageConstraintDimensionMin]; has && minR != nil {
+			minV, ok := minR.(int)
+			if !ok {
+				return DimensionSpec{}, errors.New("invalid min dimension")
+			}
+			target.Min = &minV
+		}
+		if maxR, has := m[FileImageConstraintDimensionMax]; has && maxR != nil {
+			maxV, ok := maxR.(int)
+			if !ok {
+				return DimensionSpec{}, errors.New("invalid max dimension")
+			}
+			target.Max = &maxV
+		}
+	}
+	return target, nil
+}
+
+func loadRatioSpec(c map[string]interface{}, key string) (RatioSpec, error) {
+	target := RatioSpec{}
+	t, has := c[key]
+	if !has {
+		return RatioSpec{}, nil
+	}
+	m, ok := t.(map[string]interface{})
+	if !ok {
+		return RatioSpec{}, errors.New("invalid ratio spec")
+	}
+	if eqR, has := m[FileImageConstraintRatioEq]; has && eqR != nil {
+		eqV, ok := eqR.(float32)
+		if !ok {
+			return RatioSpec{}, errors.New("invalid eq ratio")
+		}
+		target.Eq = &eqV
+	} else {
+		if minR, has := m[FileImageConstraintRatioMin]; has && minR != nil {
+			minV, ok := minR.(float32)
+			if !ok {
+				return RatioSpec{}, errors.New("invalid min ratio")
+			}
+			target.Min = &minV
+		}
+		if maxR, has := m[FileImageConstraintRatioMax]; has && maxR != nil {
+			maxV, ok := maxR.(float32)
+			if !ok {
+				return RatioSpec{}, errors.New("invalid max ratio")
+			}
+			target.Max = &maxV
+		}
+	}
+	return target, nil
+}
+
+func loadInt(t map[string]interface{}, key string) (*int, error) {
+	v, has := t[key]
+	if !has {
+		return nil, nil
+	}
+	i, ok := v.(int)
+	if !ok {
+		return nil, errors.New(fmt.Sprintf("invalid %s", key))
+	}
+	return &i, nil
+}
+
+func (c ImageFileConstraint) Export() map[string]interface{} {
+	result := map[string]interface{}{}
+	if c.MinNumber != nil {
+		result[FileImageConstraintMinNumber] = *c.MinNumber
+	}
+	if c.MaxNumber != nil {
+		result[FileImageConstraintMaxNumber] = *c.MaxNumber
+	}
+	widthC := c.Width.Export()
+	result[FileImageConstraintWidth] = widthC
+	heightC := c.Height.Export()
+	result[FileImageConstraintHeight] = heightC
+	return result
+}
+
+func (s DimensionSpec) Export() map[string]interface{} {
+	result := map[string]interface{}{}
+	if s.Eq != nil {
+		result[FileImageConstraintDimensionEq] = *s.Eq
+	} else {
+		if s.Min != nil {
+			result[FileImageConstraintDimensionMin] = *s.Min
+		}
+		if s.Max != nil {
+			result[FileImageConstraintDimensionMax] = *s.Max
+		}
+	}
+	return result
+}
+
+func (s RatioSpec) Export() map[string]interface{} {
+	result := map[string]interface{}{}
+	if s.Eq != nil {
+		result[FileImageConstraintRatioEq] = *s.Eq
+	} else {
+		if s.Min != nil {
+			result[FileImageConstraintRatioMin] = *s.Min
+		}
+		if s.Max != nil {
+			result[FileImageConstraintRatioMax] = *s.Max
+		}
+	}
+	return result
+}
