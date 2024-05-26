@@ -1,5 +1,5 @@
-[![GoTestFirebaseEmulator](https://github.com/shion1305/ynufes-mypage-backend/actions/workflows/go%20test.yml/badge.svg)](https://github.com/shion1305/ynufes-mypage-backend/actions/workflows/go%20test.yml)
-[![codecov](https://codecov.io/gh/shion1305/ynufes-mypage-backend/branch/main/graph/badge.svg?token=X7PA73LZS2)](https://codecov.io/gh/shion1305/ynufes-mypage-backend)
+[![GoTestFirebaseEmulator](https://github.com/ynufes-tech/ynufes-mypage-backend/actions/workflows/go%20test.yml/badge.svg)](https://github.com/ynufes-tech/ynufes-mypage-backend/actions/workflows/go%20test.yml)
+[![codecov](https://codecov.io/gh/ynufes-tech/ynufes-mypage-backend/graph/badge.svg?token=X7PA73LZS2)](https://codecov.io/gh/ynufes-tech/ynufes-mypage-backend)
 
 # YNUFES Mypage Backend
 
@@ -20,4 +20,4 @@
 
 CI/CD: GitHub Actions, Firebase Emulator
 
-![code coverage](https://codecov.io/gh/shion1305/ynufes-mypage-backend/branch/main/graphs/sunburst.svg?token=X7PA73LZS2)
+![code coverage](https://codecov.io/gh/ynufes-tech/ynufes-mypage-backend/graphs/sunburst.svg?token=X7PA73LZS2)
