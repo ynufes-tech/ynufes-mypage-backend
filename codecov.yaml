@@ -5,3 +5,10 @@ coverage:
 parsers:
   go:
     partials_as_hits: true
+ignore:
+    - "svc/cmd/*"
+    - "svc/runner/*"
+    - "svc/testing/*"
+    - "svc/handler/*"
+    - "svc/middleware/*"
+    - "svc/uc/*"
