@@ -9,6 +9,7 @@ import (
 func TestImportFileQuestion(t *testing.T) {
 	f1, f2, f3 := float32(0.5), float32(1.5), float32(3.0)
 	v1, v2, v3 := 100, 200, 300
+	n1, n2 := 3, 5
 	SampleID1, sampleID2 := identity.IssueID(), identity.IssueID()
 	tests := []struct {
 		name string
@@ -112,6 +113,39 @@ func TestImportFileQuestion(t *testing.T) {
 					MaxNumber: nil,
 					Width:     NewDimensionSpec(nil, nil, &v1),
 					Height:    NewDimensionSpec(nil, nil, &v2),
+				}, sampleID2),
+		},
+		{
+			name: "ImageQuestion - With Constraints - MinMaxNumber",
+			from: StandardQuestion{
+				ID:     SampleID1,
+				Text:   "Image Question",
+				FormID: sampleID2,
+				Type:   TypeFile,
+				Customs: map[string]interface{}{
+					FileQuestionFileTypeField: []bool{false, true, false},
+					FileImageConstraintField: map[string]interface{}{
+						FileImageConstraintMinNumber: n1,
+						FileImageConstraintMaxNumber: n2,
+						FileImageConstraintWidth:     map[string]interface{}{},
+						FileImageConstraintHeight:    map[string]interface{}{},
+						FileImageConstraintRatio:     map[string]interface{}{},
+					},
+				},
+			},
+			want: NewFileQuestion(SampleID1,
+				"Image Question",
+				FileTypes{
+					AcceptAny:   false,
+					AcceptImage: true,
+					AcceptPDF:   false,
+				},
+				ImageFileConstraint{
+					Ratio:     NewRatioSpec(nil, nil, nil),
+					MinNumber: &n1,
+					MaxNumber: &n2,
+					Width:     NewDimensionSpec(nil, nil, nil),
+					Height:    NewDimensionSpec(nil, nil, nil),
 				}, sampleID2),
 		},
 	}
