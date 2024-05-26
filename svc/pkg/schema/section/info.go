@@ -26,6 +26,33 @@ type TextConstraint struct {
 }
 
 type FileConstraint struct {
-	FileType   string   `json:"file_type"`
-	Extensions []string `json:"extensions"`
+	FileType        FileTypes        `json:"file_types"`
+	Extensions      []string         `json:"extensions"`
+	ImageConstraint *ImageConstraint `json:"img_constraint,omitempty"`
+}
+
+type FileTypes struct {
+	AcceptAny   bool `json:"any"`
+	AcceptImage bool `json:"image"`
+	AcceptPDF   bool `json:"pdf"`
+}
+
+type ImageConstraint struct {
+	Min    *int          `json:"min"`
+	Max    *int          `json:"max"`
+	Width  DimensionSpec `json:"width"`
+	Height DimensionSpec `json:"height"`
+	Ratio  RatioSpec     `json:"ratio"`
+}
+
+type DimensionSpec struct {
+	Min *int `json:"min"`
+	Max *int `json:"max"`
+	Eq  *int `json:"eq"`
+}
+
+type RatioSpec struct {
+	Min *float32 `json:"min"`
+	Max *float32 `json:"max"`
+	Eq  *float32 `json:"eq"`
 }
