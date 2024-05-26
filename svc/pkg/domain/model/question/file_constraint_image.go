@@ -285,5 +285,7 @@ func (c ImageFileConstraint) Export() map[string]interface{} {
 	result[FileImageConstraintWidth] = widthC
 	heightC := c.Height.Export()
 	result[FileImageConstraintHeight] = heightC
+	ratioC := c.Ratio.Export()
+	result[FileImageConstraintRatio] = ratioC
 	return result
 }

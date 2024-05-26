@@ -24,6 +24,11 @@ func TestImportFileQuestion(t *testing.T) {
 				Type:   TypeFile,
 				Customs: map[string]interface{}{
 					FileQuestionFileTypeField: []bool{false, true, false},
+					FileImageConstraintField: map[string]interface{}{
+						FileImageConstraintRatio:  map[string]interface{}{},
+						FileImageConstraintWidth:  map[string]interface{}{},
+						FileImageConstraintHeight: map[string]interface{}{},
+					},
 				},
 			},
 			want: NewFileQuestion(SampleID1,
@@ -121,6 +126,10 @@ func TestImportFileQuestion(t *testing.T) {
 			assert.Equal(t, tc.want.Width, got.Width)
 			assert.Equal(t, tc.want.Height, got.Height)
 			assert.Equal(t, tc.want.Ratio, got.Ratio)
+			export, err := got.Export()
+			if assert.NoError(t, err) {
+				assert.Equal(t, tc.from, *export)
+			}
 		})
 	}
 }

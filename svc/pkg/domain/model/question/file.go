@@ -88,5 +88,6 @@ func (q FileQuestion) Export() (*StandardQuestion, error) {
 
 	qt := []bool{q.FileTypes.AcceptAny, q.FileTypes.AcceptImage, q.FileTypes.AcceptPDF}
 	customs[FileQuestionFileTypeField] = qt
+	customs[FileImageConstraintField] = q.ImageFileConstraint.Export()
 	return NewStandardQuestion(TypeFile, q.ID, q.FormID, q.Text, customs), nil
 }
