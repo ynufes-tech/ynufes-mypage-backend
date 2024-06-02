@@ -89,7 +89,12 @@ func (q Question) CreateHandler() gin.HandlerFunc {
 		var checkbox *schemaQ.CheckboxQuestionInfo
 		switch qType {
 		case question.TypeCheckBox:
-			checkQ, err := question.ImportCheckBoxQuestion(res.Question.Export())
+			st, err := res.Question.Export()
+			if err != nil {
+				c.JSON(500, gin.H{"error": err.Error()})
+				return
+			}
+			checkQ, err := question.ImportCheckBoxQuestion(*st)
 			if err != nil {
 				c.JSON(500, gin.H{"error": err.Error()})
 				return
@@ -106,7 +111,12 @@ func (q Question) CreateHandler() gin.HandlerFunc {
 				Options: opts,
 			}
 		case question.TypeRadio:
-			radioQ, err := question.ImportRadioButtonsQuestion(res.Question.Export())
+			st, err := res.Question.Export()
+			if err != nil {
+				c.JSON(500, gin.H{"error": err.Error()})
+				return
+			}
+			radioQ, err := question.ImportRadioButtonsQuestion(*st)
 			if err != nil {
 				c.JSON(500, gin.H{"error": err.Error()})
 				return

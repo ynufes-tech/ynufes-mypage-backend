@@ -65,7 +65,17 @@ func TestQuestion_GetByID(t *testing.T) {
 				return
 			}
 			if tt.wantErr == nil {
-				assert.Equal(t, tt.want.Export(), (*got).Export())
+				wantE, err := tt.want.Export()
+				if err != nil {
+					t.Errorf("GetByID() error = %v, wantErr %v", err, tt.wantErr)
+					return
+				}
+				gotE, err := (*got).Export()
+				if err != nil {
+					t.Errorf("GetByID() error = %v, wantErr %v", err, tt.wantErr)
+					return
+				}
+				assert.Equal(t, wantE, gotE)
 				assert.Equal(t, tt.want.GetID(), (*got).GetID())
 				assert.Equal(t, tt.want.GetType(), (*got).GetType())
 				assert.Equal(t, tt.want.GetText(), (*got).GetText())
@@ -162,8 +172,18 @@ func TestQuestion_ListByFormID(t *testing.T) {
 								fmt.Printf("id not equal: %v, %v\n", a.GetID(), b.GetID())
 								equal = false
 							}
-							if reflect.DeepEqual(a.Export().Customs, b.Export().Customs) {
-								fmt.Printf("customs not equal: %v, %v\n", a.Export().Customs, b.Export().Customs)
+							aE, err := a.Export()
+							if err != nil {
+								fmt.Printf("error: %v\n", err)
+								equal = false
+							}
+							bE, err := b.Export()
+							if err != nil {
+								fmt.Printf("error: %v\n", err)
+								equal = false
+							}
+							if reflect.DeepEqual(aE, bE) {
+								fmt.Printf("export not equal: %v, %v\n", aE, bE)
 								equal = false
 							}
 							return equal

@@ -62,7 +62,12 @@ func (h Section) InfoHandler() gin.HandlerFunc {
 			}
 			switch target.GetType() {
 			case question.TypeRadio:
-				radioQ, err := question.ImportRadioButtonsQuestion(target.Export())
+				st, err := target.Export()
+				if err != nil {
+					c.JSON(500, gin.H{"error": err.Error()})
+					return
+				}
+				radioQ, err := question.ImportRadioButtonsQuestion(*st)
 				if err != nil {
 					c.JSON(500, gin.H{"error": err.Error()})
 					return
@@ -77,7 +82,12 @@ func (h Section) InfoHandler() gin.HandlerFunc {
 				}
 				respQ.Options = &options
 			case question.TypeCheckBox:
-				checkQ, err := question.ImportCheckBoxQuestion(target.Export())
+				st, err := target.Export()
+				if err != nil {
+					c.JSON(500, gin.H{"error": err.Error()})
+					return
+				}
+				checkQ, err := question.ImportCheckBoxQuestion(*st)
 				if err != nil {
 					c.JSON(500, gin.H{"error": err.Error()})
 					return
@@ -92,17 +102,27 @@ func (h Section) InfoHandler() gin.HandlerFunc {
 				}
 				respQ.Options = &options
 			case question.TypeFile:
-				fileQ, err := question.ImportFileQuestion(target.Export())
+				st, err := target.Export()
 				if err != nil {
 					c.JSON(500, gin.H{"error": err.Error()})
 					return
 				}
-				exts := make([]string, len(fileQ.Constraint.GetExtensions()))
-				for i := range fileQ.Constraint.GetExtensions() {
-					exts[i] = string(fileQ.Constraint.GetExtensions()[i])
+				fileQ, err := question.ImportFileQuestion(*st)
+				if err != nil {
+					c.JSON(500, gin.H{"error": err.Error()})
+					return
+				}
+				exts := make([]string, len(fileQ.ImageFileConstraint.GetExtensions()))
+				for i, e := range fileQ.ImageFileConstraint.GetExtensions() {
+					exts[i] = string(e)
+				}
+				ft := schemaS.FileTypes{
+					AcceptAny:   fileQ.FileTypes.AcceptAny,
+					AcceptImage: fileQ.FileTypes.AcceptImage,
+					AcceptPDF:   fileQ.FileTypes.AcceptPDF,
 				}
 				fConstraint := schemaS.FileConstraint{
-					FileType:   fileQ.Constraint.GetFileType().String(),
+					FileType:   ft,
 					Extensions: exts,
 				}
 				respQ.FileConstraint = &fConstraint

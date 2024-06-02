@@ -8,7 +8,7 @@ import (
 type (
 	Type     int
 	Question interface {
-		Export() StandardQuestion
+		Export() (*StandardQuestion, error)
 		GetType() Type
 		AssignID(id.QuestionID) error
 		GetID() id.QuestionID
@@ -59,8 +59,8 @@ func NewType(t string) (Type, error) {
 
 func NewStandardQuestion(
 	t Type, id id.QuestionID, formID id.FormID, text string, customs map[string]interface{},
-) StandardQuestion {
-	return StandardQuestion{
+) *StandardQuestion {
+	return &StandardQuestion{
 		ID:      id,
 		Text:    text,
 		FormID:  formID,

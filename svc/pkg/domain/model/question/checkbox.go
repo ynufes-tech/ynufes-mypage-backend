@@ -93,7 +93,7 @@ func ImportCheckBoxQuestion(q StandardQuestion) (*CheckBoxQuestion, error) {
 	return NewCheckBoxQuestion(q.ID, q.Text, options, optionsOrder, q.FormID), nil
 }
 
-func (q CheckBoxQuestion) Export() StandardQuestion {
+func (q CheckBoxQuestion) Export() (*StandardQuestion, error) {
 	customs := make(map[string]interface{})
 	options := make(map[string]string, len(q.Options))
 	for _, option := range q.Options {
@@ -105,7 +105,7 @@ func (q CheckBoxQuestion) Export() StandardQuestion {
 	}
 	customs[CheckBoxOptionsField] = options
 	customs[CheckBoxOptionsOrderField] = optionsOrder
-	return NewStandardQuestion(TypeCheckBox, q.ID, q.FormID, q.Text, customs)
+	return NewStandardQuestion(TypeCheckBox, q.ID, q.FormID, q.Text, customs), nil
 }
 
 func (o CheckboxOptionsOrder) GetOrderedIDs() []CheckBoxOptionID {
